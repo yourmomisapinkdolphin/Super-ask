@@ -426,3 +426,8 @@ export function moderateOutput(answer: string): GuardrailHit | null {
 
   return null;
 }
+
+/** Matches a named off-domain category, as opposed to merely lacking service vocabulary. */
+export function isExplicitlyOffDomain(question: string): boolean {
+  return OFF_DOMAIN.some((p) => p.test(question));
+}

@@ -81,6 +81,26 @@ function relevant(
   return hit.coverage >= floor && hit.covered >= 2;
 }
 
+/**
+ * Does a crawled official website have a page ABOUT this?
+ *
+ * Used to let a question past the off-domain screen. That screen recognises a
+ * service question by its vocabulary ("register", "permit", "fee"), so "What is
+ * CamDX?" or "What is a Qualified Investment Project?" was refused as general
+ * knowledge while the institution's own page about it sat in the crawl. A
+ * passing mention is not enough: the words must be in a page title or the
+ * institution's name, and the passage must cover the question.
+ */
+export function crawlCoversTopic(question: string): boolean {
+  const tokens = [...new Set(crawlTokens(question))];
+  if (tokens.length === 0) return false;
+  return searchCrawl(question, 3).some((h) =>
+    tokens.length === 1
+      ? h.inTitle === 1
+      : h.inTitle >= 1 && h.covered >= 2 && h.coverage >= MIN_COVERAGE,
+  );
+}
+
 export interface CrawlAnswerInput {
   question: string;
   /** The resolved query — follow-ups already rewritten against history. */

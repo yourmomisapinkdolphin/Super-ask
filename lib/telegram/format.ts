@@ -12,7 +12,11 @@ export function formatTelegramAnswer(res: AskResponse): string {
   if (res.citations.length > 0) {
     lines.push("");
     lines.push(
-      res.unreviewed
+      res.web
+        ? res.lang === "km"
+          ? "លទ្ធផលស្វែងរកលើអ៊ីនធឺណិត (មិនទាន់ត្រួតពិនិត្យ):"
+          : "Web search results (not reviewed):"
+        : res.unreviewed
         ? res.lang === "km"
           ? "ទំព័រគេហទំព័រ (មិនទាន់ត្រួតពិនិត្យ):"
           : "Website pages (not reviewed):"

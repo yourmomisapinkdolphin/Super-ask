@@ -25,6 +25,9 @@ import { looksLikeEntityLookup } from "./topicality";
 export const GENERAL_FALLBACK_ENABLED =
   (process.env.GENERAL_FALLBACK_ENABLED ?? "true").toLowerCase() !== "false";
 
+export const GENERAL_FALLBACK_FOR_SERVICES =
+  (process.env.GENERAL_FALLBACK_FOR_SERVICES ?? "false").toLowerCase() === "true";
+
 export interface GeneralFallbackInput {
   question: string;
   history: Array<{ role: "user" | "assistant"; text: string }>;
@@ -80,7 +83,12 @@ export async function tryGeneralFallback(
     input.history.some(
       (t) => t.role !== "assistant" && looksLikeServiceQuestion(t.text),
     );
-  if (serviceThread) return null;
+  // Operator switch, off by default. With it on, a service question that no
+  // approved source, crawled page or web result could answer is answered from
+  // the model's own knowledge instead of refused — always carrying the
+  // UNVERIFIED notice, never a citation. It trades the risk described above
+  // for fewer dead ends, and belongs on only where that trade is wanted.
+  if (serviceThread && !GENERAL_FALLBACK_FOR_SERVICES) return null;
 
   const general = await generate({
     question: input.question,

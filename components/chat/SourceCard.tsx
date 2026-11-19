@@ -52,8 +52,10 @@ export function SourceCard({
               lineHeight: 1.8,
             }}
           >
-            {citation.unreviewed
-              ? UI.websiteSource[lang]
+            {citation.web
+              ? UI.webSource[lang]
+              : citation.unreviewed
+                ? UI.websiteSource[lang]
               : fresh
                 ? UI.verifiedSource[lang]
                 : UI.sourceOne[lang]}
@@ -85,7 +87,7 @@ export function SourceCard({
             <>
               {citation.article}
               <br />
-              {UI.fetchedOn[lang]} {citation.verified}
+              {citation.web ? UI.foundOn[lang] : UI.fetchedOn[lang]} {citation.verified}
             </>
           ) : (
             <>

@@ -38,6 +38,12 @@ export const UNREVIEWED_NOTICE: Copy = {
   km: "⚠️ មកពីគេហទំព័រផ្លូវការ ប៉ុន្តែមិនទាន់បានត្រួតពិនិត្យ។ SuperAsk គ្មានឯកសារយោងដែលបានអនុម័តសម្រាប់ករណីនេះទេ ដូច្នេះខ្លឹមសារខាងលើដកស្រង់ដោយស្វ័យប្រវត្តិពីគេហទំព័រខាងក្រោម។ គ្មាននរណាបានពិនិត្យវាទេ — វាអាចមិនពេញលេញ ឬហួសសម័យ។ សូមបើកទំព័រនោះ ហើយផ្ទៀងផ្ទាត់ជាមួយការិយាល័យទទួលបន្ទុក មុននឹងអនុវត្ត។",
 };
 
+/** Appended to an answer built from a live web search. Same reason as above. */
+export const WEB_NOTICE: Copy = {
+  en: "⚠️ From a web search, not reviewed. SuperAsk has no approved document covering this, so the above was put together from the web pages linked below. Nobody has checked them, and some may not be official — open the pages and confirm with the responsible office before acting on it.",
+  km: "⚠️ មកពីការស្វែងរកលើអ៊ីនធឺណិត មិនទាន់បានត្រួតពិនិត្យ។ SuperAsk គ្មានឯកសារយោងដែលបានអនុម័តសម្រាប់ករណីនេះទេ ដូច្នេះខ្លឹមសារខាងលើត្រូវបានរៀបចំពីទំព័រគេហទំព័រដែលភ្ជាប់នៅខាងក្រោម។ គ្មាននរណាបានពិនិត្យវាទេ ហើយខ្លះអាចមិនមែនជាគេហទំព័រផ្លូវការ — សូមបើកទំព័រទាំងនោះ ហើយផ្ទៀងផ្ទាត់ជាមួយការិយាល័យទទួលបន្ទុក មុននឹងអនុវត្ត។",
+};
+
 export const UI = {
   brandSub: {
     en: "Independent service guide",
@@ -119,6 +125,20 @@ export const UI = {
     en: "SuperAsk has no approved document covering this. The answer below comes from text collected automatically from the website linked under it. Nobody has checked it — open the page and confirm with the responsible office before acting on it.",
     km: "SuperAsk គ្មានឯកសារយោងដែលបានអនុម័តសម្រាប់ករណីនេះទេ។ ចម្លើយខាងក្រោមដកស្រង់ដោយស្វ័យប្រវត្តិពីគេហទំព័រដែលភ្ជាប់នៅខាងក្រោម។ គ្មាននរណាបានពិនិត្យវាទេ — សូមបើកទំព័រនោះ ហើយផ្ទៀងផ្ទាត់ជាមួយការិយាល័យទទួលបន្ទុក មុននឹងអនុវត្ត។",
   } satisfies Copy,
+
+  /** The banner above an answer built from a live web search. */
+  webLabel: {
+    en: "From a web search — not reviewed",
+    km: "មកពីការស្វែងរកលើអ៊ីនធឺណិត — មិនទាន់បានត្រួតពិនិត្យ",
+  } satisfies Copy,
+
+  webBody: {
+    en: "SuperAsk has no approved document covering this. The answer below was put together from the web pages linked under it. Nobody has checked them and some may not be official — open the pages and confirm with the responsible office before acting on it.",
+    km: "SuperAsk គ្មានឯកសារយោងដែលបានអនុម័តសម្រាប់ករណីនេះទេ។ ចម្លើយខាងក្រោមត្រូវបានរៀបចំពីទំព័រគេហទំព័រដែលភ្ជាប់នៅខាងក្រោម។ គ្មាននរណាបានពិនិត្យវាទេ ហើយខ្លះអាចមិនមែនជាគេហទំព័រផ្លូវការ — សូមបើកទំព័រទាំងនោះ ហើយផ្ទៀងផ្ទាត់ជាមួយការិយាល័យទទួលបន្ទុក មុននឹងអនុវត្ត។",
+  } satisfies Copy,
+
+  webSource: { en: "Web search result · not reviewed", km: "លទ្ធផលស្វែងរក · មិនទាន់ត្រួតពិនិត្យ" } satisfies Copy,
+  foundOn: { en: "Found", km: "រកឃើញនៅ" } satisfies Copy,
 
   websiteSource: { en: "Website page · not reviewed", km: "ទំព័រគេហទំព័រ · មិនទាន់ត្រួតពិនិត្យ" } satisfies Copy,
   fetchedOn: { en: "Collected", km: "ប្រមូលនៅ" } satisfies Copy,

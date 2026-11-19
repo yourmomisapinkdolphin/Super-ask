@@ -106,6 +106,13 @@ export function crawlStats(): {
   };
 }
 
+/** The institutions whose websites are in the crawl index, for coverage lists. */
+export function crawlInstitutions(): Array<{ org: string; orgKm: string; host: string }> {
+  const idx = load();
+  if (!idx) return [];
+  return idx.file.sites.map((s) => ({ org: s.org, orgKm: s.orgKm, host: s.host }));
+}
+
 function addDays(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return date;

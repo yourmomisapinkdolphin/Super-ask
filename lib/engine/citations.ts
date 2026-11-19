@@ -21,6 +21,7 @@ export function toCitation(chunk: Chunk, lang: Lang): Citation {
     freshness: freshnessOf(chunk),
     quote: lang === "km" && chunk.textKm ? chunk.textKm : chunk.text,
     ...(chunk.origin === "crawl" ? { unreviewed: true } : {}),
+    ...(chunk.origin === "web" ? { unreviewed: true, web: true } : {}),
   };
 }
 

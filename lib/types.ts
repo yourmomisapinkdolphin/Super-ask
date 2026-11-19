@@ -55,7 +55,7 @@ export interface Chunk {
    * (lib/retrieval/crawl-index.ts) rather than from data/kb/. Absent on
    * everything in the approved corpus.
    */
-  origin?: "crawl";
+  origin?: "crawl" | "web";
   /** When ingestion fetched this, and from where (FR-54 provenance). */
   ingestedAt?: string;
   ingestedFrom?: string;
@@ -103,6 +103,8 @@ export interface Citation {
    * The interface must not label it "verified" or "approved".
    */
   unreviewed?: boolean;
+  /** The page was found by a live web search, not in the crawl database. */
+  web?: boolean;
 }
 
 /** Internal diagnostic payload. SuperAsk team only (FR-72, FR-73). */
@@ -204,6 +206,11 @@ export interface AskResponse {
    * that the content is unreviewed. See lib/engine/crawl-answer.ts.
    */
   unreviewed?: boolean;
+  /**
+   * Set together with `unreviewed` when the pages were found by a live web
+   * search rather than in the crawl database. See lib/engine/web-answer.ts.
+   */
+  web?: boolean;
   /** Emergency path: FR guardrail 6. Terminates the interaction. */
   terminal?: boolean;
   diagnostics?: Diagnostics;
