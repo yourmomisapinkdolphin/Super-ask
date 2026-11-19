@@ -10,14 +10,11 @@ Web, Next.js App Router, TypeScript.
 
 ---
 
-## Live versions
+## Live version
 
-Two versions of SuperAsk are deployed side by side. Neither replaces the other.
+SuperAsk is deployed at **https://superask-monunhh.vercel.app** (Monunhh's version, built from `main`).
 
-| Version | Link | What it runs |
-|---|---|---|
-| **Monunhh — new version** | https://superask-monunhh.vercel.app | Branch [`connect-crawl-db`](../../tree/connect-crawl-db): answers from the 58 crawled institutions as well as the approved documents, more suggested procedures, institution logos, and looser handling of questions no source covers |
-| **Bunkheang — old version** | https://superask.vercel.app | The earlier deployment, answering from the approved documents only |
+It answers from the 58 crawled institutions as well as the approved documents, with more suggested procedures, institution logos, and looser handling of questions no source covers.
 
 ---
 
