@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import {
   screen,
   isOffDomain,
@@ -13,6 +13,17 @@ import {
  * tests are the executable form of it: a change to what SuperAsk refuses should
  * fail here first and be reviewed as policy, not discovered in production.
  */
+
+// Scope also consults the crawl index (lib/engine/crawl-topic.ts). This file
+// pins the vocabulary rules, which must not move when a ministry retitles a
+// page, so the crawl is off here. tests/engine/crawl-answer.test.ts covers the
+// crawl half against a fixture.
+beforeAll(() => {
+  vi.stubEnv("CRAWL_KB_ENABLED", "false");
+});
+afterAll(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("screen — refusal policy (§12)", () => {
   describe("rule 6: emergency", () => {

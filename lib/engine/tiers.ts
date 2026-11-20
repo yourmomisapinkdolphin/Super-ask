@@ -36,8 +36,7 @@ import { assess, looksLikeEntityLookup } from "./topicality";
 import {
   screen,
   moderateOutput,
-  isOffDomain,
-  isExplicitlyOffDomain,
+  isInScope,
   inScopeHistory,
   type GuardrailHit,
 } from "./guardrails";
@@ -53,7 +52,7 @@ import {
 } from "./copy";
 import { toCitation } from "./citations";
 import { GENERAL_FALLBACK_FOR_SERVICES, tryGeneralFallback } from "./fallback";
-import { crawlCoversTopic, tryCrawlAnswer } from "./crawl-answer";
+import { tryCrawlAnswer } from "./crawl-answer";
 import { tryWebAnswer } from "./web-answer";
 
 const CURATED_THRESHOLD = Number(
@@ -208,10 +207,7 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
   // A question the vocabulary screen does not recognise is still in scope when
   // a crawled official website has a page about it. Explicitly off-domain asks
   // (translation, weather, general knowledge) stay refused either way.
-  if (
-    isOffDomain(question, history) &&
-    (isExplicitlyOffDomain(question) || !crawlCoversTopic(question))
-  ) {
+  if (!isInScope(question, history)) {
     trace("scope", { reason: "not_a_service_question" });
     return finish(
       {

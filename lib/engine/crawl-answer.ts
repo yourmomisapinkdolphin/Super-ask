@@ -33,25 +33,9 @@ import { rationaleGap } from "./rationale";
 import { verify } from "./verify";
 import { moderateOutput } from "./guardrails";
 import { toCitation } from "./citations";
+import { MIN_COVERAGE, MIN_COVERAGE_KM } from "./crawl-topic";
 
-/**
- * Share of the question — content words weighted by rarity, see
- * searchCrawl() — that a passage must contain.
- *
- * Stricter than the 0.34 the approved corpus uses (lib/engine/topicality.ts):
- * that gate downgrades hand-written content, this one decides whether to show
- * unreviewed text at all.
- *
- * Two floors, because the two scripts tokenise differently. A Latin question
- * is a handful of whole words and a good passage contains nearly all of them.
- * A Khmer question is dozens of overlapping cluster bigrams, some spanning
- * word boundaries that no passage will reproduce, so even the right passage
- * rarely passes 0.75. Both numbers come from reading matches against the
- * 58-site crawl: below them the top passage was about something else
- * (electricity questions landing on telecom pages); above them it was on topic.
- */
-const MIN_COVERAGE = Number(process.env.CRAWL_MIN_COVERAGE ?? "0.75");
-const MIN_COVERAGE_KM = Number(process.env.CRAWL_MIN_COVERAGE_KM ?? "0.6");
+export { crawlCoversTopic } from "./crawl-topic";
 
 /** How many passages the model is given. */
 const MAX_SOURCES = 4;
@@ -79,26 +63,6 @@ function relevant(
   if (hit.coverage <= beat) return false;
   if (wanted === 1) return hit.inTitle === 1;
   return hit.coverage >= floor && hit.covered >= 2;
-}
-
-/**
- * Does a crawled official website have a page ABOUT this?
- *
- * Used to let a question past the off-domain screen. That screen recognises a
- * service question by its vocabulary ("register", "permit", "fee"), so "What is
- * CamDX?" or "What is a Qualified Investment Project?" was refused as general
- * knowledge while the institution's own page about it sat in the crawl. A
- * passing mention is not enough: the words must be in a page title or the
- * institution's name, and the passage must cover the question.
- */
-export function crawlCoversTopic(question: string): boolean {
-  const tokens = [...new Set(crawlTokens(question))];
-  if (tokens.length === 0) return false;
-  return searchCrawl(question, 3).some((h) =>
-    tokens.length === 1
-      ? h.inTitle === 1
-      : h.inTitle >= 1 && h.covered >= 2 && h.coverage >= MIN_COVERAGE,
-  );
 }
 
 export interface CrawlAnswerInput {
