@@ -20,6 +20,9 @@ import { T, monoStack } from "@/lib/ui/theme";
 import { UI } from "@/lib/ui/copy";
 import { FreshnessBadge } from "./FreshnessBadge";
 
+/** Ingester placeholder where a page cites no instrument; not worth printing. */
+const NOT_CITED = "Not cited on source page";
+
 export function SourceCard({
   citation,
   lang,
@@ -29,8 +32,12 @@ export function SourceCard({
 }) {
   // A crawled passage no steward has approved is never styled as verified,
   // however recent its fetch date (Citation.unreviewed).
-  const unreviewed = citation.unreviewed === true;
+  const sample = citation.sample === true;
+  const unreviewed = citation.unreviewed === true || sample;
   const fresh = citation.freshness === "fresh" && !unreviewed;
+  const reference = [citation.instrument, citation.article]
+    .filter((v) => v && v !== NOT_CITED)
+    .join(" · ");
   return (
     <div
       className="flex items-start gap-2.5 rounded-[10px] px-3.5 py-3"
@@ -54,13 +61,15 @@ export function SourceCard({
               lineHeight: 1.8,
             }}
           >
-            {unreviewed
+            {sample
+              ? UI.sampleSource[lang]
+              : unreviewed
               ? UI.unreviewedSource[lang]
               : fresh
                 ? UI.verifiedSource[lang]
                 : UI.sourceOne[lang]}
           </div>
-          <FreshnessBadge freshness={citation.freshness} lang={lang} />
+          <FreshnessBadge freshness={citation.freshness} lang={lang} reviewed={!unreviewed} />
         </div>
 
         <div style={{ fontSize: 12.5, fontWeight: 600, color: T.ink, lineHeight: 1.6 }}>
@@ -83,12 +92,22 @@ export function SourceCard({
             lineHeight: 1.8,
           }}
         >
-          {citation.instrument} · {citation.article}
-          <br />
-          {UI.effective[lang]} {citation.effective} ·{" "}
+          {reference && (
+            <>
+              {reference}
+              <br />
+            </>
+          )}
+          {citation.effectiveUnknown ? (
+            <>{UI.fetched[lang]} {citation.verified}</>
+          ) : (
+            <>
+              {UI.effective[lang]} {citation.effective} ·{" "}
           <span style={{ color: fresh ? T.tealText : T.inkSoft, fontWeight: 600 }}>
             {UI.lastVerified[lang]} {citation.verified}
           </span>
+            </>
+          )}
         </div>
 
         {unreviewed && (
@@ -96,7 +115,7 @@ export function SourceCard({
             className={lang === "km" ? "km" : undefined}
             style={{ fontSize: 11, color: T.inkSoft, marginTop: 6, lineHeight: 1.6 }}
           >
-            {UI.unreviewedNote[lang]}
+            {sample ? UI.sampleNote[lang] : UI.unreviewedNote[lang]}
           </div>
         )}
 

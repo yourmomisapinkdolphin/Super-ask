@@ -22,13 +22,21 @@ const STYLES: Record<Freshness, { fg: string; bg: string; border: string }> = {
 export function FreshnessBadge({
   freshness,
   lang,
+  reviewed = true,
 }: {
   freshness: Freshness;
   lang: Lang;
+  /**
+   * False for a crawled or sample passage no person has checked. Its fetch date
+   * may be recent, but "Verified" would claim a check that never happened.
+   */
+  reviewed?: boolean;
 }) {
-  const s = STYLES[freshness];
-  const label =
-    freshness === "fresh"
+  const unchecked = !reviewed && freshness === "fresh";
+  const s = unchecked ? STYLES.due : STYLES[freshness];
+  const label = unchecked
+    ? UI.notReviewed[lang]
+    : freshness === "fresh"
       ? UI.verified[lang]
       : freshness === "due"
         ? UI.reviewDue[lang]

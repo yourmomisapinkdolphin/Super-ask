@@ -104,3 +104,33 @@ These changes are uncommitted. Tests: **677/677 pass** (`npx vitest run`, about 
 - Office directory (B2): the map link is a name search. Verified addresses, phone numbers and the province question still need real facility data.
 - Messenger (B4), real authentication (B5), and Facebook/Telegram crawlers are still planned.
 - The decline floor: keep 0.20 (more refusals) or lower it to 0.15 (more answers, still 100% refusal on the golden set). Then update §9a-3.
+
+---
+
+## F. Bugs found and fixed on 23 Nov 2026 (second pass)
+
+I put realistic questions through the engine and compared all 65 golden-set and spot-check questions before and after the fix, on the same data.
+
+| # | Bug | Fix |
+|---|---|---|
+| 1 | Questions with fewer than 3 content words skipped the topic check, so "how do I register to vote" and "register a company" got birth registration with no warning | A short question is on topic only if every content word appears in the passage. The passage's own indexed questions and keywords now count (so "motorbike", "stolen" and other curator-recorded synonyms are covered). |
+| 2 | `moi-civil-registration.json` is SAMPLE content ("Sub-Decree No. XXX") but was cited as an approved source | Its passages are marked `stewardApproved: false`. Citations carry `sample: true`, and the card and Telegram say "Sample data · not an official source". |
+| 3 | Extractive answers always began "From the approved source:" | The opening line now matches the source's status: approved, official website (not yet reviewed), or SAMPLE data. |
+| 4 | "How much does a passport cost" returned the driving-licence fee table; the warning listed "much" | A fee question whose top source states amounts but shares nothing with the question except money words is declined (`retrieval:off_topic`). "much", "many", "long", "take" and similar are ignored as question filler. |
+| 5 | Crawled pages showed their fetch date as the "Effective" date | Chunks carry `effectiveUnknown: true`. The card shows "Page fetched <date>", and the model is told no effective date is stated. |
+| 6 | Cards printed "Not cited on source page · Not cited on source page" | The placeholder is hidden on the card and in Telegram. |
+| 6b | The freshness badge said "VERIFIED" on unreviewed sources | It shows "Not reviewed" unless a person has reviewed the passage. |
+| 7 | 404 pages, menu and cookie lines, garbled text, near-empty passages | `ingest-crawl.ts` drops error pages, strips site furniture, drops garbled or short passages, and sets `textKm` per passage (Khmer only). Re-ingested: 3,867 crawled passages. |
+| 8 | Crawled passages had only title-based questions | URL-path words are added as keywords. Still weak: real candidate-question generation is the remaining fix. |
+| 9 | The Telegram webhook accepted unsigned calls if the secret was unset | The secret is required in production (503 otherwise; `TELEGRAM_ALLOW_UNSIGNED=true` overrides). The comparison is constant-time. |
+| 10 | Audit and feedback logs were lost on Vercel | On Vercel, records go to stdout (retained in host logs) as redacted JSON lines, and file-write failures fall back to stdout. `AUDIT_LOG_SINK` overrides. |
+
+**Before/after on 65 questions (same data):**
+- 8 correct answers lost a false "may not answer" warning.
+- The passport-fee question is now declined.
+- The voter, company and "apply for a trademark" questions now carry a warning. The last one cites a passage about transferring trademark ownership, not applying.
+- No previously good answer was lost.
+
+Retrieval output (`scripts/eval.ts`) is unchanged.
+
+**Not fixed by code:** retrieval still misses relevant crawled content. Most crawled sites are Khmer-only and their candidate questions come from page titles, so the voter question still reaches the sample birth passage (now labelled) instead of NEC pages. This needs generated candidate questions per passage.

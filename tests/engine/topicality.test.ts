@@ -35,15 +35,31 @@ describe("assess — does the source address the question?", () => {
     expect(t.missing).toContain("passport");
   });
 
-  it("stays out of the way when the question has exactly MIN_TERMS - 1 content words", () => {
-    // "passport" + "child" only — two content terms is below the floor, so the
-    // gate reports on-topic rather than downgrading on a sample of two.
-    const t = assess(
+  it("checks a short question too — every term must appear when there are fewer than MIN_TERMS", () => {
+    // This used to report "passport for my child" against the family book as
+    // on topic, because two content terms were below the floor and the gate
+    // stepped aside. That is the module header's own "passport → family book"
+    // failure, and "how do i register to vote" → birth registration shipped
+    // the same way. Short questions now need every term in the source.
+    const off = assess(
       "passport for my child",
       "The family book records the members of a household.",
     );
-    expect(t.onTopic).toBe(true);
-    expect(t.coverage).toBe(1);
+    expect(off.onTopic).toBe(false);
+    expect(off.missing).toContain("passport");
+
+    const vote = assess(
+      "how do i register to vote",
+      "Registration of a birth is made at the commune or sangkat administration.",
+    );
+    expect(vote.onTopic).toBe(false);
+    expect(vote.missing).toContain("vote");
+
+    const on = assess(
+      "passport for my child",
+      "A passport for a child under 18 requires the consent of a parent.",
+    );
+    expect(on.onTopic).toBe(true);
   });
 
   it("reports which terms were covered and which were missing", () => {
@@ -57,12 +73,27 @@ describe("assess — does the source address the question?", () => {
     expect(t.coverage).toBe(1);
   });
 
-  it("disables itself for a question with too few content words to measure", () => {
-    // Nothing to check — coverage is meaningless, so the gate stays out of the
-    // way rather than downgrading a follow-up.
-    const t = assess("and the fee?", "Birth registration at the commune.");
+  it("counts a passage's indexed questions and keywords as what it is about", () => {
+    // tiers.ts passes them with the text, so a curator-recorded synonym covers
+    // the citizen's word: the passage says "vehicle", its questions "motorbike".
+    const t = assess(
+      "how do i register a motorbike",
+      "A vehicle must be registered at the provincial department.\nHow do I register a motorbike in Cambodia?",
+    );
     expect(t.onTopic).toBe(true);
-    expect(t.coverage).toBe(1);
+  });
+
+  it("stays out of the way only when the question has no content words at all", () => {
+    // Nothing to check. Follow-ups reach this gate already resolved against the
+    // conversation (tiers.ts assesses the rewritten query), so a bare "and the
+    // fee?" with no subject is assessed on its one word: a source without a fee
+    // in it does not answer it.
+    const none = assess("and that?", "Birth registration at the commune.");
+    expect(none.onTopic).toBe(true);
+    expect(none.coverage).toBe(1);
+
+    expect(assess("and the fee?", "Birth registration at the commune.").onTopic).toBe(false);
+    expect(assess("and the fee?", "The fee is 4,000 riel.").onTopic).toBe(true);
   });
 
   it("uses substring containment, the lenient direction", () => {

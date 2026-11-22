@@ -5,7 +5,7 @@
 import type { Chunk, Citation, Lang } from "@/lib/types";
 import { getKb } from "@/lib/kb/loader";
 import { freshnessOf } from "./freshness";
-import { isUnreviewed } from "@/lib/kb/loader";
+import { isSampleContent, isUnreviewed } from "@/lib/kb/loader";
 
 /**
  * Groupings that are not one office: a map search for the name would land on
@@ -37,6 +37,8 @@ export function toCitation(chunk: Chunk, lang: Lang): Citation {
     freshness: freshnessOf(chunk),
     quote: lang === "km" && chunk.textKm ? chunk.textKm : chunk.text,
     ...(isUnreviewed(chunk) ? { unreviewed: true } : {}),
+    ...(isSampleContent(chunk) ? { sample: true } : {}),
+    ...(chunk.effectiveUnknown ? { effectiveUnknown: true } : {}),
     ...(officeMapUrl(chunk.ministry) ? { mapUrl: officeMapUrl(chunk.ministry) } : {}),
   };
 }

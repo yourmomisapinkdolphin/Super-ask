@@ -36,6 +36,14 @@ export const STOPWORDS = new Set([
   "to", "for", "of", "in", "on", "at", "with", "from", "by", "about", "as",
   "please", "tell", "know", "need", "want", "get", "have", "has", "there",
   "s", "me", "give", "show", "explain", "any", "some", "all", "more",
+  // Quantity and filler words in "how much / how many / how often" questions.
+  // "how much does a passport cost" is about a passport and a cost, and the
+  // citizen must not be told the source "says nothing about: much".
+  "much", "many", "often", "also", "just", "really", "very",
+  // "How long does it take" is the shape of a timing question, not its
+  // subject. Counted as content, they matched any passage whose indexed
+  // questions ask "how long does it take", whatever service it covers.
+  "long", "take", "takes", "taking", "took",
   // Deictic words a citizen uses INSTEAD of naming the thing. They read as
   // content words but point at the previous turn rather than at a service, so
   // counting them makes a subject-less follow-up look substantive.

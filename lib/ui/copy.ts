@@ -144,6 +144,7 @@ export const UI = {
 
   /** FR-64 badge labels. */
   verified: { en: "Verified", km: "បានផ្ទៀងផ្ទាត់" } satisfies Copy,
+  notReviewed: { en: "Not reviewed", km: "មិនទាន់ពិនិត្យ" } satisfies Copy,
   reviewDue: { en: "Review due", km: "ដល់ពេលត្រួតពិនិត្យ" } satisfies Copy,
   stale: { en: "Past review date", km: "ហួសកាលបរិច្ឆេទត្រួតពិនិត្យ" } satisfies Copy,
 
@@ -191,6 +192,15 @@ export const UI = {
     en: "Copied word for word from the official website by SuperAsk's crawler. A person has not checked it yet, so confirm with the office before acting.",
     km: "ចម្លងពាក្យដោយពាក្យពីគេហទំព័រផ្លូវការដោយកម្មវិធីប្រមូលរបស់ SuperAsk។ មិនទាន់មានមនុស្សពិនិត្យទេ សូមផ្ទៀងផ្ទាត់ជាមួយការិយាល័យមុននឹងអនុវត្ត។",
   } satisfies Copy,
+  sampleSource: {
+    en: "Sample data · not an official source",
+    km: "ទិន្នន័យគំរូ · មិនមែនជាប្រភពផ្លូវការ",
+  } satisfies Copy,
+  sampleNote: {
+    en: "Prototype content used to test SuperAsk. The details are placeholders, not official figures. Check with the office before acting.",
+    km: "ខ្លឹមសារគំរូសម្រាប់សាកល្បង SuperAsk។ ព័ត៌មានលម្អិតជាការដាក់ជំនួស មិនមែនជាតួលេខផ្លូវការទេ។ សូមពិនិត្យជាមួយការិយាល័យមុននឹងអនុវត្ត។",
+  } satisfies Copy,
+  fetched: { en: "Page fetched", km: "ទាញយកទំព័រ" } satisfies Copy,
   showOnMap: { en: "Show office on map", km: "បង្ហាញការិយាល័យលើផែនទី" } satisfies Copy,
   helpful: { en: "Was this helpful?", km: "តើវាមានប្រយោជន៍ទេ?" } satisfies Copy,
   yes: { en: "Yes", km: "បាទ/ចាស" } satisfies Copy,

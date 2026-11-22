@@ -6,9 +6,25 @@
  *   · open the SuperAsk Mini App (same /chat UI inside Telegram).
  *
  * Auth: header `X-Telegram-Bot-Api-Secret-Token` must match
- * TELEGRAM_WEBHOOK_SECRET when that secret is set.
+ * TELEGRAM_WEBHOOK_SECRET. In production the secret is REQUIRED: without it
+ * anyone who finds this URL can post fake updates and make the bot message
+ * any chat that has started it. Local development may run unsigned; a
+ * deployment that genuinely needs to can set TELEGRAM_ALLOW_UNSIGNED=true.
  */
 
+function isProduction(): boolean {
+  return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
+}
+
+/** Constant-time comparison, so the secret cannot be guessed byte by byte. */
+function secretMatches(header: string | null, secret: string): boolean {
+  if (!header) return false;
+  const a = Buffer.from(header);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { ask } from "@/lib/engine";
 import { recordAnswer } from "@/lib/log/audit";
@@ -47,9 +63,17 @@ export async function POST(request: Request) {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
   if (secret) {
     const header = request.headers.get("x-telegram-bot-api-secret-token");
-    if (header !== secret) {
+    if (!secretMatches(header, secret)) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
+  } else if (isProduction() && process.env.TELEGRAM_ALLOW_UNSIGNED !== "true") {
+    console.error(
+      "[telegram] TELEGRAM_WEBHOOK_SECRET is not set; refusing unsigned webhook calls in production",
+    );
+    return NextResponse.json(
+      { error: "TELEGRAM_WEBHOOK_SECRET is not configured" },
+      { status: 503 },
+    );
   }
 
   if (!process.env.TELEGRAM_BOT_TOKEN?.trim()) {

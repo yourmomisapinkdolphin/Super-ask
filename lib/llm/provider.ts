@@ -61,6 +61,12 @@ export interface GenerationRequest {
     header: string;
     text: string;
     textKm?: string;
+    /**
+     * Standing of the passage, so a provider never words an answer as coming
+     * from an "approved" source when it does not (see lib/kb/loader.ts).
+     * Absent is treated as approved, for providers and tests that predate it.
+     */
+    status?: "approved" | "unreviewed" | "sample";
   }>;
   /** Prior turns for conversational context (FR-07). */
   history: Array<{ role: "user" | "assistant"; text: string }>;

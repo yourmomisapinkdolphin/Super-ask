@@ -86,14 +86,41 @@ export interface AuditRecord {
   latencyMs: number;
 }
 
+/**
+ * Where records go. On a serverless host (Vercel sets VERCEL) the filesystem is
+ * read-only outside /tmp and wiped between instances, so a file under var/ is
+ * either refused or lost: every audit record vanished. There the record is
+ * written to stdout as one JSON line instead, which the host retains in its
+ * logs and forwards to any configured log drain. AUDIT_LOG_SINK overrides:
+ * "file", "stdout" or "both".
+ */
+function sink(): "file" | "stdout" | "both" {
+  const configured = process.env.AUDIT_LOG_SINK?.trim().toLowerCase();
+  if (configured === "file" || configured === "stdout" || configured === "both") {
+    return configured;
+  }
+  return process.env.VERCEL ? "stdout" : "file";
+}
+
+function toStdout(path: string, record: unknown): void {
+  const kind = path === FEEDBACK_LOG ? "feedback" : "audit";
+  // Records are redacted before they reach this function (FR-56).
+  console.log(`[${kind}] ${JSON.stringify(record)}`);
+}
+
 async function appendLine(path: string, record: unknown): Promise<void> {
+  const where = sink();
+  if (where !== "file") toStdout(path, record);
+  if (where === "stdout") return;
   try {
     await mkdir(LOG_DIR, { recursive: true });
     await appendFile(path, `${JSON.stringify(record)}\n`, "utf8");
   } catch (err) {
     // An audit write failure must not fail the citizen's request, but it must
-    // not pass silently either — an unlogged answer cannot be reconstructed.
-    console.error("[audit] write failed", err);
+    // not pass silently either, and the record must not be lost: an unlogged
+    // answer cannot be reconstructed (BR-010). Fall back to stdout.
+    console.error("[audit] file write failed; record sent to stdout", err);
+    if (where === "file") toStdout(path, record);
   }
 }
 

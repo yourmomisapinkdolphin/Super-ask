@@ -20,10 +20,25 @@
 
 import type { GenerationRequest, GenerationResult, LlmProvider, ProviderInfo } from "./provider";
 
+/**
+ * The lead names the source's real standing. "Approved" is said only of a
+ * passage that is: a crawled page is quoted as the official page it is, not
+ * yet reviewed, and prototype sample content is never passed off as official.
+ */
 const LEAD = {
-  en: "From the approved source:",
-  km: "ពីឯកសារយោងដែលបានអនុម័ត៖",
-};
+  approved: {
+    en: "From the approved source:",
+    km: "ពីឯកសារយោងដែលបានអនុម័ត៖",
+  },
+  unreviewed: {
+    en: "From the official website (copied word for word, not yet reviewed by SuperAsk):",
+    km: "ពីគេហទំព័រផ្លូវការ (ចម្លងពាក្យដោយពាក្យ មិនទាន់ត្រួតពិនិត្យដោយ SuperAsk)៖",
+  },
+  sample: {
+    en: "From SAMPLE data, not an official source (prototype content for testing):",
+    km: "ពីទិន្នន័យគំរូ មិនមែនជាប្រភពផ្លូវការទេ (ខ្លឹមសារសាកល្បង)៖",
+  },
+} as const;
 
 const NO_KHMER_TEXT = {
   en: "",
@@ -78,7 +93,7 @@ export function createExtractiveProvider(reason?: string): LlmProvider {
     const khmerMissing = req.lang === "km" && !top.textKm?.trim();
 
     const answer = [
-      LEAD[req.lang],
+      LEAD[top.status ?? "approved"][req.lang],
       "",
       quoted,
       khmerMissing ? NO_KHMER_TEXT.km : "",

@@ -32,6 +32,8 @@ import { generate, PROMPT_VERSION } from "@/lib/llm";
 import { createTrace, runWithTrace, trace, flushTrace } from "@/lib/log/trace";
 import { matchCurated } from "./curated";
 import { matchGlossary, matchPureDefinition } from "./glossary";
+import { sourceStatus } from "@/lib/kb/loader";
+import { hasKhmer } from "@/lib/khmer/normalize";
 import { assess, looksLikeEntityLookup } from "./topicality";
 import {
   screen,
@@ -373,11 +375,64 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
   // waved it through as trivially on-topic — the exact turn most in need of
   // checking. The resolved query carries the subject from earlier in the
   // conversation, which is what the source has to be about.
-  const topical = assess(query.normalised, `${top.text}\n${top.textKm ?? ""}`);
+  // The passage's own indexed questions and keywords count as what it is
+  // about: "someone stole my licence" is answered by a passage whose text says
+  // "lost" but whose keywords say "stolen", and "register a motorbike" by one
+  // that says "vehicle" in its text and "motorbike" in its questions.
+  const topical = assess(
+    query.normalised,
+    [top.text, top.textKm ?? "", ...top.questions, ...top.keywords].join("\n"),
+  );
   trace("topicality", {
     onTopic: topical.onTopic,
     missing: topical.missing.slice(0, 8),
   });
+
+  // ── A fee for the wrong service: decline rather than quote it ────────────
+  // Off-topic sources are otherwise a labelled downgrade (below). The one case
+  // declined outright is a question about money answered by a source that
+  // states amounts but shares nothing with the question except the money
+  // words: "how much does a passport cost" matched the driving-licence fee
+  // table on "cost", and riel figures for the wrong service under a caveat
+  // are still a wrong fee in front of the citizen (R-06).
+  //
+  // Latin-script questions only. Khmer topicality matches orthographic
+  // clusters and spelling variants ("ប័ណ្ណ" / "បណ្ណ") miss, so a correct Khmer
+  // fee answer can read as off topic; there it keeps the labelled downgrade.
+  const MONEY_WORD = /^(cost|costs|fee|fees|price|prices|charge|charges|pay|paid|payment|payments|riel|dollar|dollars|usd|much|expensive|cheap)$/i;
+  const asksAboutMoney = /\b(cost|costs|fee|fees|price|charge|how much|pay|payment|riel|dollars?|usd)\b/i.test(question);
+  const statesAmounts = /\d[\d,.\s]*\s*(riel|រៀល|usd|us\$|\$|dollars?)|[៛$]\s*\d/i.test(`${top.text}\n${top.textKm ?? ""}`);
+  const subjectCovered = topical.covered.some((w) => !MONEY_WORD.test(w));
+  const subjectAsked = topical.missing.some((w) => !MONEY_WORD.test(w));
+  if (
+    !topical.onTopic &&
+    asksAboutMoney &&
+    statesAmounts &&
+    subjectAsked &&
+    !subjectCovered &&
+    !hasKhmer(query.normalised) &&
+    !looksLikeEntityLookup(question)
+  ) {
+    trace("topicality", { decline: true, reason: "fee_for_other_service", missing: topical.missing.slice(0, 8) });
+    const fallback = await generalFallback();
+    if (fallback) return fallback;
+    return finish(
+      {
+        id,
+        tier: 3,
+        lang,
+        answer: cannotAnswer(lang),
+        citations: [],
+        coverageGap: true,
+      },
+      baseDiagnostics({
+        tier: 3,
+        ...retrievalDiag,
+        confidence: "low",
+        refusalReason: "retrieval:off_topic",
+      }),
+    );
+  }
 
   if (looksLikeEntityLookup(question)) {
     trace("scope", { reason: "entity_record_lookup" });
@@ -407,9 +462,15 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
   // can tell the two apart.
   const sources = candidates.map((c) => ({
     id: c.chunk.id,
-    header: `${c.chunk.ministry} — ${c.chunk.doc}, ${c.chunk.instrument}, ${c.chunk.article} (effective ${c.chunk.effective}, verified ${c.chunk.verified})`,
+    // A crawled page states no effective date and cites no instrument. Say so,
+    // rather than handing the model a fetch date labelled "effective" that it
+    // would repeat to the citizen as the date a rule took effect.
+    header: c.chunk.effectiveUnknown
+      ? `${c.chunk.ministry} — ${c.chunk.doc} (official web page fetched ${c.chunk.verified}; no legal instrument or effective date stated)`
+      : `${c.chunk.ministry} — ${c.chunk.doc}, ${c.chunk.instrument}, ${c.chunk.article} (effective ${c.chunk.effective}, verified ${c.chunk.verified})`,
     text: c.chunk.text,
     textKm: c.chunk.textKm,
+    status: sourceStatus(c.chunk),
   }));
 
   // ── Rationale gate ───────────────────────────────────────────────────────

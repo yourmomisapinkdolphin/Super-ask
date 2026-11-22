@@ -71,8 +71,10 @@ export function assess(question: string, sourceText: string): Topicality {
   const surface = surfaceForms(question);
   const say = (t: string) => surface.get(t) ?? t;
 
-  if (terms.length < MIN_TERMS) {
-    return { coverage: 1, missing: [], covered: terms.map(say), onTopic: true };
+  // A question with no content words at all ("and that?") gives nothing to
+  // measure; the caller resolves follow-ups before asking, so stay out of the way.
+  if (terms.length === 0) {
+    return { coverage: 1, missing: [], covered: [], onTopic: true };
   }
 
   const covered: string[] = [];
@@ -83,6 +85,19 @@ export function assess(question: string, sourceText: string): Topicality {
   }
 
   const coverage = covered.length / terms.length;
+
+  // Short questions are where a single shared word does the most damage:
+  // "how do i register to vote" has two content words, and "register" alone
+  // matched birth registration, which was then served with no warning. Below
+  // MIN_TERMS a coverage fraction is too coarse to threshold, so require every
+  // term the citizen used to appear in the source instead of waving it through.
+  // The caller passes the passage's indexed questions and keywords with its
+  // text, so synonyms a curator recorded ("motorbike" on a passage that says
+  // "vehicle") count as covered.
+  if (terms.length < MIN_TERMS) {
+    return { coverage, missing, covered, onTopic: missing.length === 0 };
+  }
+
   return { coverage, missing, covered, onTopic: coverage >= MIN_COVERAGE };
 }
 

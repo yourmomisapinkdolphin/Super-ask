@@ -84,6 +84,29 @@ export function isUnreviewed(chunk: Pick<Chunk, "stewardApproved">): boolean {
   return chunk.stewardApproved === false;
 }
 
+/**
+ * Prototype sample content: the "[SAMPLE]" doc titles and "XXX" instrument
+ * numbers that tests/kb/corpus.test.ts quarantines. Served only so the
+ * pipeline can be exercised; never as an official source.
+ */
+const SAMPLE_MARKER = /\[(SAMPLE|PLACEHOLDER)[^\]]*\]|\bXXX+\b/i;
+export function isSampleContent(chunk: Pick<Chunk, "doc" | "instrument">): boolean {
+  return SAMPLE_MARKER.test(chunk.doc) || SAMPLE_MARKER.test(chunk.instrument);
+}
+
+/** What a citizen may be told about a passage's standing. */
+export type SourceStatus = "approved" | "unreviewed" | "sample";
+export function sourceStatus(
+  chunk: Pick<Chunk, "doc" | "instrument" | "stewardApproved">,
+): SourceStatus {
+  if (isSampleContent(chunk)) return "sample";
+  if (isUnreviewed(chunk)) return "unreviewed";
+  return "approved";
+}
+
+/** Placeholder the ingester writes where a page cites no legal instrument. */
+export const NOT_CITED = "Not cited on source page";
+
 function kbFiles(): string[] {
   return readdirSync(join(DATA_DIR, "kb")).filter((f) => f.endsWith(".json")).sort();
 }

@@ -13,9 +13,15 @@ export function formatTelegramAnswer(res: AskResponse): string {
     lines.push("");
     lines.push(res.lang === "km" ? "ប្រភពផ្លូវការ:" : "Official sources:");
     for (const c of res.citations.slice(0, 3)) {
-      const title = [c.instrument, c.article].filter(Boolean).join(" · ");
-      const label = (title || c.doc) +
-        (c.unreviewed ? (res.lang === "km" ? " (មិនទាន់ត្រួតពិនិត្យ)" : " (not yet reviewed)") : "");
+      const title = [c.instrument, c.article]
+        .filter((v) => v && v !== "Not cited on source page")
+        .join(" · ");
+      const status = c.sample
+        ? res.lang === "km" ? " (ទិន្នន័យគំរូ មិនមែនផ្លូវការ)" : " (SAMPLE data, not official)"
+        : c.unreviewed
+          ? res.lang === "km" ? " (មិនទាន់ត្រួតពិនិត្យ)" : " (not yet reviewed)"
+          : "";
+      const label = (title || c.doc) + status;
       if (c.url) {
         lines.push(`• ${label}\n  ${c.url}`);
       } else {

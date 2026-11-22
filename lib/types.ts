@@ -50,6 +50,12 @@ export interface Chunk {
    * signed it off.
    */
   stewardApproved?: boolean;
+  /**
+   * The source page states no date the content took effect, so `effective`
+   * holds the fetch date only to satisfy the schema. Set by ingest-crawl.ts.
+   * Never present this date to a citizen as an effective date.
+   */
+  effectiveUnknown?: boolean;
   /** When ingestion fetched this, and from where (FR-54 provenance). */
   ingestedAt?: string;
   ingestedFrom?: string;
@@ -100,6 +106,14 @@ export interface Citation {
    */
   unreviewed?: boolean;
   /**
+   * The cited passage is prototype SAMPLE content (data/README.md quarantine):
+   * placeholder instrument numbers and figures, not an official text. The
+   * interface must say so plainly.
+   */
+  sample?: boolean;
+  /** The source states no effective date; `effective` is the fetch date. */
+  effectiveUnknown?: boolean;
+  /**
    * A Google Maps search for the responsible office (UC-7, REQ-12). Built from
    * the ministry's official name, not from an address: SuperAsk holds no
    * verified street addresses yet, and inventing one is worse than none.
@@ -143,6 +157,9 @@ export interface Diagnostics {
    *   scope:not_a_service_question  not a government-service question at all —
    *                       translation, general knowledge, chit-chat
    *   retrieval:below_floor  no source scored above RETRIEVAL_MIN_SCORE (FR-16)
+   *   retrieval:off_topic  a fee question whose top source states amounts for a
+   *                       different service; quoting it would put the wrong fee
+   *                       in front of the citizen
    *   retrieval:no_candidates  nothing retrieved at all
    *   verification:failed  FR-15 gate suppressed a written answer
    *   moderation:<kind>    NFR-04 output moderation caught the answer
