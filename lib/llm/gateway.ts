@@ -33,7 +33,17 @@ import {
 } from "./provider";
 
 const DEFAULT_BASE_URL = "https://inference-api.nousresearch.com/v1";
-const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
+/**
+ * Default: Gemini 3.1 Flash-Lite. Chosen for the pilot on cost and fit, not
+ * benchmarked yet (section 10.6 condition 4 still applies):
+ *   - $0.25 / $1.50 per million input / output tokens, a fraction of Sonnet 5.
+ *   - Accepts every parameter sent below (temperature, response_format), so
+ *     temperature 0 still holds for FR-55.
+ *   - Reasoning defaults to "minimal", which keeps Khmer answers inside the
+ *     30s deadline (see TIMEOUT_MS).
+ * Override with LLM_GATEWAY_MODEL.
+ */
+const DEFAULT_MODEL = "google/gemini-3.1-flash-lite";
 const MAX_TOKENS = 1600;
 
 /**
