@@ -8,6 +8,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { corsHeaders, guard, preflight } from "@/lib/api/guard";
 import { recordFeedback } from "@/lib/log/audit";
 
 export const runtime = "nodejs";
@@ -16,7 +17,16 @@ export const dynamic = "force-dynamic";
 const KINDS = new Set(["incorrect", "helpful", "unhelpful"]);
 const MAX_COMMENT = 2000;
 
+/** CORS preflight for an allowed cross-origin caller (ALLOWED_ORIGINS). */
+export function OPTIONS(request: Request) {
+  return preflight(request);
+}
+
 export async function POST(request: Request) {
+  // Origin check and per-client rate limit before any work (lib/api/guard.ts).
+  const blocked = guard(request, "feedback");
+  if (blocked) return blocked;
+  const cors = corsHeaders(request);
   let body: unknown;
 
   try {
@@ -62,5 +72,5 @@ export async function POST(request: Request) {
     ministries: asStrings(input.ministries),
   });
 
-  return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store", ...cors } });
 }

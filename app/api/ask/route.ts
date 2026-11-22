@@ -9,6 +9,7 @@
  */
 
 import { NextResponse } from "next/server";
+import { corsHeaders, guard, preflight } from "@/lib/api/guard";
 import type { AskRequest } from "@/lib/types";
 import { ask } from "@/lib/engine";
 import { recordAnswer } from "@/lib/log/audit";
@@ -19,7 +20,16 @@ export const dynamic = "force-dynamic";
 const MAX_QUESTION_LENGTH = 1000;
 const MAX_HISTORY_TURNS = 12;
 
+/** CORS preflight for an allowed cross-origin caller (ALLOWED_ORIGINS). */
+export function OPTIONS(request: Request) {
+  return preflight(request);
+}
+
 export async function POST(request: Request) {
+  // Origin check and per-client rate limit before any work (lib/api/guard.ts).
+  const blocked = guard(request, "ask");
+  if (blocked) return blocked;
+  const cors = corsHeaders(request);
   let body: unknown;
 
   try {
@@ -68,7 +78,7 @@ export async function POST(request: Request) {
     await recordAnswer(question, response, response.diagnostics ? input.sessionId : undefined);
 
     return NextResponse.json(response, {
-      headers: { "Cache-Control": "no-store" },
+      headers: { "Cache-Control": "no-store", ...cors },
     });
   } catch (err) {
     console.error("[/api/ask] unhandled", err);
@@ -85,7 +95,7 @@ export async function POST(request: Request) {
         citations: [],
         coverageGap: false,
       },
-      { status: 200, headers: { "Cache-Control": "no-store" } },
+      { status: 200, headers: { "Cache-Control": "no-store", ...cors } },
     );
   }
 }

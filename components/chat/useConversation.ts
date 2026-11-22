@@ -150,8 +150,33 @@ export function useConversation() {
         body: JSON.stringify({ question, history, sessionId }),
       });
 
-      const response = (await res.json()) as AskResponse;
-      deliver(askedIn, { role: "assistant", response });
+      const body = (await res.json().catch(() => null)) as AskResponse | null;
+      if (!body || typeof body.answer !== "string") {
+        // A refusal by the API guard (403 origin, 429 rate limit) or a bad
+        // request carries { error }, not an answer. Show a plain message
+        // rather than rendering an answer that is not there.
+        const km = detectLang(question) === "km";
+        deliver(askedIn, {
+          role: "assistant",
+          response: {
+            id: `http-${res.status}`,
+            tier: 3,
+            lang: km ? "km" : "en",
+            answer:
+              res.status === 429
+                ? km
+                  ? "មានសំណួរច្រើនពេកក្នុងពេលខ្លី។ សូមរង់ចាំមួយភ្លែត ហើយព្យាយាមម្តងទៀត។"
+                  : "Too many questions in a short time. Please wait a moment and try again."
+                : km
+                  ? "SuperAsk មិនអាចដំណើរការសំណួរនេះបានទេ។ សូមព្យាយាមម្តងទៀត។"
+                  : "SuperAsk could not process that request. Please try again.",
+            citations: [],
+            coverageGap: false,
+          },
+        });
+        return;
+      }
+      deliver(askedIn, { role: "assistant", response: body });
     } catch {
       // NFR-09: degrade to a plain message, not to a broken screen.
       deliver(askedIn, {

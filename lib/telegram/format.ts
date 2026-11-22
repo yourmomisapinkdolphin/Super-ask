@@ -14,12 +14,17 @@ export function formatTelegramAnswer(res: AskResponse): string {
     lines.push(res.lang === "km" ? "ប្រភពផ្លូវការ:" : "Official sources:");
     for (const c of res.citations.slice(0, 3)) {
       const title = [c.instrument, c.article].filter(Boolean).join(" · ");
-      const label = title || c.doc;
+      const label = (title || c.doc) +
+        (c.unreviewed ? (res.lang === "km" ? " (មិនទាន់ត្រួតពិនិត្យ)" : " (not yet reviewed)") : "");
       if (c.url) {
         lines.push(`• ${label}\n  ${c.url}`);
       } else {
         lines.push(`• ${label}`);
       }
+    }
+    const map = res.citations[0]?.mapUrl;
+    if (map) {
+      lines.push(res.lang === "km" ? `ទីតាំងការិយាល័យ: ${map}` : `Office on map: ${map}`);
     }
   }
 

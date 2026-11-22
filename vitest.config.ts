@@ -14,6 +14,10 @@ export default defineConfig({
     // real corpus. Keep the working directory at the repo root so that
     // getKb()'s join(process.cwd(), "data") resolves.
     root: process.cwd(),
+    // The route suites call /api/ask many times from one simulated client.
+    // The rate limiter has its own suite (tests/api/guard.test.ts), which sets
+    // its own limit; everywhere else it must not be the thing under test.
+    env: { RATE_LIMIT_PER_MINUTE: "1000000" },
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

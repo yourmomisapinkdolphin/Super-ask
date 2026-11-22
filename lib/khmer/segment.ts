@@ -16,10 +16,20 @@ import { normalizeFold } from "./normalize";
 import { normaliseWord } from "@/lib/lang/stem";
 
 const COENG = "្";
-const VOWEL = /[ា-ៅ]/;
-const DIACRITIC = /[ំ-៑៝]/;
-const CONSONANT = /[ក-឵]/;
 const KHMER = /[ក-៿]/;
+
+// Code-point range checks, equivalent to the character classes
+// [ក-឵] (consonants and independent vowels), [ា-ៅ] (vowel signs) and
+// [ំ-៑៝] (diacritics). Called once per character of the corpus at index
+// time, where a regex test per character was a measurable share of cold start.
+function isConsonant(ch: string): boolean {
+  const c = ch.codePointAt(0) ?? 0;
+  return c >= 0x1780 && c <= 0x17b5;
+}
+function isVowelOrDiacritic(ch: string): boolean {
+  const c = ch.codePointAt(0) ?? 0;
+  return (c >= 0x17b6 && c <= 0x17c5) || (c >= 0x17c6 && c <= 0x17d1) || c === 0x17dd;
+}
 
 /**
  * Service-domain lexicon. Longest-match-first segmentation uses this before
@@ -69,6 +79,16 @@ const LEXICON = [
 
 const LEXICON_FOLDED = LEXICON.map(normalizeFold);
 
+/** Lexicon entries by first character, longest first, so a lookup scans only
+ *  the entries that could match at a position. */
+const LEXICON_BY_FIRST = new Map<string, string[]>();
+for (const w of LEXICON_FOLDED) {
+  const first = w[0];
+  const list = LEXICON_BY_FIRST.get(first) ?? [];
+  list.push(w);
+  LEXICON_BY_FIRST.set(first, list);
+}
+
 /**
  * Split Khmer text into orthographic clusters. A cluster is a base consonant
  * plus its subscripts, vowel signs, and diacritics — the smallest unit that is
@@ -82,7 +102,7 @@ export function clusters(input: string): string[] {
   while (i < chars.length) {
     const ch = chars[i];
 
-    if (!CONSONANT.test(ch)) {
+    if (!isConsonant(ch)) {
       out.push(ch);
       i += 1;
       continue;
@@ -93,12 +113,12 @@ export function clusters(input: string): string[] {
 
     while (i < chars.length) {
       const c = chars[i];
-      if (c === COENG && i + 1 < chars.length && CONSONANT.test(chars[i + 1])) {
+      if (c === COENG && i + 1 < chars.length && isConsonant(chars[i + 1])) {
         cluster += c + chars[i + 1];
         i += 2;
         continue;
       }
-      if (VOWEL.test(c) || DIACRITIC.test(c)) {
+      if (isVowelOrDiacritic(c)) {
         cluster += c;
         i += 1;
         continue;
@@ -113,25 +133,43 @@ export function clusters(input: string): string[] {
 }
 
 /** Longest-match-first pass over a run of Khmer text using the lexicon. */
-function segmentKhmerRun(run: string): string[] {
+function segmentKhmerRun(run: string, runClusters: string[]): string[] {
   const tokens: string[] = [];
-  let rest = run;
 
-  while (rest.length > 0) {
-    const hit = LEXICON_FOLDED.find((w) => rest.startsWith(w));
+  // Cluster boundaries of the run, computed once. Clustering is greedy left to
+  // right, so the cluster starting at a boundary is the same whether the run
+  // is clustered from its start or from that boundary. Re-clustering the whole
+  // remainder after every token (the previous approach) was quadratic in the
+  // run length and dominated cold-start indexing once crawled pages joined the
+  // corpus. Only a lexicon hit that ends mid-cluster forces a re-cluster.
+  let clusterAt = new Map<number, string>();
+  const indexClusters = (from: number, cs: string[]) => {
+    clusterAt = new Map();
+    let offset = from;
+    for (const c of cs) {
+      clusterAt.set(offset, c);
+      offset += c.length;
+    }
+  };
+  indexClusters(0, runClusters);
+
+  let pos = 0;
+  while (pos < run.length) {
+    const hit = LEXICON_BY_FIRST.get(run[pos])?.find((w) => run.startsWith(w, pos));
     if (hit) {
       tokens.push(hit);
-      rest = rest.slice(hit.length);
+      pos += hit.length;
       continue;
     }
 
-    // No lexicon match at this position. Emit one cluster and advance, then
-    // also emit cluster bigrams so that unlexicalised compounds still match
-    // partially rather than not at all.
-    const cs = clusters(rest);
-    if (cs.length === 0) break;
-    tokens.push(cs[0]);
-    rest = rest.slice(cs[0].length);
+    // No lexicon match at this position. Emit one cluster and advance; the
+    // caller also emits cluster bigrams so that unlexicalised compounds still
+    // match partially rather than not at all.
+    if (!clusterAt.has(pos)) indexClusters(pos, clusters(run.slice(pos)));
+    const c = clusterAt.get(pos);
+    if (!c) break;
+    tokens.push(c);
+    pos += c.length;
   }
 
   return tokens;
@@ -154,10 +192,10 @@ export function segment(input: string): string[] {
 
   for (const run of runs) {
     if (KHMER.test(run)) {
-      const words = segmentKhmerRun(run);
+      const cs = clusters(run);
+      const words = segmentKhmerRun(run, cs);
       tokens.push(...words);
 
-      const cs = clusters(run);
       for (let i = 0; i + 1 < cs.length; i += 1) {
         tokens.push(cs[i] + cs[i + 1]);
       }

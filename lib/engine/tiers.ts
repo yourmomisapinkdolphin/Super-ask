@@ -31,7 +31,7 @@ import { retrieve } from "@/lib/retrieval";
 import { generate, PROMPT_VERSION } from "@/lib/llm";
 import { createTrace, runWithTrace, trace, flushTrace } from "@/lib/log/trace";
 import { matchCurated } from "./curated";
-import { matchGlossary } from "./glossary";
+import { matchGlossary, matchPureDefinition } from "./glossary";
 import { assess, looksLikeEntityLookup } from "./topicality";
 import {
   screen,
@@ -58,9 +58,12 @@ const CURATED_THRESHOLD = Number(
 );
 /**
  * Decline floor (FR-16). Derived from the sweep in scripts/eval.ts against
- * the golden set, not chosen by feel: at 0.20 the starter set answers 91.2% of
- * in-scope questions and refuses 100% of out-of-scope ones. Re-derive whenever
- * the corpus, the segmenter, or the reranker changes.
+ * the golden set, not chosen by feel. On the 45-passage starter corpus, 0.20
+ * answered 91.2% of in-scope questions and refused 100% of out-of-scope ones.
+ * Re-measured on 2026-11-23 after the crawled pages were ingested (3,923
+ * passages): 0.20 answers 73.5% and refuses 100%; 0.15 answers 88.2% and still
+ * refuses 100%. Re-derive whenever the corpus, the segmenter, or the reranker
+ * changes.
  */
 const RETRIEVAL_MIN_SCORE = Number(process.env.RETRIEVAL_MIN_SCORE ?? "0.20");
 
@@ -209,6 +212,36 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
         coverageGap: false,
       },
       baseDiagnostics({ tier: 3, refusalReason: "scope:not_a_service_question" }),
+    );
+  }
+
+  // ── Tier 1: a pure definition request (section 6.1) ─────────────────────
+  // "What does prakas mean" asks for nothing but the meaning of a term. Once
+  // crawled pages joined the corpus, the bare term cleared the retrieval floor
+  // and the citizen got a page that merely mentions the word. A question with
+  // anything beyond the term and the definition words still goes to retrieval
+  // (see matchPureDefinition), so the glossary cannot displace a procedure.
+  const definition = matchPureDefinition(question, lang);
+  if (definition) {
+    trace("glossary", { id: definition.id, term: definition.term, pure: true });
+    return finish(
+      {
+        id,
+        tier: 1,
+        lang,
+        answer: definition.definition,
+        // Nothing to cite: a definition asserts nothing about a specific service.
+        citations: [],
+        coverageGap: false,
+      },
+      baseDiagnostics({
+        tier: 1,
+        provider: "glossary",
+        model: `${definition.id} (${definition.term})`,
+        hosting: "In-process",
+        residency: "Cambodia",
+        confidence: "high",
+      }),
     );
   }
 

@@ -14,7 +14,7 @@
  * teal status dot.
  */
 
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import type { Citation, Lang } from "@/lib/types";
 import { T, monoStack } from "@/lib/ui/theme";
 import { UI } from "@/lib/ui/copy";
@@ -27,7 +27,10 @@ export function SourceCard({
   citation: Citation;
   lang: Lang;
 }) {
-  const fresh = citation.freshness === "fresh";
+  // A crawled passage no steward has approved is never styled as verified,
+  // however recent its fetch date (Citation.unreviewed).
+  const unreviewed = citation.unreviewed === true;
+  const fresh = citation.freshness === "fresh" && !unreviewed;
   return (
     <div
       className="flex items-start gap-2.5 rounded-[10px] px-3.5 py-3"
@@ -51,7 +54,11 @@ export function SourceCard({
               lineHeight: 1.8,
             }}
           >
-            {fresh ? UI.verifiedSource[lang] : UI.sourceOne[lang]}
+            {unreviewed
+              ? UI.unreviewedSource[lang]
+              : fresh
+                ? UI.verifiedSource[lang]
+                : UI.sourceOne[lang]}
           </div>
           <FreshnessBadge freshness={citation.freshness} lang={lang} />
         </div>
@@ -84,18 +91,41 @@ export function SourceCard({
           </span>
         </div>
 
+        {unreviewed && (
+          <div
+            className={lang === "km" ? "km" : undefined}
+            style={{ fontSize: 11, color: T.inkSoft, marginTop: 6, lineHeight: 1.6 }}
+          >
+            {UI.unreviewedNote[lang]}
+          </div>
+        )}
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
         {citation.url && (
           <a
             href={citation.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1.5 rounded transition-colors hover:underline"
+            className="inline-flex items-center gap-1.5 rounded transition-colors hover:underline"
             style={{ fontSize: 11.5, color: T.sky, fontWeight: 600 }}
           >
             {UI.openSource[lang]}
             <ExternalLink size={11} aria-hidden />
           </a>
         )}
+        {citation.mapUrl && (
+          <a
+            href={citation.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded transition-colors hover:underline"
+            style={{ fontSize: 11.5, color: T.sky, fontWeight: 600 }}
+          >
+            <MapPin size={11} aria-hidden />
+            {UI.showOnMap[lang]}
+          </a>
+        )}
+        </div>
       </div>
     </div>
   );

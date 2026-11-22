@@ -25,29 +25,34 @@ const DIMS = 512;
 const NGRAM_MIN = 2;
 const NGRAM_MAX = 4;
 
-/** FNV-1a, for a stable hash across processes and runs. */
-function hash(str: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < str.length; i += 1) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
-}
-
 /** L2-normalised hashed character-n-gram vector. */
 export function embed(text: string): Float32Array {
   const s = normalizeFold(text);
   const vec = new Float32Array(DIMS);
   const chars = Array.from(s);
+  const blank = chars.map((c) => c.trim().length === 0);
 
+  // FNV-1a (stable across processes and runs) over each character n-gram.
+  // Same grams, hashes and accumulation order as hashing each joined n-gram
+  // string, without allocating one string per gram: FNV-1a is computed over
+  // the gram's code units directly, and the sign hash continues it with "#".
   for (let n = NGRAM_MIN; n <= NGRAM_MAX; n += 1) {
     for (let i = 0; i + n <= chars.length; i += 1) {
-      const gram = chars.slice(i, i + n).join("");
-      if (gram.trim().length === 0) continue;
-      const idx = hash(gram) % DIMS;
+      let h = 0x811c9dc5;
+      let allBlank = true;
+      for (let k = i; k < i + n; k += 1) {
+        const ch = chars[k];
+        if (!blank[k]) allBlank = false;
+        for (let u = 0; u < ch.length; u += 1) {
+          h ^= ch.charCodeAt(u);
+          h = Math.imul(h, 0x01000193);
+        }
+      }
+      if (allBlank) continue;
+      const idx = (h >>> 0) % DIMS;
       // Sign hashing keeps unrelated grams from only ever adding mass.
-      const sign = (hash(gram + "#") & 1) === 0 ? 1 : -1;
+      const signHash = Math.imul(h ^ 0x23, 0x01000193) >>> 0; // "#" = 0x23
+      const sign = (signHash & 1) === 0 ? 1 : -1;
       // Longer n-grams carry more signal than shorter ones.
       vec[idx] += sign * (n / NGRAM_MAX);
     }

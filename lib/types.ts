@@ -92,6 +92,19 @@ export interface Citation {
   reviewDue: string;
   freshness: Freshness;
   quote: string;
+  /**
+   * The cited passage was collected from the official source by the crawler
+   * and has not been approved by a content steward (`stewardApproved: false`).
+   * The text is the source's own, verbatim, but no person has checked it, so
+   * the interface must not present it as a verified source.
+   */
+  unreviewed?: boolean;
+  /**
+   * A Google Maps search for the responsible office (UC-7, REQ-12). Built from
+   * the ministry's official name, not from an address: SuperAsk holds no
+   * verified street addresses yet, and inventing one is worse than none.
+   */
+  mapUrl?: string;
 }
 
 /** Internal diagnostic payload. SuperAsk team only (FR-72, FR-73). */

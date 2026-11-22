@@ -182,6 +182,16 @@ export const UI = {
 
   official: { en: "Official", km: "ផ្លូវការ" } satisfies Copy,
   verifiedSource: { en: "Verified source", km: "ប្រភពបានផ្ទៀងផ្ទាត់" } satisfies Copy,
+  /** Citation of a crawled passage no steward has approved yet. */
+  unreviewedSource: {
+    en: "Official page · not yet reviewed",
+    km: "ទំព័រផ្លូវការ · មិនទាន់ត្រួតពិនិត្យ",
+  } satisfies Copy,
+  unreviewedNote: {
+    en: "Copied word for word from the official website by SuperAsk's crawler. A person has not checked it yet, so confirm with the office before acting.",
+    km: "ចម្លងពាក្យដោយពាក្យពីគេហទំព័រផ្លូវការដោយកម្មវិធីប្រមូលរបស់ SuperAsk។ មិនទាន់មានមនុស្សពិនិត្យទេ សូមផ្ទៀងផ្ទាត់ជាមួយការិយាល័យមុននឹងអនុវត្ត។",
+  } satisfies Copy,
+  showOnMap: { en: "Show office on map", km: "បង្ហាញការិយាល័យលើផែនទី" } satisfies Copy,
   helpful: { en: "Was this helpful?", km: "តើវាមានប្រយោជន៍ទេ?" } satisfies Copy,
   yes: { en: "Yes", km: "បាទ/ចាស" } satisfies Copy,
   no: { en: "No", km: "ទេ" } satisfies Copy,

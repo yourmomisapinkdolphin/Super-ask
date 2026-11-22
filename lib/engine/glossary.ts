@@ -107,3 +107,49 @@ export function matchGlossary(question: string, lang: Lang): GlossaryMatch | nul
   if (!best) return null;
   return { id: best.id, term: best.term, definition: best.definition };
 }
+
+/**
+ * Words that carry no subject of their own in a definition request. What is
+ * left of a question once these and the glossary term are removed is what the
+ * citizen asked ABOUT the term; if nothing is left, they asked what it means.
+ */
+const DEFINITION_FILLER = new Set([
+  "what", "whats", "what's", "does", "do", "did", "is", "are", "a", "an", "the",
+  "mean", "means", "meaning", "meant", "define", "definition", "of", "stands",
+  "stand", "for", "explain", "word", "term", "s", "by", "please", "me", "to",
+  "tell", "in", "cambodia", "cambodian", "it", "this", "that",
+]);
+const KHMER_FILLER = /(តើ|គឺជា|គឺ|ជាអ្វី|អ្វី|មានន័យ|ន័យ|យ៉ាងដូចម្តេច|យ៉ាងដូចម្ដេច|យ៉ាងណា|ដូចម្តេច|ពន្យល់|ពាក្យ|ថា|តំណាងឱ្យ|ជា|សូម|ខ្ញុំ|ផង|ទេ|[\s?？។!.,])/g;
+
+/**
+ * The glossary definition for a question that is ONLY a definition request,
+ * such as "what does prakas mean" or "អនុក្រឹត្យ មានន័យយ៉ាងណា", or null.
+ *
+ * Runs before retrieval. Once the corpus holds crawled ministry pages, a bare
+ * term such as "prakas" appears in hundreds of them and clears the retrieval
+ * floor, so the after-the-gate glossary in tiers.ts was never reached and the
+ * citizen got a random page that mentions the word instead of what it means.
+ *
+ * It cannot steal a procedure question: anything left over after removing the
+ * term and the filler words ("say about the renewal fee", "how do I comply
+ * with") means the citizen asked about something else, and retrieval answers.
+ */
+export function matchPureDefinition(question: string, lang: Lang): GlossaryMatch | null {
+  const hit = matchGlossary(question, lang);
+  if (!hit) return null;
+
+  let rest = normalizeFold(question);
+  const aliases = getKb()
+    .glossary.find((e) => e.id === hit.id)
+    ?.match.map(normalizeFold)
+    .sort((a, b) => b.length - a.length) ?? [];
+  for (const a of aliases) rest = rest.split(a).join(" ");
+
+  rest = rest.replace(KHMER_FILLER, " ");
+  const leftover = rest
+    .split(/[^a-z0-9\u1780-\u17ff']+/i)
+    .map((w) => w.replace(/'s$/, ""))
+    .filter((w) => w.length > 0 && !DEFINITION_FILLER.has(w));
+
+  return leftover.length === 0 ? hit : null;
+}
