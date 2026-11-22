@@ -26,9 +26,14 @@ data/crawl/raw/
 data/crawl/snapshots.json
 data/crawl/review-queue.jsonl
 data/crawl/last-report.json
+# Written line by line during `crawl:verify`; the finished run is verification.json.
+data/crawl/verification.partial.jsonl
 # Search index over data/crawl/db/. A build product: `npm run build` (prebuild)
 # regenerates it with scripts/build-crawl-index.ts.
 data/crawl/index/
+# SQLite export of data/crawl/db/ for ad-hoc queries. `npm run build-sqlite`
+# rebuilds it; tracking it added ~24 MB to history on every rebuild.
+data/crawl/superask-sites.db
 
 .DS_Store
 Thumbs.db

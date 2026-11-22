@@ -138,6 +138,8 @@ a fact, and excluded from monitoring until a probe confirms it.
 | `snapshots.json` | Per-page content hashes, the baseline change detection compares against |
 | `raw/<SRC-ID>/*.html` | Retained raw copies with fetch timestamps (FR-54 provenance) |
 | `review-queue.jsonl` | Append-only change signals awaiting a steward (FR-49) |
+| `db/<institution>/<SRC-ID>-<host>.json` | One JSON file per crawled website (title, text, links per page), built by `npm run build-site-db`. Tracked: the build reads it |
+| `superask-sites.db` | SQLite copy of `db/` for ad-hoc SQL queries. **Not tracked** (gitignored): build it locally with `npm run build-sqlite` (add `-- --search` for the full-text index). Nothing in the build or the app reads it |
 
 `review-queue.jsonl` is append-only on purpose: a queue that can be rewritten is
 a queue whose history cannot be trusted. Approvals and rejections are recorded
@@ -153,3 +155,7 @@ opens the file.
 so an unchanged page is not re-stored, but a busy news site will accumulate. If
 this folder is committed to git, prune `crawl/raw/` on a retention schedule
 rather than letting it grow without bound. See NFR-13.
+
+`superask-sites.db` is kept out of git for the same reason: it is a ~24 MB
+binary rebuilt from `db/`, and every committed rebuild would add another full
+copy to the repository history.

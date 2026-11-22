@@ -649,6 +649,7 @@ The brand palette follows the SuperAsk (StartUp) Figma: `#4F3FA8` (indigo — br
 ## Layout
 
 ```
+instrumentation.ts          server start hook: warms the KB indexes
 app/
   page.tsx                  landing page; login/ and register/ are prototype stubs
   chat/page.tsx             the chat interface
@@ -657,25 +658,31 @@ app/
   api/health/route.ts       provider + residency + per-ministry freshness
   api/telegram/webhook/     Telegram bot channel
 components/
-  chat/                     Chat · AnswerBlock · SourceCard · FreshnessBadge ·
-                            DiagnosticPanel · Composer · Sidebar · ReportDialog
+  chat/                     Chat · AnswerBlock · AnswerText · SourceCard ·
+                            FreshnessBadge · DiagnosticPanel · Composer ·
+                            Sidebar · ReportDialog · useConversation
   landing/                  landing page sections
   site/                     header, footer, logo, marketing shell
   telegram/                 Telegram Mini App boot
 lib/
+  api/guard.ts              request guard for the API routes
   khmer/                    normalize · segment · romanize
   lang/                     detect (reply script) · content · stem
   kb/loader.ts              reads the approved corpus from data/
   registry/csv.ts           RFC 4180 reader/writer for the source registry
-  retrieval/                bm25 · embed · rrf · rerank · orchestration
+  retrieval/                bm25 · embed · rrf · rerank · orchestration ·
+                            crawl-index · crawl-tokens
   engine/                   tiers · curated · glossary · guardrails · verify ·
-                            freshness · topicality · rationale · citations
+                            freshness · topicality · rationale · citations ·
+                            crawl-answer · crawl-topic · web-answer · fallback
   llm/                      provider contract · gateway · sealion · anthropic ·
                             vllm · extractive
   crawl/                    fetch · robots · extract · classify · soft-block ·
                             store · verify · crawl
-  telegram/                 Bot API client · formatting · keyboards · history
-  ui/                       copy · theme · history · site language
+  web/search.ts             live web search fallback
+  telegram/                 Bot API client · config · formatting · history
+  ui/                       copy · theme · history · site language · landing ·
+                            marketing · channels · ministry logos · auth session
   log/                      audit (FR-55 / FR-56) · trace
 data/                       corpus, registry and crawl evidence (see data/README.md)
 scripts/
@@ -686,13 +693,19 @@ scripts/
   rationale-check.ts        rationale gate
   build-sources.ts          registry CSV → data/sources.json
   crawl.ts                  FR-47 monitoring CLI (verify · monitor)
+  build-site-db.ts          raw crawl copies → data/crawl/db/ (one JSON per site)
+  build-crawl-index.ts      data/crawl/db/ → search index (runs on prebuild)
+  build-sqlite.ts           data/crawl/db/ → data/crawl/superask-sites.db
+  ingest.ts                 WordPress adapter → data/kb/ (§8.6)
   provider-smoke.ts         live provider round-trip
   telegram-webhook.ts       register the Telegram webhook
   schedule-weekly.ps1       Windows weekly task
+  schedule-weekly-macos.sh  macOS weekly task (launchd)
   sync-from-bunkheang.ps1   mirror upstream code, keep docs/
 tests/                      unit tests (npm test), mirrors lib/
 docs/                       course deliverables (see docs/README.md)
   demo-1/                   Demo 1 e-archive, incl. 3_integration_testing/
+  report-3/                 Report Three review against the code
 ```
 
 ---

@@ -5,9 +5,11 @@
  *   npx tsx scripts/build-sqlite.ts --search   also build the full-text index
  *   → data/crawl/superask-sites.db
  *
- * The committed copy is built WITHOUT --search. The trigram index is half the
- * file (about 29 MB of 57), every rebuild would add it to git history again,
- * and at this size a plain LIKE scan of every page is already instant:
+ * The output is not tracked in git (see .gitignore): it is a build product of
+ * data/crawl/db/, and every rebuild would add another ~24 MB to history. Run
+ * this script to get a local copy. --search adds a trigram index that is half
+ * the file (about 29 MB of 57); without it a plain LIKE scan of every page is
+ * already instant:
  *
  *   SELECT s.institution_folder, p.url, p.title
  *   FROM pages p JOIN sites s ON s.id = p.site_id

@@ -10,6 +10,7 @@ docs/
   report-1/        Report One (both parts, full export, use cases)
   report-2/        Report Two (full report, diagram hand-off pages)
     diagrams/      Mermaid sources, PNGs, and the page build scripts
+  report-3/        Report Three, Part One review against the code
   demo-1/          Demo 1 e-archive (1_code … 5_documentation)
     slides/        presentation source and built deck
 ```
@@ -41,6 +42,12 @@ docs/
 
 The `.html` pages are self-contained (images embedded), so they open directly
 in a browser.
+
+## Report Three: [`report-3/`](report-3/)
+
+| Deliverable | File |
+|---|---|
+| Part One reviewed against the codebase (out-of-date claims, missing files, unbuilt features, numbering errors) | `report3-part1-review.md` |
 
 ## Demo 1: [`demo-1/`](demo-1/README.md)
 

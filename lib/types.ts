@@ -52,7 +52,8 @@ export interface Chunk {
   stewardApproved?: boolean;
   /**
    * The source page states no date the content took effect, so `effective`
-   * holds the fetch date only to satisfy the schema. Set by ingest-crawl.ts.
+   * holds the fetch date only to satisfy the schema. Set on crawl-index
+   * passages and any machine-ingested kb file whose page gives no date.
    * Never present this date to a citizen as an effective date.
    */
   effectiveUnknown?: boolean;
@@ -106,7 +107,7 @@ export interface Citation {
   quote: string;
   /**
    * The source has not been approved by a content steward: a crawled official
-   * page (`stewardApproved: false`, from data/kb/web-*.json or the crawl
+   * page (`stewardApproved: false` in data/kb, or a passage from the crawl
    * index) or a live web-search result. The text is the source's own, but no
    * person has checked it, so the interface must not label it "verified" or
    * "approved".

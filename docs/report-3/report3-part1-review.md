@@ -30,7 +30,7 @@
 |---|---|---|---|
 | B1 | UC-7 "Open in Google Maps"; mock-up Figure 10 "Show office on map"; §5 click count "Show on Map". | No map link anywhere in `components/`, `lib/` or `app/`. The report contradicts itself, because §6e says "No map link". | §4 UC-7, §4 UI spec, §5 user effort |
 | B2 | UC-7 extension 3a (ask which province) and 4a/4b (contact card, location fallback). | Not implemented. `data/facilities.json` has 2 entries marked `[SAMPLE]` and is used only for emergency numbers. §4 should mark UC-7 as **partial**, as §5 and §6 already do. | §4 UC-7 |
-| B3 | UC-11 steps 7–8 update the stored information and its last-verified date. | The crawler (`lib/crawl/`) only raises change signals to `review-queue.jsonl`. The only path that writes to `data/kb/` is the separate `ingest-crawl.ts` (see A3). | §4 UC-11 |
+| B3 | UC-11 steps 7–8 update the stored information and its last-verified date. | The crawler (`lib/crawl/`) only raises change signals to `review-queue.jsonl`. Nothing writes crawled pages into `data/kb/`: the local `ingest-crawl.ts` was dropped (see A3), and `scripts/ingest.ts` is a manually run WordPress adapter. | §4 UC-11 |
 | B4 | Messenger is an actor and a channel (REQ-15, UC-9), with no "planned" label in §4. | Messenger is only a link (`lib/ui/channels.ts` → `m.me/superaskkh`). | §4 actors, UC-9 |
 | B5 | Login and register pages. | `lib/ui/auth-session.ts` is a localStorage flag that only gates the UI; there is no real authentication. §10 already says this; make sure §4 and the UI sections don't imply more. | §4 UI spec |
 
