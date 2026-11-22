@@ -7,6 +7,7 @@
 
 import type { Lang } from "@/lib/types";
 import { getKb } from "@/lib/kb/loader";
+import { crawlStats } from "@/lib/retrieval/crawl-index";
 
 /**
  * Refusal copy for a question that is not about a government service at all.
@@ -56,24 +57,34 @@ export function cannotAnswer(lang: Lang): string {
     ...new Set(getKb().chunks.filter((c) => !c.superseded).map((c) => c.ministry)),
   ];
 
+  // The crawl database is the second place an answer can come from. Listing
+  // only the approved ministries undersold what SuperAsk had actually searched.
+  const sites = crawlStats().sites;
+
   if (lang === "km") {
     return [
-      "SuperAsk មិនមានឯកសារយោងដែលបានអនុម័តសម្រាប់សំណួរនេះទេ។ ជាជាងទាយ វានឹងមិនឆ្លើយឡើយ។",
+      "SuperAsk រកមិនឃើញប្រភពដែលឆ្លើយសំណួរនេះទេ។ ជាជាងទាយ វានឹងមិនឆ្លើយឡើយ។",
       "",
-      "បច្ចុប្បន្ន SuperAsk គ្របដណ្តប់លើ៖",
+      "បច្ចុប្បន្ន SuperAsk មានឯកសារដែលបានអនុម័តសម្រាប់៖",
       ...ministries.map((m) => `• ${m}`),
+      ...(sites > 0
+        ? ["", `វាក៏បានស្វែងរកក្នុងខ្លឹមសារដែលប្រមូលពីគេហទំព័រផ្លូវការចំនួន ${sites} ផងដែរ។`]
+        : []),
       "",
-      "ប្រសិនបើសំណួររបស់អ្នកស្ថិតក្នុងវិស័យទាំងនេះ សូមសាកសួរម្តងទៀតដោយប្រើពាក្យផ្សេង។",
+      "សូមសាកសួរម្តងទៀតដោយប្រើពាក្យផ្សេង ឬបញ្ជាក់ឈ្មោះសេវា ឬក្រសួងដែលអ្នកចង់សួរ។",
     ].join("\n");
   }
 
   return [
-    "SuperAsk does not have an approved source that answers this. Rather than guess, it will not answer.",
+    "SuperAsk could not find a source that answers this. Rather than guess, it will not answer.",
     "",
-    "Right now it covers:",
+    "Right now it has approved documents for:",
     ...ministries.map((m) => `• ${m}`),
+    ...(sites > 0
+      ? ["", `It also searched the content it has collected from ${sites} official websites.`]
+      : []),
     "",
-    "If your question is in one of those areas, try asking it a different way.",
+    "Try asking it a different way, or name the service or ministry you mean.",
   ].join("\n");
 }
 

@@ -38,7 +38,7 @@ import { assess, looksLikeEntityLookup } from "./topicality";
 import {
   screen,
   moderateOutput,
-  isOffDomain,
+  isInScope,
   inScopeHistory,
   type GuardrailHit,
 } from "./guardrails";
@@ -53,7 +53,9 @@ import {
   SUPPRESSED,
 } from "./copy";
 import { toCitation } from "./citations";
-import { tryGeneralFallback } from "./fallback";
+import { GENERAL_FALLBACK_FOR_SERVICES, tryGeneralFallback } from "./fallback";
+import { tryCrawlAnswer } from "./crawl-answer";
+import { tryWebAnswer } from "./web-answer";
 
 const CURATED_THRESHOLD = Number(
   process.env.CURATED_MATCH_THRESHOLD ?? "0.72",
@@ -68,6 +70,12 @@ const CURATED_THRESHOLD = Number(
  * changes.
  */
 const RETRIEVAL_MIN_SCORE = Number(process.env.RETRIEVAL_MIN_SCORE ?? "0.20");
+
+/**
+ * Below this topicality coverage, an approved source can be displaced by a
+ * crawled passage that covers strictly more of the question.
+ */
+const CRAWL_CHALLENGE_BELOW = Number(process.env.CRAWL_CHALLENGE_BELOW ?? "0.75");
 
 export async function ask(req: AskRequest): Promise<AskResponse> {
   const id = randomUUID();
@@ -201,7 +209,10 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
   // OFF_DOMAIN matches only unmistakable non-service requests and lets anything
   // ambiguous fall through, so running it earlier costs no legitimate question —
   // and saves a retrieval and a model call on the ones it catches.
-  if (isOffDomain(question, history)) {
+  // A question the vocabulary screen does not recognise is still in scope when
+  // a crawled official website has a page about it. Explicitly off-domain asks
+  // (translation, weather, general knowledge) stay refused either way.
+  if (!isInScope(question, history)) {
     trace("scope", { reason: "not_a_service_question" });
     return finish(
       {
@@ -291,6 +302,35 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
       baseDiagnostics,
     });
 
+  // Crawled official-website content: consulted only once the approved corpus
+  // has failed to answer, and labelled unreviewed. See lib/engine/crawl-answer.ts.
+  const crawlAnswer = (beat = 0) =>
+    tryCrawlAnswer({
+      beat,
+      question,
+      history,
+      lang,
+      normalisedQuery: query.normalised,
+      id,
+      retrievalDiag,
+      finish,
+      baseDiagnostics,
+    });
+
+  // Live web search: the last sourced step, after both corpora have failed.
+  // Off unless WEB_SEARCH_ENABLED=true. See lib/engine/web-answer.ts.
+  const webAnswer = () =>
+    tryWebAnswer({
+      question,
+      history,
+      lang,
+      normalisedQuery: query.normalised,
+      id,
+      retrievalDiag,
+      finish,
+      baseDiagnostics,
+    });
+
   // ── Confidence gate: decline rather than generate over weak sources ─────
   // FR-16. This runs before generation on purpose (section 13).
   if (candidates.length === 0 || topScore < RETRIEVAL_MIN_SCORE) {
@@ -333,7 +373,14 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
     }
 
     // Anything reaching here is in domain — the off-domain screen ran before
-    // retrieval — so this is a coverage gap.
+    // retrieval — so this is a coverage gap in the approved corpus. A page on
+    // an official website beats the model's memory, so the crawl goes first.
+    const crawled = await crawlAnswer();
+    if (crawled) return crawled;
+
+    const web = await webAnswer();
+    if (web) return web;
+
     const fallback = await generalFallback();
     if (fallback) return fallback;
 
@@ -456,6 +503,24 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
     );
   }
 
+  // The approved corpus cleared the floor on similarity, but its best source
+  // leaves a good part of the question unmentioned — "register my business
+  // for tax online" lands on vehicle registration this way. Before answering
+  // from it, see whether an official website covers MORE of what was asked.
+  // A source that covers the question is never displaced.
+  if (topical.coverage < CRAWL_CHALLENGE_BELOW) {
+    const crawled = await crawlAnswer(topical.coverage);
+    if (crawled) return crawled;
+  }
+
+  // Neither corpus has a source that is about the question. A page found on
+  // the web that IS about it, linked and labelled, beats the nearest approved
+  // source served with a "may not answer what you asked" caveat.
+  if (!topical.onTopic) {
+    const web = await webAnswer();
+    if (web) return web;
+  }
+
   // ── Tier 2: generation over retrieved sources only (FR-14) ───────────────
   // Both variants, kept separate. FR-08: the answer must be in the citizen's
   // language, and a provider that quotes verbatim cannot honour that unless it
@@ -558,7 +623,16 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
   };
 
   // The model claimed it cannot answer, or produced no citations.
-  if (outcome.shouldDecline || !outcome.answer) {
+  // The configured model failed and the answer below is the extractive
+  // stand-in, which quotes the top source verbatim and cannot judge whether it
+  // answers the question. When that source leaves a good part of the question
+  // unmentioned ("register my marriage" landing on vehicle registration),
+  // quoting it as "the approved source" is a wrong answer, not a degraded one.
+  const degradedOffSubject =
+    Boolean(outcome.fallbackReason) && topical.coverage < CRAWL_CHALLENGE_BELOW;
+  if (degradedOffSubject) trace("degraded_off_subject", { coverage: topical.coverage });
+
+  if (outcome.shouldDecline || !outcome.answer || degradedOffSubject) {
     /*
       Retrieval returned something the model would not answer from. That is a
       coverage gap ONLY when what it returned was not about the question.
@@ -578,7 +652,14 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
       topic. When it is on topic, the honest ending is the decline below: the
       corpus has something, and this particular question is not answered by it.
     */
-    const fallback = topical.onTopic ? null : await generalFallback();
+    // The model would not answer from what the corpus holds. A web result is
+    // sourced and linked, so unlike the unsourced fallback below it is offered
+    // whether or not the top source was on topic.
+    const web = await webAnswer();
+    if (web) return web;
+
+    const fallback =
+      topical.onTopic && !GENERAL_FALLBACK_FOR_SERVICES ? null : await generalFallback();
     if (fallback) return fallback;
 
     return finish(
@@ -586,7 +667,7 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
         id,
         tier: 3,
         lang,
-        answer: outcome.answer || cannotAnswer(lang),
+        answer: degradedOffSubject ? cannotAnswer(lang) : outcome.answer || cannotAnswer(lang),
         citations: [],
         coverageGap: true,
       },
@@ -595,7 +676,7 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
         ...retrievalDiag,
         ...providerDiag,
         confidence: outcome.confidence,
-        refusalReason: "provider:declined",
+        refusalReason: degradedOffSubject ? "provider:degraded_off_subject" : "provider:declined",
       }),
     );
   }

@@ -227,7 +227,7 @@ export const STATS = {
   items: [
     {
       icon: "building",
-      n: "30+",
+      n: "58",
       label: { en: "Ministries & institutions covered", km: "ក្រសួង និងស្ថាប័នដែលគ្របដណ្តប់" },
     },
     {
@@ -636,6 +636,85 @@ export const TOPICS: Array<{ km: string; en: string; ask: Copy }> = [
     km: "ការចុះបញ្ជីម៉ាកពាណិជ្ជកម្ម",
     en: "Trademark registration",
     ask: { en: "How do I register a trademark?", km: "តើខ្ញុំចុះបញ្ជីម៉ាកពាណិជ្ជកម្មដោយរបៀបណា?" },
+  },
+  // Answered from the crawl database (data/crawl/), not from data/kb/. Each
+  // was checked against the live engine before being listed here.
+  {
+    km: "ការចុះបញ្ជីពន្ធតាមអនឡាញ",
+    en: "Online tax registration",
+    ask: { en: "How do I register my business for tax online?", km: "តើខ្ញុំចុះបញ្ជីពន្ធសម្រាប់អាជីវកម្មរបស់ខ្ញុំតាមអនឡាញដោយរបៀបណា?" },
+  },
+  {
+    km: "ប្រព័ន្ធចុះបញ្ជីអាជីវកម្មអនឡាញ",
+    en: "Online Business Registration",
+    ask: { en: "What services can I do on the Online Business Registration system?", km: "តើខ្ញុំអាចប្រើសេវាអ្វីខ្លះនៅលើប្រព័ន្ធចុះបញ្ជីអាជីវកម្មតាមអនឡាញ?" },
+  },
+  {
+    km: "គម្រោងវិនិយោគមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់ (QIP)",
+    en: "Investment incentives (QIP)",
+    ask: { en: "What incentives does a Qualified Investment Project get?", km: "តើគម្រោងវិនិយោគមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់ (QIP) ទទួលបានការលើកទឹកចិត្តអ្វីខ្លះ?" },
+  },
+  // Where the institution's site is English-only, a Khmer question finds
+  // nothing, so those chips send the English question in both languages.
+  {
+    km: "ការដាក់ពាក្យសុំគម្រោងវិនិយោគ (QIP)",
+    en: "Investment project application",
+    ask: { en: "How do I apply for a Qualified Investment Project?", km: "តើខ្ញុំដាក់ពាក្យសុំគម្រោងវិនិយោគមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់ (QIP) ដោយរបៀបណា?" },
+  },
+  {
+    km: "លិខិតអនុញ្ញាតសូឡាលើដំបូល",
+    en: "Rooftop solar permits",
+    ask: { en: "What permits do I need to install rooftop solar?", km: "What permits do I need to install rooftop solar?" },
+  },
+  {
+    km: "លិខិតអនុញ្ញាតរុករករ៉ែ",
+    en: "Mineral prospecting permit",
+    ask: { en: "How do I apply for a mineral prospecting permit?", km: "How do I apply for a mineral prospecting permit?" },
+  },
+  {
+    km: "ការចុះបញ្ជីអ្នកជំនាញថាមពល",
+    en: "Energy professional registration",
+    ask: { en: "How do I register as an energy professional?", km: "How do I register as an energy professional?" },
+  },
+  {
+    km: "ការណាត់ជួបពេទ្យ មន្ទីរពេទ្យកាល់ម៉ែត",
+    en: "Calmette Hospital appointment",
+    ask: { en: "How do I make an appointment at Calmette Hospital?", km: "How do I make an appointment at Calmette Hospital?" },
+  },
+  {
+    km: "សេវាដីធ្លី",
+    en: "Land services",
+    ask: { en: "What land services does the Ministry of Land Management offer?", km: "តើក្រសួងរៀបចំដែនដី នគរូបនីយកម្ម និងសំណង់ ផ្តល់សេវាដីធ្លីអ្វីខ្លះ?" },
+  },
+  {
+    km: "សុខភាពមាតា និងទារក",
+    en: "Maternal and child health services",
+    ask: { en: "What services does the National Maternal and Child Health Center provide?", km: "តើមជ្ឈមណ្ឌលជាតិគាំពារមាតា និងទារក ផ្តល់សេវាអ្វីខ្លះ?" },
+  },
+  {
+    km: "វគ្គបណ្តុះបណ្តាលបច្ចេកទេស (NTTI)",
+    en: "Technical training courses",
+    ask: { en: "What courses does the National Technical Training Institute offer?", km: "What courses does the National Technical Training Institute offer?" },
+  },
+  {
+    km: "ពានរង្វាន់ឌីជីថលកម្ពុជា",
+    en: "Cambodia Digital Award",
+    ask: { en: "What is the Cambodia Digital Award and how do I apply?", km: "What is the Cambodia Digital Award and how do I apply?" },
+  },
+  {
+    km: "លទ្ធកម្មសាធារណៈ",
+    en: "Public procurement",
+    ask: { en: "What does the General Department of Public Procurement do?", km: "What does the General Department of Public Procurement do?" },
+  },
+  {
+    km: "ការការពារអ្នកប្រើប្រាស់",
+    en: "Consumer protection",
+    ask: { en: "What does the consumer protection directorate CCF do?", km: "តើអគ្គនាយកដ្ឋានការពារអ្នកប្រើប្រាស់ កិច្ចការប្រកួតប្រជែង និងបង្ក្រាបការក្លែងបន្លំ (ក.ប.ប.) មានតួនាទីអ្វី?" },
+  },
+  {
+    km: "ការបោះឆ្នោត",
+    en: "Elections",
+    ask: { en: "What is the role of the National Election Committee?", km: "What is the role of the National Election Committee?" },
   },
 ];
 

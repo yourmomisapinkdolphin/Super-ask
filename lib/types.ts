@@ -56,6 +56,12 @@ export interface Chunk {
    * Never present this date to a citizen as an effective date.
    */
   effectiveUnknown?: boolean;
+  /**
+   * "crawl" marks a passage served straight from the crawl index
+   * (lib/retrieval/crawl-index.ts) rather than from data/kb/. Absent on
+   * everything in the approved corpus.
+   */
+  origin?: "crawl" | "web";
   /** When ingestion fetched this, and from where (FR-54 provenance). */
   ingestedAt?: string;
   ingestedFrom?: string;
@@ -99,12 +105,15 @@ export interface Citation {
   freshness: Freshness;
   quote: string;
   /**
-   * The cited passage was collected from the official source by the crawler
-   * and has not been approved by a content steward (`stewardApproved: false`).
-   * The text is the source's own, verbatim, but no person has checked it, so
-   * the interface must not present it as a verified source.
+   * The source has not been approved by a content steward: a crawled official
+   * page (`stewardApproved: false`, from data/kb/web-*.json or the crawl
+   * index) or a live web-search result. The text is the source's own, but no
+   * person has checked it, so the interface must not label it "verified" or
+   * "approved".
    */
   unreviewed?: boolean;
+  /** The page was found by a live web search, not in the crawl database. */
+  web?: boolean;
   /**
    * The cited passage is prototype SAMPLE content (data/README.md quarantine):
    * placeholder instrument numbers and figures, not an official text. The
@@ -171,6 +180,9 @@ export interface Diagnostics {
    *                       provider:declined because the corpus does cover the
    *                       subject: the rate of these measures a gap in the
    *                       published source pages, and the fix is content.
+   *   fallback:crawled_website  NOT a refusal — the approved corpus had no
+   *                       answer and one was served from unreviewed crawled
+   *                       website content, labelled as such.
    *   fallback:general_knowledge  NOT a refusal — no source covered the
    *                       question and GENERAL_FALLBACK_ENABLED served an
    *                       unverified model answer instead. Recorded here so the
@@ -213,6 +225,18 @@ export interface AskResponse {
    * backed by a cited approved source — the default contract.
    */
   unverified?: boolean;
+  /**
+   * The answer rests on text crawled from an official website, which no steward
+   * has reviewed. Unlike `unverified`, it HAS citations — each one a link to
+   * the page the text was fetched from — and the interface must say plainly
+   * that the content is unreviewed. See lib/engine/crawl-answer.ts.
+   */
+  unreviewed?: boolean;
+  /**
+   * Set together with `unreviewed` when the pages were found by a live web
+   * search rather than in the crawl database. See lib/engine/web-answer.ts.
+   */
+  web?: boolean;
   /** Emergency path: FR guardrail 6. Terminates the interaction. */
   terminal?: boolean;
   diagnostics?: Diagnostics;

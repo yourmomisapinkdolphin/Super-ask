@@ -65,23 +65,14 @@ function readJson<T>(...segments: string[]): T {
 }
 
 /**
- * Serve passages that no steward has approved (`stewardApproved: false`, i.e.
- * everything §8.6 ingestion produced from a crawl)?
- *
- * On by default, because the crawl is most of the corpus — but every citation
- * of such a passage carries `unreviewed: true` and the interface labels it
- * (lib/engine/citations.ts, SourceCard). Set UNREVIEWED_CONTENT_ENABLED=false
- * to answer from steward-approved and hand-written content only: unreviewed
- * passages stay loaded (so ids still resolve) but are left out of both
- * retrieval indexes.
+ * Is this a passage from outside the curated corpus: a crawled page served from
+ * the crawl index, or a live web-search result (Chunk.origin)? Those carry no
+ * human curation, so citations label them "not reviewed". The curated files in
+ * data/kb/ are not labelled so, although their `stewardApproved` flag is false
+ * until the §8.5 steward workflow exists (tests/kb/corpus.test.ts).
  */
-export function unreviewedContentEnabled(): boolean {
-  return (process.env.UNREVIEWED_CONTENT_ENABLED ?? "true").toLowerCase() !== "false";
-}
-
-/** True for a passage a steward has not approved. Absent means hand-written. */
-export function isUnreviewed(chunk: Pick<Chunk, "stewardApproved">): boolean {
-  return chunk.stewardApproved === false;
+export function isUnreviewed(chunk: Pick<Chunk, "origin">): boolean {
+  return chunk.origin === "crawl" || chunk.origin === "web";
 }
 
 /**
@@ -97,15 +88,12 @@ export function isSampleContent(chunk: Pick<Chunk, "doc" | "instrument">): boole
 /** What a citizen may be told about a passage's standing. */
 export type SourceStatus = "approved" | "unreviewed" | "sample";
 export function sourceStatus(
-  chunk: Pick<Chunk, "doc" | "instrument" | "stewardApproved">,
+  chunk: Pick<Chunk, "doc" | "instrument" | "origin">,
 ): SourceStatus {
   if (isSampleContent(chunk)) return "sample";
   if (isUnreviewed(chunk)) return "unreviewed";
   return "approved";
 }
-
-/** Placeholder the ingester writes where a page cites no legal instrument. */
-export const NOT_CITED = "Not cited on source page";
 
 function kbFiles(): string[] {
   return readdirSync(join(DATA_DIR, "kb")).filter((f) => f.endsWith(".json")).sort();
@@ -127,7 +115,7 @@ function signature(): string {
       return `${rel}:missing`;
     }
   });
-  return `${DATA_DIR}|unreviewed=${unreviewedContentEnabled()}|${stats.join("|")}`;
+  return `${DATA_DIR}|${stats.join("|")}`;
 }
 
 function build(): Kb {
@@ -156,15 +144,11 @@ function build(): Kb {
     emergency: { numbers: Array<{ label: string; labelKm: string; number: string }> };
     }>("facilities.json");
 
-  const indexed = unreviewedContentEnabled()
-    ? chunks
-    : chunks.filter((c) => !isUnreviewed(c));
-
   return {
     chunks,
     byId: new Map(chunks.map((c) => [c.id, c])),
-    bm25: new Bm25Index(indexed),
-    vectors: new VectorIndex(indexed),
+    bm25: new Bm25Index(chunks),
+    vectors: new VectorIndex(chunks),
     curated: curatedFile.answers,
     glossary: glossaryFile.terms,
     aliases: aliasFile.aliases,

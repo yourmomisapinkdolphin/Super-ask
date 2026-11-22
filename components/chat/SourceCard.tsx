@@ -22,6 +22,7 @@ import { FreshnessBadge } from "./FreshnessBadge";
 
 /** Ingester placeholder where a page cites no instrument; not worth printing. */
 const NOT_CITED = "Not cited on source page";
+const CRAWL_INSTRUMENT = "Website page (not reviewed)";
 
 export function SourceCard({
   citation,
@@ -30,13 +31,14 @@ export function SourceCard({
   citation: Citation;
   lang: Lang;
 }) {
-  // A crawled passage no steward has approved is never styled as verified,
-  // however recent its fetch date (Citation.unreviewed).
+  // An unreviewed source (crawled page, web-search result or sample content)
+  // is never styled as verified, however recently it was fetched.
   const sample = citation.sample === true;
   const unreviewed = citation.unreviewed === true || sample;
   const fresh = citation.freshness === "fresh" && !unreviewed;
+  // Placeholders the crawl paths write where a page cites no instrument.
   const reference = [citation.instrument, citation.article]
-    .filter((v) => v && v !== NOT_CITED)
+    .filter((v) => v && v !== NOT_CITED && v !== CRAWL_INSTRUMENT)
     .join(" · ");
   return (
     <div
@@ -63,8 +65,10 @@ export function SourceCard({
           >
             {sample
               ? UI.sampleSource[lang]
-              : unreviewed
-              ? UI.unreviewedSource[lang]
+              : citation.web
+                ? UI.webSource[lang]
+                : unreviewed
+                  ? UI.websiteSource[lang]
               : fresh
                 ? UI.verifiedSource[lang]
                 : UI.sourceOne[lang]}
@@ -99,13 +103,15 @@ export function SourceCard({
             </>
           )}
           {citation.effectiveUnknown ? (
-            <>{UI.fetched[lang]} {citation.verified}</>
+            <>
+              {citation.web ? UI.foundOn[lang] : UI.fetchedOn[lang]} {citation.verified}
+            </>
           ) : (
             <>
               {UI.effective[lang]} {citation.effective} ·{" "}
-          <span style={{ color: fresh ? T.tealText : T.inkSoft, fontWeight: 600 }}>
-            {UI.lastVerified[lang]} {citation.verified}
-          </span>
+              <span style={{ color: fresh ? T.tealText : T.inkSoft, fontWeight: 600 }}>
+                {UI.lastVerified[lang]} {citation.verified}
+              </span>
             </>
           )}
         </div>

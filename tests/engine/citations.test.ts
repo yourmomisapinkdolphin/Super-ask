@@ -34,12 +34,15 @@ afterEach(() => {
 });
 
 describe("unreviewed marker", () => {
-  it("marks a crawled passage no steward approved", () => {
-    expect(toCitation(chunk({ stewardApproved: false }), "en").unreviewed).toBe(true);
+  it("marks a crawled page or web-search result", () => {
+    expect(toCitation(chunk({ origin: "crawl" }), "en").unreviewed).toBe(true);
+    const web = toCitation(chunk({ origin: "web" }), "en");
+    expect(web.unreviewed).toBe(true);
+    expect(web.web).toBe(true);
   });
 
-  it("does not mark an approved or hand-written passage", () => {
-    expect(toCitation(chunk({ stewardApproved: true }), "en").unreviewed).toBeUndefined();
+  it("does not mark a curated data/kb passage, whatever its stewardApproved flag", () => {
+    expect(toCitation(chunk({ stewardApproved: false }), "en").unreviewed).toBeUndefined();
     expect(toCitation(chunk(), "en").unreviewed).toBeUndefined();
   });
 
@@ -49,7 +52,7 @@ describe("unreviewed marker", () => {
       tier: 2,
       lang: "en",
       answer: "Bring the old licence.",
-      citations: [toCitation(chunk({ stewardApproved: false }), "en")],
+      citations: [toCitation(chunk({ origin: "crawl" }), "en")],
       coverageGap: false,
     });
     expect(text).toContain("not yet reviewed");
@@ -122,21 +125,5 @@ describe("office map link", () => {
 
   it("is attached to every citation with a ministry", () => {
     expect(toCitation(chunk(), "en").mapUrl).toMatch(/^https:\/\/www\.google\.com\/maps\/search\//);
-  });
-});
-
-describe("UNREVIEWED_CONTENT_ENABLED", () => {
-  it("leaves unreviewed passages out of retrieval when switched off", async () => {
-    vi.resetModules();
-    vi.stubEnv("UNREVIEWED_CONTENT_ENABLED", "false");
-    const { getKb, isUnreviewed } = await import("@/lib/kb/loader");
-    const kb = getKb();
-    const unreviewed = kb.chunks.filter(isUnreviewed);
-    expect(unreviewed.length).toBeGreaterThan(0);
-    // Still loaded, so ids resolve, but never a retrieval candidate.
-    const hits = kb.bm25.score(["licence", "driving", "registration", "ministry"]);
-    for (const id of hits.keys()) {
-      expect(isUnreviewed(kb.byId.get(id)!)).toBe(false);
-    }
   });
 });

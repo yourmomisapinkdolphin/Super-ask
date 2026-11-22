@@ -248,7 +248,10 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
                       >
                         {UI.coversNow[lang]}
                       </div>
-                      <div className="flex flex-wrap justify-center gap-2">
+                      <div
+                        className="flex flex-wrap justify-center gap-2"
+                        style={{ maxHeight: 176, overflowY: "auto" }}
+                      >
                         {coverage.map((c) => (
                           <span
                             key={c.ministry}

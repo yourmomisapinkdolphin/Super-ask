@@ -106,3 +106,69 @@ jobs:
             exit 1
           fi
           echo "No tracked env files."
+
+  deploy:
+    # Production deploy to Vercel. Only a push to main, and only after every
+    # check above has passed, so a regression in recall, refusal or the
+    # verification gate never reaches citizens. Pull requests never deploy and
+    # never see the token.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [check, secrets-scan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # A newer push to main must not cancel a deploy halfway through an upload.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Skip if Vercel secrets are not configured
+        if: env.VERCEL_TOKEN == '' || env.VERCEL_ORG_ID == '' || env.VERCEL_PROJECT_ID == ''
+        run: echo "::warning::VERCEL_TOKEN, VERCEL_ORG_ID or VERCEL_PROJECT_ID is not set. Skipping deploy."
+
+      - uses: actions/checkout@v4
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+
+      - uses: actions/setup-node@v4
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Vercel CLI
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        # 65.x or later: older CLIs reject the project's Node.js 26.x setting.
+        run: npm install --global vercel@65.11.0
+
+      # Production env vars (provider credential, Telegram token) stay in
+      # Vercel. They are pulled into the runner for the build only and are
+      # never written to the repository.
+      - name: Pull Vercel production settings
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      # The Hobby team rejects deploys whose git commit author is not a team
+      # member (see README, "Issues encountered"). Upload the prebuilt output
+      # without git metadata, as the manual deploys did. The runner is
+      # discarded after the job, so removing .git here touches nothing else.
+      - name: Deploy to production
+        if: env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+        run: |
+          rm -rf .git
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "Deployed: $url"
+          echo "### Deployed to production" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"

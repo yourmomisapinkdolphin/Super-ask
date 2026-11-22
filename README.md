@@ -10,6 +10,14 @@ Web, Next.js App Router, TypeScript.
 
 ---
 
+## Live version
+
+SuperAsk is deployed at **https://superask-monunhh.vercel.app** (Monunhh's version, built from `main`).
+
+It answers from the 58 crawled institutions as well as the approved documents, with more suggested procedures, institution logos, and looser handling of questions no source covers.
+
+---
+
 ## Course deliverables (CSCI441, Team AO3)
 
 Every submission (proposal, Report One, Report Two and its diagrams, and the

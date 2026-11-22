@@ -19,7 +19,8 @@
 import type { Lang } from "@/lib/types";
 import { normalizeFold, containsWord } from "@/lib/khmer/normalize";
 import { getKb } from "@/lib/kb/loader";
-import { isSubjectless } from "@/lib/lang/content";
+import { contentTerms, isSubjectless } from "@/lib/lang/content";
+import { crawlCoversTopic, institutionNameTerms } from "./crawl-topic";
 
 export type GuardrailKind =
   | "emergency"
@@ -337,6 +338,55 @@ export function looksLikeServiceQuestion(question: string): boolean {
 }
 
 /**
+ * Does this turn say what the conversation is about?
+ *
+ * Service vocabulary does, and so does a question an official website has a
+ * page about. The second half was missing, and it cost the whole conversation:
+ * "How do I make an appointment at Calmette Hospital?" carries no service
+ * vocabulary, is answered from the hospital's own website — and was then
+ * dropped from history as off-domain, so the next question about Calmette was
+ * answered as if nothing had been asked before it.
+ */
+function namesTopic(text: string): boolean {
+  if (OFF_DOMAIN.some((p) => p.test(text))) return false;
+  return looksLikeServiceQuestion(text) || crawlCoversTopic(text);
+}
+
+/**
+ * Openers that correct or redirect the previous turn rather than start a new
+ * one: "no, I am asking from Calmette", "I mean the fee".
+ */
+const CORRECTION =
+  /^(?:(?:no|nope|sorry|actually|not that|i mean|i meant|i(?: am|'m|m| was)? asking|i asked)\b[\s,.:;!-]*)+/i;
+const CORRECTION_KM = /^(ទេ|អត់ទេ|មិនមែន|ខ្ញុំចង់សួរ|ខ្ញុំសួរ)/;
+
+/**
+ * A question with a subject of its own that is nevertheless still about what
+ * the conversation is about.
+ *
+ * It must share a content word with an earlier turn that named the topic, and
+ * that is not enough alone — "how much does tom holland make" shares "make"
+ * with an appointment question. So the shared word must also be one of two
+ * things: the name of an institution SuperAsk covers ("what time does calmette
+ * open?"), or anything at all when the turn opens as a correction of the
+ * previous one ("no, i am asking from calmette").
+ */
+function continuesTopic(question: string, anchors: string[]): boolean {
+  const trimmed = question.trim();
+  const correction = CORRECTION.test(trimmed) || CORRECTION_KM.test(trimmed);
+  const body = trimmed.replace(CORRECTION, "").replace(CORRECTION_KM, "");
+  const terms = contentTerms(correction ? body : trimmed);
+  if (terms.length === 0) return correction;
+
+  const anchored = new Set(anchors.flatMap((a) => contentTerms(a)));
+  const shared = terms.filter((t) => anchored.has(t));
+  if (correction) return shared.length > 0;
+
+  const names = institutionNameTerms();
+  return shared.some((t) => names.has(t));
+}
+
+/**
  * Out of scope when an explicit off-domain pattern fires, OR when nothing marks
  * the question as being about a government service at all.
  *
@@ -349,7 +399,11 @@ export function looksLikeServiceQuestion(question: string): boolean {
  * turn can anchor a follow-up, so the two cannot drift into disagreeing about
  * what a follow-up is. A question that introduces its own subject is judged on
  * its own subject however deep in a conversation it appears: "tom holland from
- * spider man" has four content words and does not inherit anything.
+ * spider man" has four content words and does not inherit anything. The one
+ * exception is continuesTopic() above.
+ *
+ * This is the vocabulary-and-conversation half of scope. isInScope() adds the
+ * crawl, and is what decides whether a turn is answered or kept as history.
  */
 export function isOffDomain(
   question: string,
@@ -357,12 +411,33 @@ export function isOffDomain(
 ): boolean {
   if (OFF_DOMAIN.some((p) => p.test(question))) return true;
   if (looksLikeServiceQuestion(question)) return false;
-  // Only a prior turn that was itself a service question can carry the topic
-  // forward. An off-domain first turn is not a topic.
-  const hasServiceAnchor = history.some(
-    (t) => t.role !== "assistant" && looksLikeServiceQuestion(t.text),
-  );
-  return !(hasServiceAnchor && isSubjectless(question));
+  // Only a prior turn that itself named a topic can carry it forward. An
+  // off-domain first turn is not a topic.
+  const anchors = history
+    .filter((t) => t.role !== "assistant" && namesTopic(t.text))
+    .map((t) => t.text);
+  if (anchors.length === 0) return true;
+  return !(isSubjectless(question) || continuesTopic(question, anchors));
+}
+
+/**
+ * The scope decision: is this a question SuperAsk should try to answer?
+ *
+ * One function, used both to screen the incoming question and to decide which
+ * earlier turns survive as history. They were two different tests — the screen
+ * consulted the crawl and the history filter did not — so a question could be
+ * answered and then forgotten.
+ *
+ * A question the vocabulary screen does not recognise is still in scope when a
+ * crawled official website has a page about it. Explicitly off-domain asks
+ * (translation, weather, general knowledge) stay refused either way.
+ */
+export function isInScope(
+  question: string,
+  history: Array<{ text: string; role?: string }> = [],
+): boolean {
+  if (!isOffDomain(question, history)) return true;
+  return !isExplicitlyOffDomain(question) && crawlCoversTopic(question);
 }
 
 /**
@@ -378,7 +453,7 @@ export function isOffTopicTurn(
   text: string,
   prior: Array<{ text: string; role?: string }> = [],
 ): boolean {
-  return isOffDomain(text, prior);
+  return !isInScope(text, prior);
 }
 
 /**
@@ -401,7 +476,7 @@ export function inScopeHistory<T extends { text: string; role?: string }>(
       }
       continue;
     }
-    if (!isOffDomain(turn.text, kept)) kept.push(turn);
+    if (isInScope(turn.text, kept)) kept.push(turn);
   }
   return kept;
 }
@@ -425,4 +500,9 @@ export function moderateOutput(answer: string): GuardrailHit | null {
   }
 
   return null;
+}
+
+/** Matches a named off-domain category, as opposed to merely lacking service vocabulary. */
+export function isExplicitlyOffDomain(question: string): boolean {
+  return OFF_DOMAIN.some((p) => p.test(question));
 }

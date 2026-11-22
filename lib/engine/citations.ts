@@ -36,9 +36,11 @@ export function toCitation(chunk: Chunk, lang: Lang): Citation {
     reviewDue: chunk.reviewDue,
     freshness: freshnessOf(chunk),
     quote: lang === "km" && chunk.textKm ? chunk.textKm : chunk.text,
-    ...(isUnreviewed(chunk) ? { unreviewed: true } : {}),
+    ...(isUnreviewed(chunk) || isSampleContent(chunk) ? { unreviewed: true } : {}),
+    ...(chunk.origin === "web" ? { web: true } : {}),
     ...(isSampleContent(chunk) ? { sample: true } : {}),
-    ...(chunk.effectiveUnknown ? { effectiveUnknown: true } : {}),
+    // Crawl-index and web-search passages carry the fetch date in `effective`.
+    ...(chunk.effectiveUnknown || chunk.origin ? { effectiveUnknown: true } : {}),
     ...(officeMapUrl(chunk.ministry) ? { mapUrl: officeMapUrl(chunk.ministry) } : {}),
   };
 }

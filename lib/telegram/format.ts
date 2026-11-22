@@ -11,17 +11,29 @@ export function formatTelegramAnswer(res: AskResponse): string {
 
   if (res.citations.length > 0) {
     lines.push("");
-    lines.push(res.lang === "km" ? "ប្រភពផ្លូវការ:" : "Official sources:");
+    lines.push(
+      res.web
+        ? res.lang === "km"
+          ? "លទ្ធផលស្វែងរកលើអ៊ីនធឺណិត (មិនទាន់ត្រួតពិនិត្យ):"
+          : "Web search results (not reviewed):"
+        : res.unreviewed
+        ? res.lang === "km"
+          ? "ទំព័រគេហទំព័រ (មិនទាន់ត្រួតពិនិត្យ):"
+          : "Website pages (not reviewed):"
+        : res.lang === "km"
+          ? "ប្រភពផ្លូវការ:"
+          : "Official sources:",
+    );
     for (const c of res.citations.slice(0, 3)) {
       const title = [c.instrument, c.article]
-        .filter((v) => v && v !== "Not cited on source page")
+        .filter((v) => v && v !== "Not cited on source page" && v !== "Website page (not reviewed)")
         .join(" · ");
       const status = c.sample
         ? res.lang === "km" ? " (ទិន្នន័យគំរូ មិនមែនផ្លូវការ)" : " (SAMPLE data, not official)"
         : c.unreviewed
           ? res.lang === "km" ? " (មិនទាន់ត្រួតពិនិត្យ)" : " (not yet reviewed)"
           : "";
-      const label = (title || c.doc) + status;
+      const label = (c.unreviewed && !c.sample ? `${c.ministry} — ${c.doc}` : title || c.doc) + status;
       if (c.url) {
         lines.push(`• ${label}\n  ${c.url}`);
       } else {

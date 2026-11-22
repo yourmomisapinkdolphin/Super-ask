@@ -16,20 +16,62 @@ import { useState } from "react";
 import { AlertTriangle, Flag, Terminal } from "lucide-react";
 import type { AskResponse } from "@/lib/types";
 import { T } from "@/lib/ui/theme";
-import { UI, UNVERIFIED_NOTICE } from "@/lib/ui/copy";
+import { UI, UNVERIFIED_NOTICE, UNREVIEWED_NOTICE, WEB_NOTICE } from "@/lib/ui/copy";
 import { AnswerText } from "./AnswerText";
 import { SourceCard } from "./SourceCard";
 import { ReportDialog } from "./ReportDialog";
+import { ministryLogo } from "@/lib/ui/ministry-logos";
 
-/** The assistant's avatar: gradient disc with the SA monogram. */
+/** The assistant's avatar: the SuperAsk icon. */
 export function BotAvatar({ size = 30 }: { size?: number }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/brand/superask-icon.png"
+      alt=""
+      aria-hidden
+      width={size}
+      height={size}
+      className="shrink-0 rounded-full"
+      style={{ width: size, height: size, marginTop: 2, objectFit: "cover" }}
+    />
+  );
+}
+
+/**
+ * The owning institution's logo in the answer header. Falls back to its
+ * initials when no logo is on file or the image fails to load.
+ */
+function MinistryBadge({ ministry, url, web }: { ministry: string; url?: string; web?: boolean }) {
+  const [broken, setBroken] = useState(false);
+  const logo = web ? null : ministryLogo(url);
+  const showLogo = logo && !broken;
   return (
     <div
       aria-hidden
-      className="flex shrink-0 items-center justify-center rounded-full"
-      style={{ width: size, height: size, background: T.gradient, marginTop: 2 }}
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full"
+      style={{
+        width: 38,
+        height: 38,
+        background: showLogo ? "#fff" : "rgba(255,255,255,0.18)",
+        border: "1px solid rgba(255,255,255,0.32)",
+      }}
     >
-      <span style={{ fontSize: size * 0.3, fontWeight: 800, color: "#fff", lineHeight: 1 }}>SA</span>
+      {showLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={logo}
+          alt=""
+          width={30}
+          height={30}
+          style={{ width: 30, height: 30, objectFit: "contain" }}
+          onError={() => setBroken(true)}
+        />
+      ) : (
+        <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>
+          {web ? "WEB" : ministryAbbr(ministry)}
+        </span>
+      )}
     </div>
   );
 }
@@ -86,9 +128,16 @@ export function AnswerBlock({
     where a qualification is actually read — so the trailing copy of it comes
     off first. Both strings come from lib/ui/copy.ts, so the match is exact.
   */
+  const trailing = answer.unverified
+    ? UNVERIFIED_NOTICE[lang]
+    : answer.web
+      ? WEB_NOTICE[lang]
+      : answer.unreviewed
+        ? UNREVIEWED_NOTICE[lang]
+      : "";
   const body =
-    answer.unverified && answer.answer.endsWith(UNVERIFIED_NOTICE[lang])
-      ? answer.answer.slice(0, -UNVERIFIED_NOTICE[lang].length).trimEnd()
+    trailing && answer.answer.endsWith(trailing)
+      ? answer.answer.slice(0, -trailing.length).trimEnd()
       : answer.answer;
 
   const footBtn = "inline-flex items-center gap-1.5 transition-colors hover:text-[#4F3FA8]";
@@ -105,20 +154,7 @@ export function AnswerBlock({
           {/* Sourced answers lead with the owning ministry, as in the Figma. */}
           {hasSources && lead && (
             <div className="flex items-center gap-3 px-4 py-3.5" style={{ background: T.gradient }}>
-              <div
-                aria-hidden
-                className="flex shrink-0 items-center justify-center rounded-full"
-                style={{
-                  width: 38,
-                  height: 38,
-                  background: "rgba(255,255,255,0.18)",
-                  border: "1px solid rgba(255,255,255,0.32)",
-                }}
-              >
-                <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>
-                  {ministryAbbr(lead.ministry)}
-                </span>
-              </div>
+              <MinistryBadge ministry={lead.ministry} url={lead.url} web={answer.web} />
               <div className="min-w-0 flex-1">
                 <div
                   className="km truncate"
@@ -159,7 +195,7 @@ export function AnswerBlock({
             the answer rather than attributing nothing and letting it read as
             official.
           */}
-          {answer.unverified && (
+          {(answer.unverified || answer.unreviewed) && (
             <div className="px-4 pt-4">
               <div
                 className="flex items-start gap-2 rounded-[10px] px-3 py-2.5"
@@ -168,10 +204,10 @@ export function AnswerBlock({
                 <AlertTriangle size={14} color={T.noticeText} className="mt-1 shrink-0" aria-hidden />
                 <div>
                   <div className="km" style={{ fontSize: 12.5, fontWeight: 600, color: T.noticeText }}>
-                    {UI.unverifiedLabel[lang]}
+                    {answer.web ? UI.webLabel[lang] : answer.unreviewed ? UI.unreviewedLabel[lang] : UI.unverifiedLabel[lang]}
                   </div>
                   <div className="km mt-0.5" style={{ fontSize: 12, lineHeight: 1.55, color: T.inkSoft }}>
-                    {UI.unverifiedBody[lang]}
+                    {answer.web ? UI.webBody[lang] : answer.unreviewed ? UI.unreviewedBody[lang] : UI.unverifiedBody[lang]}
                   </div>
                 </div>
               </div>
@@ -203,7 +239,7 @@ export function AnswerBlock({
             and stops there. There is no handover: the citizen can rephrase,
             pick a suggested question, or confirm with the responsible office.
           */}
-          {answer.coverageGap && (
+          {answer.coverageGap && !answer.unreviewed && (
             <div className="px-4 py-3" style={{ borderTop: `1px solid ${T.lineSoft}` }}>
               <span className="km inline-flex items-center gap-1.5" style={{ fontSize: 12.5, color: T.inkSoft }}>
                 <AlertTriangle size={13} color={T.noticeText} className="shrink-0" aria-hidden />

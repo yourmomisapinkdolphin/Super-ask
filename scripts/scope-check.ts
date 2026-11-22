@@ -248,6 +248,13 @@ const CASES: Case[] = [
     ],
     absent: ["driving licence", "vehicle registration"],
     why: "a subject-less follow-up must keep the subject from earlier turns",
+    knownGap:
+      "still drifts to driving-licence locations. The anchor lookback finds " +
+      "the passport turn, but 'where in phnom penh' then matches the " +
+      "office-and-hours passages of every ministry in the corpus — passport " +
+      "content is not onboarded, so the nearest office passage wins. Closes " +
+      "when MOI/immigration content is ingested, or when retrieval weights " +
+      "the anchored subject above the location vocabulary.",
   },
   {
     q: "and the fee?",
