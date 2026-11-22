@@ -15,8 +15,7 @@ Web, Next.js App Router, TypeScript.
 Every submission (proposal, Report One, Report Two and its diagrams, and the
 Demo 1 e-archive) is in [`docs/`](docs/README.md), grouped by deliverable.
 Demo 1 follows the course's required layout in
-[`docs/demo-1/`](docs/demo-1/README.md), with a checklist of what is still
-missing.
+[`docs/demo-1/`](docs/demo-1/README.md), which says what to open first.
 
 ---
 
@@ -437,7 +436,8 @@ Nothing outside `lib/llm/` contains model-specific logic.
 | Qwen via vLLM | `vllm` | Self-hosted | Cambodia |
 | Deterministic extraction | `extractive` | In-process | Cambodia |
 
-**Currently configured: `gateway`.** One credential fronts many model families,
+**Currently configured: `gateway`, model `google/gemini-3.1-flash-lite`**
+(Nous Research gateway; set `LLM_GATEWAY_API_KEY`). One credential fronts many model families,
 which is what §10.6 condition 4 needs for benchmarking candidates against the
 Khmer golden set — swapping the model under test is one environment variable.
 It is also a *third party* between SuperAsk and the model vendor, so it carries

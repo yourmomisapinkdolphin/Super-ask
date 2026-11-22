@@ -10,7 +10,7 @@ docs/
   report-1/        Report One (both parts, full export, use cases)
   report-2/        Report Two (full report, diagram hand-off pages)
     diagrams/      Mermaid sources, PNGs, and the page build scripts
-  demo-1/          Demo 1 e-archive (1_code … 5_documentation) + checklist
+  demo-1/          Demo 1 e-archive (1_code … 5_documentation)
     slides/        presentation source and built deck
 ```
 
@@ -46,9 +46,9 @@ in a browser.
 
 Laid out as the course's e-archive: `1_code/`, `2_unit_testing/`,
 `3_integration_testing/`, `4_data_collection/` and `5_documentation/`. The
-five required PDFs are in `5_documentation/`, and `slides/` holds the deck
-source. [`demo-1/README.md`](demo-1/README.md) has the requirement checklist
-and what is still missing.
+five required PDFs are in `5_documentation/`; `slides/` and `documents/` hold
+their HTML sources. [`demo-1/README.md`](demo-1/README.md) says what to open
+first.
 
 ## Keeping this folder safe
 
