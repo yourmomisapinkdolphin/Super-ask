@@ -1,6 +1,7 @@
 # Review: AO3 Report Three, Part One vs. the current codebase
 
 - **Reviewed:** `AO3 report 3 part 1.pdf` (98 pages), the export of the "AO3 Proposal" Google Doc, which was last edited 22 Nov 2026
+- **Code fixes:** Phallamonunhh Chun (Monunhh), AI/ML Engineer
 - **Compared against:** the `Super-ask` working tree on 23 Nov 2026 (`main` at `a5dc59d`, plus uncommitted changes: `lib/llm/gateway.ts`, `.env.example`, `scripts/ingest-crawl.ts` and 35 `data/kb/web-*.json` files)
 
 **Overall:** the core answer flow is described accurately: the three tiers, curated threshold 0.72, retrieval floor 0.20, refusal rules, answer checking, citations, the Report button, Telegram and the weekly crawl. The main problems are that the report is out of date on this week's work, cites two files that don't exist, describes features that aren't built, and has numbering and cross-reference errors. It also lacks the OCL contracts it says Report Three requires.
@@ -86,6 +87,8 @@
 
 ## E. Code changes made on 23 Nov 2026 to match the report
 
+Fixed by **Phallamonunhh Chun (Monunhh)**.
+
 These changes are uncommitted. Tests: **677/677 pass** (`npx vitest run`, about 9 s, down from more than 5 minutes with 54 timeouts). Typecheck and `npm run build` are clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
 
 | Report claim | Before | Change |
@@ -108,6 +111,8 @@ These changes are uncommitted. Tests: **677/677 pass** (`npx vitest run`, about 
 ---
 
 ## F. Bugs found and fixed on 23 Nov 2026 (second pass)
+
+Found and fixed by **Phallamonunhh Chun (Monunhh)**.
 
 I put realistic questions through the engine and compared all 65 golden-set and spot-check questions before and after the fix, on the same data.
 
