@@ -118,7 +118,7 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | 23 Nov | `fe6bc7e` | Merge into `main` |
 | 23 Nov | `a50246a` | Repo tidy |
 | 25 Nov | `5616f15` | `.env.example` settings and two code comments |
-| 25 Nov | `dc13b49` | Khmer pages from English questions, web search tested end to end, office contacts |
+| 25 Nov | `4ff8fb7` | Khmer pages from English questions, web search tested end to end, office contacts |
 
 The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng.
 
@@ -126,7 +126,7 @@ The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov
 
 ## 8. Fixed after Report Three (25 Nov 2026)
 
-The three items this page listed as still open, fixed in commit `dc13b49`:
+The three items this page listed as still open, fixed in commit `4ff8fb7`:
 
 | Was open | Fix |
 |---|---|
