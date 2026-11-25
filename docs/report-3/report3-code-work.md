@@ -1,7 +1,7 @@
 # Report Three code work: every change by Monunhh
 
 - **By:** Phallamonunhh Chun (Monunhh), AI/ML Engineer
-- **Period:** 13–25 Nov 2026, from the first commit after Demo 1 to the Report Three upload. Every commit in that period is listed in section 8.
+- **Period:** 9–25 Nov 2026, from the first commit after Demo 1 (9 Nov, evening) to the Report Three upload. Every commit in that period is listed in section 8.
 - **Checked on 25 Nov 2026:** 705 tests pass in 29 files (643 at Demo 1, so 62 new), 85.2% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
 
 ---
@@ -41,19 +41,20 @@
 
 | # | Bug | Fix | Commit |
 |---|---|---|---|
-| 1 | One RUPP page held 5 MB of inline image data, which the index builder cut into 7,208 passages of random characters, more than half the crawl index. | Runs of 100+ base64 characters are removed before passages are cut. The index went from 13,746 to 6,538 passages and from 34.8 to 21.2 MB, with no readable text lost. | `11c3e52` |
-| 2 | When the model call failed, the stand-in answer quoted an approved source that only half matched the question. | A failed model call no longer quotes a half-matching approved source (`provider:degraded_off_subject`). | `b3c01de` |
-| 3 | A question accepted because of a crawled website ("How do I make an appointment at Calmette Hospital?") was dropped from the conversation history, so the next follow-up was treated as a new conversation and refused. | Scope is one decision (`isInScope`) used for both the new question and the history. A follow-up stays in scope when it names the institution being discussed or corrects the previous answer. | `ceb7494` |
-| 4 | Questions with fewer than 3 content words skipped the topic check, so "how do I register to vote" and "register a company" got birth registration with no warning. | A short question is on topic only if every content word appears in the passage. The passage's own indexed questions and keywords count, so curator synonyms such as "motorbike" and "stolen" are covered. | `040c94e` |
-| 5 | "How much does a passport cost" returned the driving-licence fee table, and the warning listed "much" as a missing word. | A fee question whose top source states amounts for a different service is declined (`retrieval:off_topic`). Words like "much", "many", "long" and "take" are ignored as question filler. | `040c94e` |
-| 6 | `moi-civil-registration.json` is sample content ("Sub-Decree No. XXX") but was cited as an approved source. | Its passages are marked `stewardApproved: false`, and citations carry `sample: true`, shown as "Sample data · not an official source". | `040c94e` |
-| 7 | Extractive answers always began "From the approved source:". | The opening line matches the source's status: approved, official website (not yet reviewed), or sample data. | `040c94e` |
-| 8 | Crawled pages showed their fetch date as the "Effective" date. | Citations carry `effectiveUnknown: true`. The card shows "Collected <date>" instead, and the model is told no effective date is stated. | `040c94e` |
-| 9 | Cards printed "Not cited on source page · Not cited on source page". | The placeholder is hidden on the card and in Telegram. | `040c94e` |
-| 10 | The freshness badge said "VERIFIED" on sources nobody had reviewed. | It shows "Not reviewed" unless a person has reviewed the passage. | `040c94e` |
-| 11 | The Telegram webhook accepted unsigned calls when the secret was not set. | The secret is required in production (503 otherwise; `TELEGRAM_ALLOW_UNSIGNED=true` overrides), and the comparison is constant-time. | `040c94e` |
-| 12 | Audit and feedback logs were lost on Vercel, whose filesystem does not keep files. | On Vercel, redacted records go to stdout and are kept in the host's logs. A failed file write also falls back to stdout. `AUDIT_LOG_SINK` overrides. | `040c94e` |
-| 13 | The test suite took more than 5 minutes, with 54 timeouts, because every test rebuilt the knowledge-base index. | The index cache is kept across module reloads, keyed on the data files' sizes and times. The suite runs in about 9 s. | `d0f4e58` |
+| 1 | Short filler messages such as "hmm", "ok" or "?" after a service question were treated as follow-ups, so SuperAsk repeated its previous answer. "Can I get married" was refused as not a service question. | Filler messages are recognised and no longer re-serve the last answer. "marry", "married", "wedding" and "divorced" were added to the service vocabulary, so marriage questions reach retrieval. | `6d2f6fd` |
+| 2 | One RUPP page held 5 MB of inline image data, which the index builder cut into 7,208 passages of random characters, more than half the crawl index. | Runs of 100+ base64 characters are removed before passages are cut. The index went from 13,746 to 6,538 passages and from 34.8 to 21.2 MB, with no readable text lost. | `11c3e52` |
+| 3 | When the model call failed, the stand-in answer quoted an approved source that only half matched the question. | A failed model call no longer quotes a half-matching approved source (`provider:degraded_off_subject`). | `b3c01de` |
+| 4 | A question accepted because of a crawled website ("How do I make an appointment at Calmette Hospital?") was dropped from the conversation history, so the next follow-up was treated as a new conversation and refused. | Scope is one decision (`isInScope`) used for both the new question and the history. A follow-up stays in scope when it names the institution being discussed or corrects the previous answer. | `ceb7494` |
+| 5 | Questions with fewer than 3 content words skipped the topic check, so "how do I register to vote" and "register a company" got birth registration with no warning. | A short question is on topic only if every content word appears in the passage. The passage's own indexed questions and keywords count, so curator synonyms such as "motorbike" and "stolen" are covered. | `040c94e` |
+| 6 | "How much does a passport cost" returned the driving-licence fee table, and the warning listed "much" as a missing word. | A fee question whose top source states amounts for a different service is declined (`retrieval:off_topic`). Words like "much", "many", "long" and "take" are ignored as question filler. | `040c94e` |
+| 7 | `moi-civil-registration.json` is sample content ("Sub-Decree No. XXX") but was cited as an approved source. | Its passages are marked `stewardApproved: false`, and citations carry `sample: true`, shown as "Sample data · not an official source". | `040c94e` |
+| 8 | Extractive answers always began "From the approved source:". | The opening line matches the source's status: approved, official website (not yet reviewed), or sample data. | `040c94e` |
+| 9 | Crawled pages showed their fetch date as the "Effective" date. | Citations carry `effectiveUnknown: true`. The card shows "Collected <date>" instead, and the model is told no effective date is stated. | `040c94e` |
+| 10 | Cards printed "Not cited on source page · Not cited on source page". | The placeholder is hidden on the card and in Telegram. | `040c94e` |
+| 11 | The freshness badge said "VERIFIED" on sources nobody had reviewed. | It shows "Not reviewed" unless a person has reviewed the passage. | `040c94e` |
+| 12 | The Telegram webhook accepted unsigned calls when the secret was not set. | The secret is required in production (503 otherwise; `TELEGRAM_ALLOW_UNSIGNED=true` overrides), and the comparison is constant-time. | `040c94e` |
+| 13 | Audit and feedback logs were lost on Vercel, whose filesystem does not keep files. | On Vercel, redacted records go to stdout and are kept in the host's logs. A failed file write also falls back to stdout. `AUDIT_LOG_SINK` overrides. | `040c94e` |
+| 14 | The test suite took more than 5 minutes, with 54 timeouts, because every test rebuilt the knowledge-base index. | The index cache is kept across module reloads, keyed on the data files' sizes and times. The suite runs in about 9 s. | `d0f4e58` |
 
 ### How the fixes were checked
 
@@ -77,7 +78,7 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | `tests/api/telegram-auth.test.ts` (new) | The webhook refuses unsigned calls in production | `040c94e` |
 | `tests/log/sink.test.ts` (new) | Audit records go to stdout on Vercel and to a file elsewhere | `040c94e` |
 | `tests/engine/topicality.test.ts` (extended) | Short questions and question-filler words | `040c94e` |
-| `tests/engine/guardrails.test.ts`, `tests/engine/tiers.test.ts` (extended) | Scope for crawled institutions; the crawl step in the answer order | `89667a8`, `ceb7494` |
+| `tests/engine/guardrails.test.ts`, `tests/engine/tiers.test.ts` (extended) | Filler messages and marriage questions; scope for crawled institutions; the crawl step in the answer order | `6d2f6fd`, `89667a8`, `ceb7494` |
 
 `vitest.config.ts` was also updated for the new files (`d0f4e58`).
 
@@ -111,10 +112,11 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 
 ---
 
-## 8. Every commit, 13–25 Nov 2026
+## 8. Every commit, 9–25 Nov 2026
 
 | Date | Commit | Summary |
 |---|---|---|
+| 9 Nov | `6d2f6fd` | Filler messages no longer repeat the previous answer; marriage questions in scope |
 | 13 Nov | `62e82c8` | Crawl database per institution; source registry (138); reachability re-run; macOS scheduler |
 | 13 Nov | `1c5d6e7` | Crawl database: sites crawled so far |
 | 13 Nov | `9dfcf97` | Crawl database: full crawl of all 58 live sites |
