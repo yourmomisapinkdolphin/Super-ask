@@ -1,7 +1,7 @@
 # Report Three code work: every change by Monunhh
 
 - **By:** Phallamonunhh Chun (Monunhh), AI/ML Engineer
-- **Period:** 9–25 Nov 2026, from the first commit after Demo 1 (9 Nov, evening) to the Report Three upload. Every commit in that period is listed in section 8.
+- **Period:** 9–25 Nov 2026, from the first commit after Demo 1 (9 Nov, evening) to the Report Three upload. Every commit that changed code or data is listed in section 7. Documentation changes are not included.
 - **Checked on 25 Nov 2026:** 705 tests pass in 29 files (643 at Demo 1, so 62 new), 85.2% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
 
 ---
@@ -96,23 +96,9 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | Removed `lib/telegram/keyboards.ts`, which nothing imported. | `a50246a` |
 | Stopped tracking two crawl build outputs: the 24 MB SQLite file (rebuilt with `npm run build-sqlite`) and `verification.partial.jsonl` (rewritten on every reachability check). Both are now in `.gitignore`. | `a50246a` |
 | Updated two code comments with current figures (decline floor in `tiers.ts`, corpus size in `fallback.ts`). No behaviour change. | `d0f4e58`, `5616f15` |
-
-## 7. Documentation
-
-| Change | Commit |
-|---|---|
-| `data/README.md`: how crawled content reaches answers, and the crawl files. | `89667a8`, `a50246a`, `5616f15` |
-| README: the live version link (https://superask-monunhh.vercel.app). | `3edbfc5`, `98f001d`, `7302814` |
-| Demo 1: presentation script (`docs/demo-1/presentation_script.md`), individual contributions page, and README updates. | `7dab240` |
-| README layout and `docs/README.md`: the new modules, scripts and the Report Three section. | `a50246a` |
-| README: architecture redrawn in the order the engine runs, with every fallback and every reason an answer is withheld; model providers; Vercel deployment; test, coverage and evaluation figures from a fresh run. | `5616f15` |
-| Report Two diagrams: UC-1 shows the crawled-website fallback, UC-7 and UC-11 mark what isn't built, and the class diagrams add the gateway, SEA-LION and vLLM providers, the crawl index and web search. Images re-rendered and hand-off pages rebuilt. | `5616f15` |
 | `.env.example`: added the settings the code reads but the template left out (web search, fallback switches, topicality and crawl thresholds, crawler settings). | `5616f15` |
-| Report Three: added the final draft and Part One PDFs and this page. | `70eca28`, `ce4b380`, `a7c7e22` |
 
----
-
-## 8. Every commit, 9–25 Nov 2026
+## 7. Every code commit, 9–25 Nov 2026
 
 | Date | Commit | Summary |
 |---|---|---|
@@ -124,25 +110,20 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | 13 Nov | `89667a8` | Answers from crawled websites, labelled unreviewed |
 | 13 Nov | `11c3e52` | Crawl index: remove embedded image data |
 | 19 Nov | `b3c01de` | Crawled institutions in the chat, logos, web search step, fewer dead ends |
-| 19 Nov | `3edbfc5`, `98f001d`, `b38132c`, `7302814` | README live-version link; merge |
 | 20 Nov | `ceb7494` | Follow-ups about crawled institutions stay in the conversation |
 | 23 Nov | `d0f4e58` | Unreviewed labels, map link, API guard, faster cold start, glossary definitions |
 | 23 Nov | `040c94e` | Bug fixes: wrong-subject answers, sample labels, webhook secret, audit logs |
 | 23 Nov | `9bc743d` | Crawled pages in the knowledge base (reverted in `fe6bc7e`) |
-| 23 Nov | `3b69ace` | Credit the fixes to Monunhh |
 | 23 Nov | `d475cdf` | Gateway provider as the default |
-| 23 Nov | `7dab240` | Demo 1 docs |
 | 23 Nov | `fe6bc7e` | Merge into `main` |
 | 23 Nov | `a50246a` | Repo tidy |
-| 25 Nov | `70eca28` | Report Three PDFs and this page |
-| 25 Nov | `5616f15` | Docs and diagrams brought in line with the code |
-| 25 Nov | `ce4b380`, `a7c7e22` | Report Three folder clean-up |
+| 25 Nov | `5616f15` | `.env.example` settings and two code comments |
 
-The one other commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng.
+The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng.
 
 ---
 
-## 9. Still open
+## 8. Still open
 
 - **Retrieval misses some crawled content.** Most crawled sites are Khmer-only, and their passages are indexed with questions taken from page titles, so "how do I register to vote" still doesn't reach the National Election Committee's pages. The next step is generating candidate questions for each crawled passage.
 - **The web search step has not been run end to end** with a live key. It stays off by default.
