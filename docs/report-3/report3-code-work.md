@@ -2,7 +2,7 @@
 
 - **By:** Phallamonunhh Chun (Monunhh), AI/ML Engineer
 - **Period:** 9–25 Nov 2026, from the first commit after Demo 1 (9 Nov, evening) to the Report Three upload. Every commit that changed code or data is listed in section 7. Documentation changes are not included.
-- **Checked on 25 Nov 2026:** 705 tests pass in 29 files (643 at Demo 1, so 62 new), 85.2% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
+- **Checked on 25 Nov 2026:** 749 tests pass in 32 files (643 at Demo 1, so 106 new), 89.7% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
 
 ---
 
@@ -35,6 +35,9 @@
 | **Plain message when the API refuses** | When the guard returns 403 or 429, the chat shows a plain message instead of trying to render a missing answer. | `components/chat/useConversation.ts` | `d0f4e58` |
 | **Faster cold start** | The Khmer segmenter was quadratic and the n-gram embedder allocated a string per gram. Both were rewritten with byte-identical output (checked on about 6,000 strings). Indexing dropped from about 6 s to 2.9 s and now runs at server start (`instrumentation.ts`), so the first request doesn't pay for it (46 ms with the extractive provider). The knowledge-base cache survives module reloads. | `lib/khmer/segment.ts`, `lib/retrieval/embed.ts`, `instrumentation.ts`, `lib/kb/loader.ts` | `d0f4e58` |
 | **Definition questions from the glossary** | A question that only asks what a term means ("what does prakas mean") is answered from the glossary before retrieval, so a page that merely mentions the word can't take its place. A procedure question that mentions a term still goes to retrieval. | `lib/engine/glossary.ts`, `lib/engine/tiers.ts` | `d0f4e58` |
+| **English questions find Khmer pages** | Most crawled sites publish in Khmer only. `data/crawl-terms.json` lists, for common service words, the English forms the stemmer keeps apart ("vote", "voter", "election") and the Khmer term (បោះឆ្នោត), so a question in one language finds pages in the other. Page URLs are searched too ("/khmer/voter-registration"). It decides only which crawled pages are found; the approved corpus does not use it. | `data/crawl-terms.json`, `lib/retrieval/crawl-terms.ts`, `lib/retrieval/crawl-index.ts`, `scripts/build-crawl-index.ts` | `4ff8fb7` |
+| **Voter registration is a service question** | "Register to vote", "voter list", "voter card" and "polling station" are accepted as service questions. "Who should I vote for" is still refused as political. | `lib/engine/guardrails.ts` | `4ff8fb7` |
+| **Office contacts from the institutions' own websites** | `data/contacts.json` holds the phone, address and hours from 9 institutions' contact pages, each with its source page and date. Source cards and Telegram replies show them beside pages from that website, and the map link searches for the published address instead of the name. Sites that publish nothing usable get no entry. | `data/contacts.json`, `lib/kb/contacts.ts`, `lib/engine/citations.ts`, `components/chat/SourceCard.tsx`, `lib/telegram/format.ts` | `4ff8fb7` |
 | **Gateway model provider as the default** | `.env.example` selects the Nous Research gateway with Gemini 3.1 Flash Lite, with its model, base URL, timeout and JSON-mode settings documented. | `lib/llm/gateway.ts`, `.env.example` | `d475cdf` |
 
 ## 3. Bugs fixed
@@ -55,6 +58,7 @@
 | 12 | The Telegram webhook accepted unsigned calls when the secret was not set. | The secret is required in production (503 otherwise; `TELEGRAM_ALLOW_UNSIGNED=true` overrides), and the comparison is constant-time. | `040c94e` |
 | 13 | Audit and feedback logs were lost on Vercel, whose filesystem does not keep files. | On Vercel, redacted records go to stdout and are kept in the host's logs. A failed file write also falls back to stdout. `AUDIT_LOG_SINK` overrides. | `040c94e` |
 | 14 | The test suite took more than 5 minutes, with 54 timeouts, because every test rebuilt the knowledge-base index. | The index cache is kept across module reloads, keyed on the data files' sizes and times. The suite runs in about 9 s. | `d0f4e58` |
+| 15 | "How do I register to vote" answered from sample birth-registration data, and "how do I check my name on the voter list" was refused: English questions could not reach the National Election Committee's Khmer pages. | Both now answer from the NEC's own pages (see "English questions find Khmer pages"). | `4ff8fb7` |
 
 ### How the fixes were checked
 
@@ -66,9 +70,11 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 - No answer that was right before became wrong.
 - Retrieval output (`npm run eval`) is unchanged.
 
+For bug 15, the golden set plus 20 spot checks were run before and after: only the two voter questions changed, plus three answers that moved to another relevant page. Nothing that was right became wrong, and `scope-check` stayed at 22 of 24. A first attempt failed this comparison: "permit" matched a broad Khmer word and turned the fishing-permit refusal into an agricultural-chemicals fee table, so "permit" was given no Khmer form before the change was committed.
+
 ## 4. Tests added
 
-643 tests at Demo 1, 705 now.
+643 tests at Demo 1, 749 now.
 
 | Test file | Covers | Commit |
 |---|---|---|
@@ -78,7 +84,10 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | `tests/api/telegram-auth.test.ts` (new) | The webhook refuses unsigned calls in production | `040c94e` |
 | `tests/log/sink.test.ts` (new) | Audit records go to stdout on Vercel and to a file elsewhere | `040c94e` |
 | `tests/engine/topicality.test.ts` (extended) | Short questions and question-filler words | `040c94e` |
-| `tests/engine/guardrails.test.ts`, `tests/engine/tiers.test.ts` (extended) | Filler messages and marriage questions; scope for crawled institutions; the crawl step in the answer order | `6d2f6fd`, `89667a8`, `ceb7494` |
+| `tests/engine/web-answer.test.ts` (new) | The web search step end to end against a stubbed Tavily API: off unless switched on, the key sent only as a bearer token, results labelled and linked, failures treated as no result. Coverage of the two web files went from 13–25% to 96–98%. | `4ff8fb7` |
+| `tests/retrieval/crawl-terms.test.ts` (new) | English↔Khmer term groups, URL words, and that "permit" cannot reach a broad Khmer word | `4ff8fb7` |
+| `tests/kb/contacts.test.ts` (new) | Every office contact names a source page on the same website, has a collection date and real digits, and appears only beside pages from that site | `4ff8fb7` |
+| `tests/engine/guardrails.test.ts`, `tests/engine/tiers.test.ts` (extended) | Filler messages and marriage questions; scope for crawled institutions and voter registration; the crawl step in the answer order | `6d2f6fd`, `89667a8`, `ceb7494`, `4ff8fb7` |
 
 `vitest.config.ts` was also updated for the new files (`d0f4e58`).
 
@@ -124,20 +133,8 @@ The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov
 
 ---
 
-## 8. Fixed after Report Three (25 Nov 2026)
+## 8. Still to do
 
-The three items this page listed as still open, fixed in commit `4ff8fb7`:
-
-| Was open | Fix |
-|---|---|
-| **Retrieval missed crawled content.** Most crawled sites are Khmer-only, so "how do I register to vote" never reached the National Election Committee's pages. | `data/crawl-terms.json` joins English word forms the stemmer keeps apart ("vote" and "voter") and adds the Khmer term (បោះឆ្នោត), so an English question can find Khmer pages. Page URLs are indexed like titles ("/khmer/voter-registration"). The voter question now answers from the NEC, and "check my name on the voter list" from its voter-list page. "Who should I vote for" is still refused as political. On the golden set plus 20 spot checks, nothing that was right became wrong. |
-| **Web search had not been run end to end.** | `tests/engine/web-answer.test.ts` runs the whole step through the engine against a stubbed Tavily API: off unless switched on, the key sent only as a bearer token, results labelled and linked, failures treated as no result. Coverage of the two files went from 13–25% to 96–98%. |
-| **The office map link was a name search.** | `data/contacts.json` holds the phone, address and hours from 9 institutions' own contact pages, each with its source page and date. Source cards and Telegram replies show them beside pages from that website, and the map link searches for the published address. |
-
-Tests: 749 pass in 32 files (was 705), line coverage 89.7% (was 85.2%). The evaluation and every check are unchanged.
-
-### Still to do
-
-- **A live web-search run:** this needs a Tavily key added to the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`). The key is not stored in the repository.
-- **Contacts for the remaining institutions:** the other crawled sites, and the four approved-corpus ministries, publish no usable contact details on the crawled pages.
-- **Review by a Khmer speaker:** the Khmer terms in `data/crawl-terms.json`.
+- **A live web-search run.** The step is tested end to end but has not searched the real web. It needs a Tavily key in the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`); the key is not stored in the repository.
+- **Contacts for the remaining institutions.** The other crawled sites, and the four approved-corpus ministries, publish no usable contact details on the crawled pages. Nobody has called the 9 recorded numbers yet.
+- **Review by a Khmer speaker** of the Khmer terms in `data/crawl-terms.json`.
