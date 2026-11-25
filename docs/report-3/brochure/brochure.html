@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SuperAsk.AI Brochure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Light theme, matching the live app (lib/ui/theme.ts, app/globals.css) */
+  :root{
+    --indigo:#4F3FA8; --indigo-deep:#3F3289; --violet:#9D8CF2;
+    --wash:#F3F0FF; --wash-2:#F7F5FF; --line:#D4CCF7;
+    --ink:#101828; --ink-soft:#4A5565; --ink-faint:#99A1AF;
+    --rule:#E8EDF2; --canvas:#EEF2F7; --night:#0C0B20; --slate:#171936; --lilac:#B9AEF7;
+    --green:#0A7D63; --green-wash:#ECFDF7; --green-line:#A6E6CF;
+    --amber:#F79009; --amber-text:#B54708; --amber-wash:#FFFAEB; --amber-line:#FEDF89;
+    --red:#B42318; --red-wash:#FEF3F2; --red-line:#FECDCA;
+    --grad:linear-gradient(135deg,#4F3FA8,#6D5BD0);
+    --font:"Inter","Noto Sans Khmer",system-ui,sans-serif;
+    --km:"Noto Sans Khmer","Inter",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  @page{size:A4;margin:0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#fff;color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:297mm;overflow:hidden;page-break-after:always;background:#fff;display:flex;flex-direction:column}
+  .page:last-child{page-break-after:auto}
+  .pad{padding-left:14mm;padding-right:14mm}
+  .grow{flex:1}
+  .eyebrow{font-size:7.4pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo)}
+  h2{font-size:16pt;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-top:1.4mm}
+  h2 em{font-style:normal;color:var(--indigo)}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;overflow:hidden;padding-top:11mm;padding-bottom:13mm;background:var(--night);color:#fff}
+  .hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(80mm 70mm at 85% 55%,rgba(109,91,208,.5),transparent 70%),
+      radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 0) 0 0/5mm 5mm}
+  .hero > *{position:relative}
+  .topbar{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:2.4mm}
+  .brand img{height:10mm}
+  .brand b{font-size:15pt;font-weight:800;letter-spacing:-.02em;color:#fff}
+  .brand b span{color:var(--violet)}
+  .tag{font-size:7pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:1.6mm 3.2mm;border-radius:99px;border:1px solid rgba(157,140,242,.45);color:#D9D2FF}
+  .hero-grid{display:grid;grid-template-columns:1fr 58mm;gap:12mm;margin-top:11mm;align-items:center}
+  .kicker{display:flex;align-items:center;gap:2.4mm;font-size:7.2pt;font-weight:700;letter-spacing:.14em;color:var(--lilac);text-transform:uppercase}
+  .flag{width:6mm;height:4mm;border-radius:.6mm;background:linear-gradient(#032EA1 0 25%,#E00025 25% 75%,#032EA1 75%)}
+  .hero h1{font-size:27pt;line-height:1.08;font-weight:900;letter-spacing:-.035em;margin-top:4mm}
+  .hero h1 em{font-style:normal;color:var(--violet)}
+  .lede{font-size:10pt;line-height:1.55;color:#CFCBE8;margin-top:4.5mm}
+  .km-line{font-family:var(--km);font-size:9pt;color:var(--lilac);margin-top:2mm;line-height:1.9}
+  .chips{display:flex;gap:1.8mm;margin-top:5mm}
+  .chip{font-size:7pt;font-weight:600;padding:1.4mm 2.8mm;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#EDEBFA;white-space:nowrap}
+
+  /* phone: white device, like the app on a phone */
+  .phone{width:58mm;height:84mm;border-radius:7.5mm;background:#05050F;padding:2mm;
+    box-shadow:0 0 0 .45mm #2E2C4A,0 10mm 24mm rgba(0,0,0,.5)}
+  .screen{width:100%;height:100%;border-radius:6mm;background:var(--canvas);overflow:hidden;display:flex;flex-direction:column}
+  .p-bar{background:#fff;display:flex;align-items:center;gap:1.4mm;padding:3mm 3mm 2.2mm;border-bottom:1px solid var(--rule)}
+  .p-bar img{height:4.4mm}
+  .p-bar b{font-size:7pt;font-weight:800;color:var(--indigo)}
+  .p-bar .lang{margin-left:auto;font-size:5.4pt;color:var(--ink-soft)}
+  .p-bar .lang strong{color:var(--indigo)}
+  .p-body{padding:2.4mm;display:flex;flex-direction:column;gap:2mm}
+  .bubble{align-self:flex-end;max-width:86%;background:var(--grad);color:#fff;border-radius:2.8mm 2.8mm .8mm 2.8mm;padding:1.8mm 2.4mm;font-size:6pt;line-height:1.45}
+  .card{background:#fff;border-radius:2.8mm;padding:2.4mm;color:var(--ink)}
+  .ans{font-size:6.1pt;line-height:1.5}
+  .ans b{color:var(--indigo)}
+  .src{background:var(--wash);border:1px solid var(--line);border-radius:1.8mm;padding:1.8mm;display:flex;gap:1.4mm;margin-top:2mm}
+  .dot{width:1.3mm;height:1.3mm;border-radius:50%;background:var(--amber);margin-top:.8mm;flex:none}
+  .src .k{display:flex;justify-content:space-between;gap:1mm;align-items:center}
+  .src .lbl{font-size:4.4pt;font-weight:700;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase}
+  .badge{font-family:var(--mono);font-size:4pt;padding:.3mm .9mm;border-radius:.7mm;white-space:nowrap;color:var(--amber-text);background:var(--amber-wash);border:1px solid var(--amber-line)}
+  .org{font-size:5.8pt;font-weight:600;margin-top:.8mm;display:flex;align-items:center;gap:1mm}
+  .org img{height:3.2mm;width:3.2mm;object-fit:contain;border-radius:.5mm}
+  .kh{font-family:var(--km);font-size:5pt;color:var(--ink-soft);line-height:1.8}
+  .meta{font-family:var(--mono);font-size:4.4pt;color:var(--ink-soft)}
+  .links{display:flex;gap:2.2mm;margin-top:.9mm;font-size:4.8pt;font-weight:600;color:var(--indigo)}
+  .p-comp{margin:auto 2.4mm 2.6mm;background:#fff;border:1px solid var(--line);border-radius:2.4mm;padding:1.8mm 2.2mm;font-size:5.4pt;color:var(--ink-faint);display:flex;justify-content:space-between;align-items:center}
+  .send{width:4mm;height:4mm;border-radius:1.1mm;background:var(--grad)}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12mm}
+  .stat{padding:0 4mm;border-left:2px solid var(--line)}
+  .stat b{display:block;font-size:20pt;font-weight:900;letter-spacing:-.03em;color:var(--indigo);line-height:1}
+  .stat span{display:block;font-size:7.4pt;color:var(--ink-soft);margin-top:1.6mm}
+
+  /* ---------- features ---------- */
+  .sec{margin-top:14mm}
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:6mm}
+  .f{border:1px solid var(--rule);border-radius:3.2mm;padding:5.5mm 5mm}
+  .f.hl{background:var(--wash-2);border-color:var(--line)}
+  .f .top{display:flex;justify-content:space-between;align-items:center}
+  .ico{width:7mm;height:7mm;border-radius:2mm;background:var(--grad);display:grid;place-items:center;color:#fff;flex:none}
+  .ico svg{width:4mm;height:4mm}
+  .new{font-size:5.8pt;font-weight:700;letter-spacing:.1em;color:var(--indigo);background:#fff;border:1px solid var(--line);padding:.5mm 1.6mm;border-radius:99px}
+  .f h3{font-size:10pt;font-weight:700;margin-top:4mm;letter-spacing:-.01em}
+  .f p{font-size:8.2pt;color:var(--ink-soft);line-height:1.5;margin-top:1mm}
+
+  .pfoot{display:flex;justify-content:space-between;font-size:7pt;color:var(--ink-faint);border-top:1px solid var(--rule);padding-top:3mm;margin:6mm 0 9mm}
+  .pfoot b{color:var(--indigo)}
+
+  /* ---------- page 2 ---------- */
+  .p2{padding-top:14mm}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:3.4mm;margin-top:7mm}
+  .step{border-top:2px solid var(--line);padding-top:3.4mm}
+  .step .ico{border-radius:50%;width:8mm;height:8mm}
+  .step .no{font-family:var(--mono);font-size:6.4pt;color:var(--indigo);margin-top:2.6mm}
+  .step h4{font-size:10pt;font-weight:700;margin-top:.4mm}
+  .step p{font-size:8pt;color:var(--ink-soft);line-height:1.5;margin-top:.8mm}
+
+  .ladder{margin-top:13mm;border-radius:4mm;background:linear-gradient(135deg,#332A80,#4F3FA8);color:#fff;padding:7mm 7mm;position:relative;overflow:hidden}
+  .ladder::before{content:"";position:absolute;inset:0;background:radial-gradient(70mm 45mm at 100% 0,rgba(157,140,242,.4),transparent 70%)}
+  .ladder > *{position:relative}
+  .ladder .eyebrow{color:var(--lilac)}
+  .ladder h3{font-size:11.5pt;font-weight:800;margin-top:1.4mm;letter-spacing:-.01em}
+  .rungs{display:grid;grid-template-columns:repeat(4,1fr);gap:2.6mm;margin-top:4mm}
+  .rung{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:2.6mm;padding:4mm;display:flex;flex-direction:column}
+  .rung .no{font-family:var(--mono);font-size:6.2pt;color:var(--lilac)}
+  .rung b{font-size:9.4pt;margin-top:1mm}
+  .rung p{font-size:7.8pt;color:#E2DEF7;line-height:1.45;margin-top:.8mm;flex:1}
+  .lab{align-self:flex-start;margin-top:2.4mm;font-size:5.6pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.6mm 1.6mm;border-radius:1mm;border:1px solid}
+  .lab.g{background:var(--green-wash);color:var(--green);border-color:var(--green-line)}
+  .lab.a{background:var(--amber-wash);color:var(--amber-text);border-color:var(--amber-line)}
+  .lab.r{background:var(--red-wash);color:var(--red);border-color:var(--red-line)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:12mm;margin-bottom:12mm}
+  .panel{border:1px solid var(--rule);border-radius:4mm;padding:6.5mm 6mm}
+  .panel h3{font-size:10.5pt;font-weight:800;margin-top:1.2mm;letter-spacing:-.01em}
+  .chan{display:flex;flex-direction:column;gap:2.6mm;margin-top:4.5mm}
+  .ch{background:var(--wash-2);border:1px solid var(--line);border-radius:2.4mm;padding:3.2mm 3.4mm;display:flex;gap:2.6mm;align-items:center}
+  .ch .ico{width:6.6mm;height:6.6mm;border-radius:1.8mm}
+  .ch .ico svg{width:3.6mm;height:3.6mm}
+  .ch b{font-size:8pt;display:block}
+  .ch p{font-size:7pt;color:var(--ink-soft)}
+  .logos{display:flex;gap:1.3mm;margin-top:5.5mm;align-items:center}
+  .logos img{width:6.4mm;height:6.4mm;object-fit:contain;background:#fff;border:1px solid var(--rule);border-radius:1.6mm;padding:.7mm}
+  .logos .more{font-size:6.8pt;font-weight:700;color:var(--indigo);margin-left:.6mm;white-space:nowrap}
+
+  .proof{display:grid;grid-template-columns:1fr 1fr;gap:2.6mm;margin-top:4.5mm}
+  .proof div{background:var(--wash-2);border:1px solid var(--line);border-radius:2.4mm;padding:3.6mm 3.4mm}
+  .proof b{display:block;font-size:13pt;font-weight:900;color:var(--indigo);letter-spacing:-.02em;line-height:1.1}
+  .proof span{font-size:6.8pt;color:var(--ink-soft);display:block;margin-top:.6mm}
+  .req{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-top:5mm;border-top:1px solid var(--rule);padding-top:3.2mm}
+  .req h5{font-size:6.6pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .req p{font-size:7.2pt;color:var(--ink-soft);line-height:1.5;margin-top:1mm}
+
+  .footer{background:var(--night);color:#fff;padding:8mm 14mm 7mm;position:relative}
+  .footer::before{content:"";position:absolute;inset:0;background:radial-gradient(70mm 40mm at 100% 100%,rgba(109,91,208,.4),transparent 70%)}
+  .footer > *{position:relative}
+  .footer .eyebrow{color:var(--lilac)}
+  .fcols{display:grid;grid-template-columns:1fr 1fr;gap:8mm}
+  .try{font-size:13pt;font-weight:800;margin-top:1.8mm;letter-spacing:-.02em;color:#fff}
+  .ln{font-size:7.6pt;color:#CFCBE8;margin-top:1.2mm}
+  .ln b{color:#fff;font-weight:600;margin-left:1.2mm}
+  .team{display:grid;grid-template-columns:1fr 1fr;gap:1.6mm 4mm;margin-top:2.4mm}
+  .team div{font-size:7.6pt;color:#EDEBFA;display:flex;align-items:center;gap:1.8mm}
+  .av{width:5mm;height:5mm;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:5.2pt;font-weight:800;color:#fff;flex:none}
+  .disc{font-size:6.4pt;color:#8C88B0;margin-top:4mm;border-top:1px solid rgba(255,255,255,.1);padding-top:2.4mm}
+</style>
+</head>
+<body>
+
+<!-- ======================= PAGE 1 ======================= -->
+<section class="page">
+  <header class="hero pad">
+    <div class="topbar">
+      <div class="brand"><img src="../../../public/brand/superask-mark.png" alt=""><b>Super<span>Ask</span>.AI</b></div>
+      <div class="tag">CSCI 441 · Demo 2 · Team AO3</div>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <div class="kicker"><span class="flag"></span>AI for public services in Cambodia</div>
+        <h1>Know <em>exactly</em> what the government needs from you.</h1>
+        <p class="lede">Ask about any government procedure in Khmer or English. Get a clear answer with its official source.</p>
+        <p class="km-line">សួរជាភាសាខ្មែរ ឬអង់គ្លេស — ចម្លើយមានប្រភពផ្លូវការ។</p>
+        <div class="chips">
+          <span class="chip">Free</span>
+          <span class="chip">No account</span>
+          <span class="chip">Khmer &amp; English</span>
+          <span class="chip">Web + Telegram</span>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="screen">
+          <div class="p-bar"><img src="../../../public/brand/superask-mark.png" alt=""><b>SuperAsk</b><span class="lang">ខ្មែរ | <strong>EN</strong></span></div>
+          <div class="p-body">
+            <div class="bubble">How do I book an appointment at Calmette Hospital?</div>
+            <div class="card">
+              <div class="ans">Booking is by phone only. Call the appointment team: <b>(+855) 23 426 948</b></div>
+              <div class="src">
+                <span class="dot"></span>
+                <div style="flex:1;min-width:0">
+                  <div class="k"><span class="lbl">Website page</span><span class="badge">NOT REVIEWED</span></div>
+                  <div class="org"><img src="../../../public/ministries/calmette.gov.kh.png" alt="">Calmette Hospital</div>
+                  <div class="kh">មន្ទីរពេទ្យកាល់ម៉ែត</div>
+                  <div class="meta">calmette.gov.kh · 2026-11-12</div>
+                  <div class="links"><span>Open document ↗</span><span>Office on map</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-comp">Ask about a procedure…<span class="send"></span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="pad">
+    <div class="stats">
+      <div class="stat"><b>58</b><span>official websites crawled</span></div>
+      <div class="stat"><b>35</b><span>institutions covered</span></div>
+      <div class="stat"><b>94.1%</b><span>right source in top 8</span></div>
+      <div class="stat"><b>100%</b><span>off-topic questions declined</span></div>
+    </div>
+
+    <div class="sec">
+      <div class="eyebrow">New since Demo 1</div>
+      <h2>From four topics to <em>the whole government</em></h2>
+      <div class="fgrid">
+        <div class="f hl">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><span class="new">NEW</span></div>
+          <h3>Official website answers</h3>
+          <p>1,625 pages from 58 government sites, each linked.</p>
+        </div>
+        <div class="f hl">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div><span class="new">NEW</span></div>
+          <h3>Honest trust labels</h3>
+          <p>Verified, not reviewed, or sample data. Always shown.</p>
+        </div>
+        <div class="f hl">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></div><span class="new">NEW</span></div>
+          <h3>Office on the map</h3>
+          <p>One tap opens the office in Google Maps.</p>
+        </div>
+        <div class="f">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg></div></div>
+          <h3>Popular procedures</h3>
+          <p>15 one-tap questions with institution logos.</p>
+        </div>
+        <div class="f">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M8.5 11h7M8.5 14h4"/></svg></div></div>
+          <h3>Smarter follow-ups</h3>
+          <p>Remembers what you were asking about.</p>
+        </div>
+        <div class="f">
+          <div class="top"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div></div>
+          <h3>Faster and safer</h3>
+          <p>2× faster start-up, rate limiting, wrong fees blocked.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grow"></div>
+  <div class="pad"><div class="pfoot"><span><b>SuperAsk.AI</b> · Public-service answers. With sources.</span><span>Demo 2 · 5 Dec 2026</span></div></div>
+</section>
+
+<!-- ======================= PAGE 2 ======================= -->
+<section class="page">
+  <div class="pad p2">
+    <div class="eyebrow">How it works</div>
+    <h2>One question in. <em>Everything else is automatic.</em></h2>
+    <div class="flow">
+      <div class="step"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg></div><div class="no">01</div><h4>Understand</h4><p>Khmer, English or romanised Khmer.</p></div>
+      <div class="step"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg></div><div class="no">02</div><h4>Screen</h4><p>Out-of-scope questions declined.</p></div>
+      <div class="step"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><div class="no">03</div><h4>Retrieve</h4><p>Hybrid search finds the best passage.</p></div>
+      <div class="step"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 12 4 4 10-10"/></svg></div><div class="no">04</div><h4>Verify</h4><p>Fees and dates checked against the source.</p></div>
+      <div class="step"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg></div><div class="no">05</div><h4>Cite</h4><p>Source shown under every answer.</p></div>
+    </div>
+
+    <div class="ladder">
+      <div class="eyebrow">Where answers come from</div>
+      <h3>Approved first. Labelled after. Never guessed.</h3>
+      <div class="rungs">
+        <div class="rung"><div class="no">01</div><b>Curated answers</b><p>Common questions, hand-written.</p><span class="lab g">Verified</span></div>
+        <div class="rung"><div class="no">02</div><b>Approved documents</b><p>Cited to the article.</p><span class="lab g">Verified</span></div>
+        <div class="rung"><div class="no">03</div><b>Official websites</b><p>Linked to the page.</p><span class="lab a">Not reviewed</span></div>
+        <div class="rung"><div class="no">04</div><b>Honest decline</b><p>Points you to the office.</p><span class="lab r">No answer</span></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <div class="eyebrow">Channels</div>
+        <h3>Ask wherever you are</h3>
+        <div class="chan">
+          <div class="ch"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/></svg></div><div><b>Web chat</b><p>Phone or desktop browser</p></div></div>
+          <div class="ch"><div class="ico" style="background:#2AABEE"><svg viewBox="0 0 24 24" fill="#fff"><path d="M21.5 4.3 2.9 11.5c-1.3.5-1.3 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.9-1.4-1.5Z"/></svg></div><div><b>Telegram bot</b><p>Sourced replies in chat</p></div></div>
+          <div class="ch"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div><div><b>Telegram Mini App</b><p>Full chat inside Telegram</p></div></div>
+        </div>
+        <div class="logos">
+          <img src="../../../public/ministries/moh.gov.kh.png" alt="">
+          <img src="../../../public/ministries/moc.gov.kh.png" alt="">
+          <img src="../../../public/ministries/moe.gov.kh.png" alt="">
+          <img src="../../../public/ministries/tax.gov.kh.png" alt="">
+          <img src="../../../public/ministries/customs.gov.kh.png" alt="">
+          <img src="../../../public/ministries/nec.gov.kh.png" alt="">
+          <img src="../../../public/ministries/calmette.gov.kh.png" alt="">
+          <img src="../../../public/ministries/mptc.gov.kh.png" alt="">
+          <img src="../../../public/ministries/cdc.gov.kh.png" alt="">
+          <span class="more">+ 26 more</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">Quality</div>
+        <h3>Measured, not promised</h3>
+        <div class="proof">
+          <div><b>705</b><span>tests passing</span></div>
+          <div><b>85.2%</b><span>code coverage</span></div>
+          <div><b>94.1%</b><span>retrieval recall@8</span></div>
+          <div><b>100%</b><span>refusal precision</span></div>
+        </div>
+        <div class="req">
+          <div><h5>To use</h5><p>Any browser or Telegram. No install, no account.</p></div>
+          <div><h5>To run</h5><p>Node.js 22+ and npm. No AI key needed.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grow"></div>
+  <footer class="footer">
+    <div class="fcols">
+      <div>
+        <div class="eyebrow">Try SuperAsk</div>
+        <div class="try">superask-monunhh.vercel.app</div>
+        <div class="ln">Telegram<b>@superask168_bot</b></div>
+        <div class="ln">GitHub<b>github.com/Monunhh/Super-ask</b></div>
+      </div>
+      <div>
+        <div class="eyebrow">Team AO3 · Demo 2 · 5 Dec 2026</div>
+        <div class="team">
+          <div><span class="av">FY</span>Fong Yean</div>
+          <div><span class="av">SS</span>Sarin Sereyprophea</div>
+          <div><span class="av">CP</span>Chun Phallamonunhh</div>
+          <div><span class="av">HB</span>Heng Bunkheang</div>
+          <div><span class="av">CH</span>Choi Heejae</div>
+          <div><span class="av">ND</span>Neang Doungkhe</div>
+        </div>
+      </div>
+    </div>
+    <div class="disc">CSCI 441 prototype. Informational only — confirm with the responsible office.</div>
+  </footer>
+</section>
+
+</body>
+</html>
