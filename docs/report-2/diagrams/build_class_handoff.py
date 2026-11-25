@@ -35,7 +35,7 @@ are also checked against the implemented prototype in the project repository (<i
 <i>lib/retrieval</i>, <i>lib/llm</i>, <i>lib/kb</i>, <i>lib/crawl</i>, <i>lib/log</i>, <i>components/chat</i>), so
 the names in this section are the names a reader will find in the code.</p>
 
-<p>Because the full model has 36 classes, it is presented the way the course format asks: Figure 6 is an
+<p>Because the full model has 41 classes, it is presented the way the course format asks: Figure 6 is an
 <b>overview</b> that shows every class and every association but only the name compartment, grouped into six
 packages. Figures 7&ndash;10 are <b>partial diagrams</b> that show the three compartments (name, attributes,
 operations) for the classes of one use-case group each. In the diagrams only the <b>visibility</b> of each
@@ -62,7 +62,7 @@ member list is the one in the first diagram that shows it.</p>
 
 FIGS_2A = [
     ("class-overview.png",
-     "Figure 6: Overview class diagram of SuperAsk.AI. All 36 classes and their associations, name compartment only, grouped into six packages.",
+     "Figure 6: Overview class diagram of SuperAsk.AI. All 41 classes and their associations, name compartment only, grouped into six packages.",
      "The overview follows the four responsibility-assignment decisions of Part One. The two <b>Controller</b> classes are the "
      "only entry points from the boundary: everything the web chat or the Telegram bot does passes through QAController, and "
      "everything the Scheduler starts passes through RefreshController. The <b>Information Expert</b> classes (ContentStore, "
@@ -75,15 +75,15 @@ FIGS_2A = [
      "Figure 7: Partial class diagram A: question handling and retrieval (UC-1 AskQuestion, UC-2 RetrieveOfficialSources, UC-6, UC-8, UC-9, UC-10).",
      "ChatUI and TelegramBot are the two boundary classes (REQ-1, REQ-15); both create a Question and hand it to QAController. "
      "QAController keeps the two thresholds that decide the flow: a curated answer is served word-for-word when the match score "
-     "is at least <i>curatedThreshold</i>, and retrieval results below <i>retrievalMinScore</i> trigger UC-4 instead of generation "
-     "(REQ-7). LanguageService handles Khmer/English detection and normalisation (REQ-2, REQ-3). RetrievalService drives exactly "
+     "is at least <i>curatedThreshold</i>, and retrieval results below <i>retrievalMinScore</i> go to the CrawlIndex fallback (crawled official "
+     "pages, labelled unreviewed) and only then to UC-4 instead of generation (REQ-7). LanguageService handles Khmer/English detection and normalisation (REQ-2, REQ-3). RetrievalService drives exactly "
      "two SearchIndex realisations, a KeywordIndex (BM25) and a VectorIndex (embeddings), fuses and reranks their results into "
      "Candidates, and asks ContentStore to drop passages that are no longer in effect (REQ-4, REQ-5). ConversationHistory stores "
      "Conversations for UC-6 and supplies the context RetrievalService needs to rewrite a follow-up question (UC-8, REQ-14)."),
     ("class-b-answer-citation.png",
      "Figure 8: Partial class diagram B: answer generation, verification, citation and feedback (UC-1, UC-3 ViewSourceCitation, UC-4).",
-     "AIModelGateway is the only class that talks to an AI model; it selects one LlmProvider realisation (AnthropicProvider or "
-     "SeaLionProvider) and falls back to ExtractiveProvider, which quotes the best passage verbatim, when the model service is "
+     "AIModelGateway is the only class that talks to an AI model; it selects one LlmProvider realisation (GatewayProvider, the "
+     "default; SeaLionProvider; AnthropicProvider; or VllmProvider) and falls back to ExtractiveProvider, which quotes the best passage verbatim, when the model service is "
      "unavailable (UC-1 extension 7a). AnswerVerifier checks every fee, date and document in the draft against the cited "
      "passages before it creates the Answer (REQ-22); an Answer is composed of its SourceCitations, each of which cites exactly "
      "one Passage (REQ-6). CitationPresenter renders the citations as cards visually separate from the answer text and flags "
@@ -223,13 +223,23 @@ CLASSES = [
       ("+search(query: ProcessedQuery): Map<String,Real>", "BM25 score per passage, using query.segments and query.expanded as the search terms."),
       ("−idf(term: String): Real", "Inverse document frequency of a term.")]),
     ("VectorIndex", "class (realises SearchIndex)",
-     "Meaning-based index over passage embeddings (<i>lib/retrieval/embed.ts</i>).",
+     "Second, similarity-based index over passage vectors (<i>lib/retrieval/embed.ts</i>). The vectors are hashed character n-grams (512 dimensions, n = 2&ndash;4), a stand-in for a neural embedding model.",
      [("dimensions", "Integer", "Embedding size."),
       ("vectors", "Map<String, List<Real>>", "passage id &rarr; embedding.")],
      [("+build(passages: List<Passage>): void", "Embeds every passage."),
       ("+search(query: ProcessedQuery): Map<String,Real>", "Embeds query.rewritten (or query.normalised when there is no rewrite) and returns the cosine similarity to each passage."),
       ("−embed(text: String): List<Real>", "Produces the embedding of a text."),
       ("−cosine(a: List<Real>, b: List<Real>): Real", "Cosine similarity of two vectors.")]),
+    ("CrawlIndex", "service",
+     "BM25 search over passages cut from 58 crawled official websites (<i>lib/retrieval/crawl-index.ts</i>, index built by <i>scripts/build-crawl-index.ts</i>). Consulted only after the approved corpus fails; answers from it are labelled unreviewed (<i>lib/engine/crawl-answer.ts</i>).",
+     [("passages", "List<CrawlPassage>", "Passages with their page URL, title and organisation."),
+      ("enabled", "Boolean", "CRAWL_KB_ENABLED; true by default.")],
+     [("+searchCrawl(query: String, topK: Integer): List<CrawlHit>", "Returns the best-scoring crawled passages."),
+      ("+crawlStats(): Object", "Sites, pages and passages loaded, reported by /api/health.")]),
+    ("WebSearch", "service",
+     "Live web search, the last sourced step before a refusal (<i>lib/web/search.ts</i>, <i>lib/engine/web-answer.ts</i>). Off unless WEB_SEARCH_ENABLED=true and a Tavily key is set; results are labelled and linked.",
+     [("enabled", "Boolean", "WEB_SEARCH_ENABLED and a key present.")],
+     [("+searchWeb(query: String): List<WebResult>", "Returns pages with their URL, title and text.")]),
     ("AIModelGateway", "service",
      "The only class that calls an external AI model (<i>lib/llm</i>). Chooses the configured LlmProvider, builds the versioned grounding prompt, parses the JSON reply and falls back to ExtractiveProvider on failure (Indirection, Protected Variations).",
      [("provider", "LlmProvider", "Configured model provider."),
@@ -243,13 +253,21 @@ CLASSES = [
      "Common interface of all model providers.",
      [("info", "ProviderInfo", "Static description of the provider (id, label, model, hosting, residency).")],
      [("+generate(request: GenerationRequest): GenerationResult", "Produces a draft answer for the request.")]),
+    ("GatewayProvider", "class (realises LlmProvider)",
+     "Default provider: an OpenAI-compatible inference gateway (Nous Research, model google/gemini-3.1-flash-lite). One credential fronts many model families; hosting is external (<i>lib/llm/gateway.ts</i>).",
+     [("baseUrl", "String", "Gateway endpoint."), ("model", "String", "Model identifier."), ("apiKey", "String", "API credential, server-side only (REQ-27).")],
+     [("+generate(request: GenerationRequest): GenerationResult", "Sends the prompt as an OpenAI-style chat request and parses the JSON reply.")]),
     ("AnthropicProvider", "class (realises LlmProvider)",
      "Provider that calls the Anthropic Claude API.",
      [("apiKey", "String", "API credential, server-side only (REQ-27)."), ("model", "String", "Model identifier.")],
      [("+generate(request: GenerationRequest): GenerationResult", "Sends the prompt to the API and parses the reply.")]),
     ("SeaLionProvider", "class (realises LlmProvider)",
-     "Provider for a self-hosted or regional model endpoint (SEA-LION / vLLM), kept for data-residency experiments.",
+     "Provider for AI Singapore's SEA-LION API, a Khmer-capable regional model (<i>lib/llm/sealion.ts</i>).",
      [("endpoint", "String", "Base URL of the model server."), ("model", "String", "Model identifier.")],
+     [("+generate(request: GenerationRequest): GenerationResult", "Sends the prompt to the endpoint and parses the reply.")]),
+    ("VllmProvider", "class (realises LlmProvider)",
+     "Phase 1 target: a self-hosted model (Qwen) behind an OpenAI-compatible vLLM endpoint, for in-country hosting (<i>lib/llm/vllm.ts</i>).",
+     [("baseUrl", "String", "Base URL of the vLLM server."), ("model", "String", "Model identifier.")],
      [("+generate(request: GenerationRequest): GenerationResult", "Sends the prompt to the endpoint and parses the reply.")]),
     ("ExtractiveProvider", "class (realises LlmProvider)",
      "Deterministic fallback that needs no credential: it returns the most relevant retrieved passage word for word, with its citation.",
@@ -433,8 +451,8 @@ TRACE_INTRO = """
 Report One itself: the things named in the use-case descriptions (Section 3c), the fully-dressed use cases
 (3c-iv), the system sequence diagrams (3d) and the requirements (Section 2). Each row names one such concept,
 the design class or classes it became, and why the name or the number of classes changed. Classes that
-appear in no row (KeywordIndex, VectorIndex, Candidate, AnthropicProvider, SeaLionProvider,
-ExtractiveProvider, WebsiteCrawler, FacebookCrawler, TelegramCrawler) are realisations or working data that
+appear in no row (KeywordIndex, VectorIndex, Candidate, GatewayProvider, AnthropicProvider, SeaLionProvider,
+VllmProvider, ExtractiveProvider, CrawlIndex, WebSearch, WebsiteCrawler, FacebookCrawler, TelegramCrawler) are realisations or working data that
 exist only because of a design decision, and they are explained with the concept they serve.</p>
 """
 
@@ -455,8 +473,8 @@ TRACE_ROWS = [
      "SearchIndex (interface), KeywordIndex, VectorIndex, Candidate",
      "The two search methods of the use case became two realisations of one SearchIndex interface so RetrievalService depends on neither. Candidate did not exist as a domain concept; it is the working record that carries the two scores, the fused score and the rerank score through step 3 (merge and re-rank) to the confidence gate."),
     ("AI Model Service (participating actor of UC-1; UC-1 step 7, 7a)",
-     "AIModelGateway, LlmProvider (interface), AnthropicProvider, SeaLionProvider, ExtractiveProvider",
-     "The external actor stays external; what the system owns is the gateway that talks to it. The gateway was given a provider interface with three realisations so the model vendor can change without touching the pipeline (Protected Variations), and so the 7a fallback (“show the most relevant passage word for word”) is just another provider, ExtractiveProvider."),
+     "AIModelGateway, LlmProvider (interface), GatewayProvider, SeaLionProvider, AnthropicProvider, VllmProvider, ExtractiveProvider",
+     "The external actor stays external; what the system owns is the gateway that talks to it. The gateway was given a provider interface with five realisations so the model vendor can change without touching the pipeline (Protected Variations), and so the 7a fallback (“show the most relevant passage word for word”) is just another provider, ExtractiveProvider."),
     ("Answer with steps, documents, fees, deadlines, hours (UC-1 step 9; REQ-16 to REQ-20, REQ-33)",
      "Answer",
      "Kept as one entity. Tier, coverageGap and unverified were added because the use-case extensions (curated answer, UC-4 decline, model fallback) are all Answers of a different kind rather than different classes."),
@@ -543,7 +561,7 @@ the backend over HTTPS with JSON bodies (POST /api/ask, POST /api/feedback, GET 
 Telegram delivers messages by HTTPS webhook (Telegram Bot API &rarr; POST /api/telegram/webhook, checked
 with a shared secret) and replies go back through the Bot API over HTTPS; the Mini App is the same /chat page
 loaded inside Telegram (the page allows telegram.org as a frame ancestor); the AI model is called over HTTPS
-JSON (Anthropic SDK); the crawler uses HTTP(S) GET with a SuperAskBot user agent, respects robots.txt and
+JSON (an OpenAI-compatible chat API on the default gateway provider); the crawler uses HTTP(S) GET with a SuperAskBot user agent, respects robots.txt and
 waits 2 s between requests to the same host. Request and response bodies are limited to 4.5 MB by the host.</li>
 <li><b>3e Global Control Flow.</b> Add one sentence that the refresh is not run by the web server: it is a
 weekly Windows scheduled task (Sunday 02:00 ICT, <i>scripts/schedule-weekly.ps1</i>) on a team machine, so the two
@@ -582,9 +600,9 @@ for the Telegram webhook), and outbound HTTPS to the AI model API and the Telegr
 <p><b>Content-refresh machine.</b> The weekly refresh (UC-11) runs as a scheduled task on a team member's
 computer, not on the web host. It needs Node.js 24, 2 GB of RAM, about 1 GB of disk that grows with the
 retained copies of fetched pages (at most 5 MB per page), and an ordinary internet connection: with a 20 s
-timeout per request and a 2 s politeness delay per host, the 132 registered sources complete well within the
+timeout per request and a 2 s politeness delay per host, the 138 registered sources complete well within the
 task's 4-hour limit.</p>
-<p><b>External services.</b> The AI model API (Anthropic) and the Telegram Bot API. Credentials for both are
+<p><b>External services.</b> The AI model API (the Nous Research gateway by default) and the Telegram Bot API. Credentials for both are
 held only in server-side environment variables (REQ-27). Without a model credential the system still runs,
 using the extractive fallback provider.</p>
 """

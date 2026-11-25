@@ -5,8 +5,8 @@
  * source, no answer. ON lets the model answer a coverage gap from its own
  * knowledge, labelled unverified.
  *
- * It is ON by default in this build because the corpus is four ministries of
- * sample content. Even when ON, it does not invent a government procedure —
+ * It is ON by default in this build because the approved corpus is 45
+ * passages from four organisations. Even when ON, it does not invent a government procedure —
  * fees, offices, deadlines — for a coverage gap. That answer is a refusal,
  * not a fluent guess. The flag remains for the rare in-scope
  * question that is not a procedure and not a follow-up in a service thread.

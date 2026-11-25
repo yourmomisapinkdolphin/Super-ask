@@ -5,6 +5,7 @@ sequenceDiagram
     participant C as :QAController
     participant L as :LanguageService
     participant R as :RetrievalService
+    participant W as :CrawlIndex
     participant G as :AIModelGateway
     participant M as AI Model Service
     participant V as :AnswerVerifier
@@ -27,21 +28,39 @@ sequenceDiagram
     C->>R: retrievePassages(query)
     Note right of R: «include» UC-2:<br/>RetrieveOfficialSources
     R-->>C: ranked passages + source metadata
-    alt relevant official source found
+    alt relevant approved source found (above the 0.20 floor and about the question)
         C->>G: generateAnswer(question, passages)
         G->>M: model API request (passages only)
         M-->>G: draft answer
         G-->>C: draftAnswer + citedSourceIds
         Note over G: «Indirection, Protected Variations»<br/>The gateway hides the external model<br/>vendor — swapping the AI service changes<br/>only this class
         C->>V: verifyClaims(draftAnswer, passages)
-        V-->>C: verified Answer + SourceCitation list
         Note over V: «Creator»<br/>AnswerVerifier works with the data needed<br/>to build the final Answer, so it creates the<br/>Answer object with its citations
-        C-->>UI: answer(steps, documents, fees, deadlines, hours)
-        UI-->>U: displayAnswer() in the question's language
-        UI-->>U: displaySourceCitation()  «include» UC-3
-    else no relevant source, or a claim cannot be verified
-        C-->>UI: decline(coveredAreas)  «extend» UC-4
-        UI-->>U: displayDecline() with the areas SuperAsk.AI covers
+        alt every claim is supported by a cited source
+            V-->>C: verified Answer + SourceCitation list
+            C-->>UI: answer(steps, documents, fees, deadlines, hours)
+            UI-->>U: displayAnswer() in the question's language
+            UI-->>U: displaySourceCitation()  «include» UC-3
+        else a claim cannot be verified
+            V-->>C: verification failed
+            C-->>UI: answer withheld  «extend» UC-4
+            UI-->>U: displayDecline()
+        end
+    else no approved source covers the question
+        C->>W: searchCrawledPages(query)
+        W-->>C: closest passages from 58 official websites
+        Note over W: Crawled pages are a fallback only:<br/>never used while an approved source<br/>covers the question, always labelled<br/>"not reviewed". Optional live web search<br/>and a labelled general-knowledge answer<br/>follow the same path if no page fits
+        alt a crawled page covers the question
+            C->>G: generateAnswer(question, crawledPassages)
+            G-->>C: draftAnswer + cited page ids
+            C->>V: verifyClaims(draftAnswer, crawledPassages)
+            V-->>C: Answer (unreviewed) + page links
+            C-->>UI: answer labelled "Website page · not reviewed"
+            UI-->>U: displayAnswer() + link to the official page
+        else nothing covers it
+            C-->>UI: decline(coveredAreas)  «extend» UC-4
+            UI-->>U: displayDecline() with the areas SuperAsk.AI covers
+        end
     end
     C->>H: addToRecentConversations(question, answer)
     Note over H: «Information Expert»<br/>ConversationHistory holds past exchanges<br/>(on the citizen's device for the web, in<br/>session memory for Telegram), so it stores<br/>and lists them

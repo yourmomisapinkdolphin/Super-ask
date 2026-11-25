@@ -14,7 +14,7 @@ Web, Next.js App Router, TypeScript.
 
 SuperAsk is deployed at **https://superask-monunhh.vercel.app** (Monunhh's version, built from `main`).
 
-It answers from the 58 crawled institutions as well as the approved documents, with more suggested procedures, institution logos, and looser handling of questions no source covers.
+It answers from the approved documents first and, when they have no answer, from 58 crawled official websites (labelled "not reviewed"), with more suggested procedures, institution logos, and looser handling of questions no source covers.
 
 ---
 
@@ -42,10 +42,10 @@ verification gate, decline logic, and the whole interface work unchanged.
 
 ```bash
 npm run check            # typecheck + test + build + every harness below. CI runs this
-npm test                 # 643 tests (610 unit + 33 API integration), no model calls
+npm test                 # 705 tests (656 unit + 49 API integration), no model calls
 npm run test:watch       # the same, on change
 npm run test:coverage    # the same, with v8 coverage and its thresholds enforced
-npm run test:integration # Demo 1 integration suites (docs/demo-1/3_integration_testing/)
+npm run test:integration # Demo 1 integration suites, 9 tests (docs/demo-1/3_integration_testing/)
 npm run eval             # M-03 recall@8 and M-04 refusal precision, no model calls
 npm run verify-check     # proves the FR-15 gate blocks fabricated figures
 npm run curated-check    # Tier 1 matching, and that greetings do not swallow questions
@@ -76,9 +76,10 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 2. **Citizen Q&A (Telegram text)** — Same ask engine via a Telegram bot: type a question, get a reply in chat.
 3. **Telegram Mini App** — Open the full SuperAsk chat UI inside Telegram, or keep chatting by text.
 4. **Bilingual citizen surface** — Landing + chat support EN/KM; replies follow the user’s language.
-5. **Grounded answers with guardrails** — Retrieval over a sample KB, source citations, confidence checks, and a plain decline when no approved source covers the question.
-6. **Feedback / audit** — Feedback action; append-only audit logs with PII redaction.
-7. **Marketing / onboarding shell** — Landing page plus login/register screens (session is prototype-only, not real identity).
+5. **Grounded answers with guardrails** — Retrieval over the approved KB, source citations, confidence checks, and a plain decline when no source covers the question.
+6. **Answers from crawled official websites** — When the approved KB has no answer, the closest passage from 58 crawled government websites, labelled "not reviewed" and linked to the page.
+7. **Feedback / audit** — Feedback action; append-only audit logs with PII redaction.
+8. **Marketing / onboarding shell** — Landing page plus login/register screens (session is prototype-only, not real identity).
 
 ### What is already functional, what is currently being tackled?
 
@@ -86,8 +87,10 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 
 - Landing page and web chat (`/chat`)
 - Ask API + RAG pipeline (normalize → retrieve → generate → verify)
+- Crawled-website fallback over 58 official sites (`CRAWL_KB_ENABLED`), and optional live web search (`WEB_SEARCH_ENABLED`, off by default)
+- API guard: per-IP rate limit and origin check on `/api/ask` and `/api/feedback` (`lib/api/guard.ts`)
 - Telegram bot webhook (text answers) + Mini App entry points (keyboard + menu button)
-- Production deploy on Vercel with Telegram webhook configured
+- Production deploy on Vercel with Telegram webhook configured; CI deploys `main` after every check passes
 - Citations, feedback/audit APIs
 - Health check and local eval/CI checks (`npm run check`)
 
@@ -95,7 +98,7 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 
 - Real authentication (login/register are UI / `localStorage` stubs)
 - Stronger retrieval (dense/rerank pieces are lightweight stand-ins, not full neural models)
-- Broader, steward-approved knowledge base (sample ministries only today)
+- Broader, steward-approved knowledge base (45 approved passages from 4 organisations; crawled content is served but not reviewed)
 - Content portal / ingest / RBAC (not built yet)
 - More reliable Telegram multi-turn history across serverless cold starts
 
@@ -107,7 +110,7 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 4. **Quality gates** — Typecheck, tests, and eval harnesses in CI so retrieval/guardrail changes do not silently regress.
 5. **Risk and honesty controls** — Sample KB only; no invented fees; refuse when confidence is low; PII redaction in logs.
 6. **Cross-surface coordination** — Same brand and UX direction across landing, web chat, and Telegram.
-7. **Content governance line** — Crawl/monitor never auto-publishes into the answerable KB (steward approval gap is intentional; see `data/README.md`).
+7. **Content governance line** — Crawl/monitor never writes into the approved KB. Crawled pages are only served as a labelled fallback (steward approval gap is intentional; see `data/README.md`).
 
 ---
 
@@ -116,10 +119,11 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 | PRD area | Status |
 |---|---|
 | §8.1 Query handling | Khmer + English input, Unicode normalisation and canonical reordering (FR-04), shared segmentation (FR-05), romanised-Khmer mapping (FR-03), alias expansion (FR-06), session follow-up rewriting (FR-07), language detection (FR-08) |
-| §8.2 Answer generation | Three tiers, curated-first (FR-10/11), hybrid retrieval + RRF + rerank (FR-12/13), sources-only generation (FR-14), verification gate (FR-15), confidence-gated decline (FR-16), effective-content-only filter (FR-18) |
+| §8.2 Answer generation | Three tiers, curated-first (FR-10/11), hybrid retrieval + RRF + rerank (FR-12/13), sources-only generation (FR-14), verification gate (FR-15), confidence-gated decline (FR-16), effective-content-only filter (FR-18), topicality (aboutness) check (R-07) |
+| Fallback sources | Crawled official-website passages (58 sites, labelled unreviewed, linked), optional live web search, and a labelled general-knowledge fallback, tried in that order only after the approved corpus fails |
 | §6.1 Terminology | Plain-language explanation of official terms — instrument types, ministry abbreviations, administrative levels, and the three dates on a citation — served as Tier 1 from `data/glossary.json` |
 | §8.3 Citation | Every field of FR-20 → FR-26, always visible |
-| §8.7 Content monitoring | Web adapter over a 132-source registry (FR-47), change signals raised to a steward review queue and never published (FR-49), raw copy and fetch timestamp retained (FR-54), §10.5 risk classification. Facebook, Telegram, video and document adapters not built |
+| §8.7 Content monitoring | Web adapter over a 138-source registry, 136 enabled (FR-47), change signals raised to a steward review queue and never published (FR-49), raw copy and fetch timestamp retained (FR-54), §10.5 risk classification. Facebook, Telegram, video and document adapters not built |
 | §8.8 Audit | Full FR-55 record, PII redacted before storage (FR-56) |
 | §8.9 Citizen interface | FR-60 → FR-74 |
 | §9 NFRs | NFR-01 gate, NFR-02 refusal, NFR-03 untrusted-content handling, NFR-04 output moderation, NFR-09 degradation, NFR-10 index swap, NFR-18 abstraction layer |
@@ -137,9 +141,20 @@ prefixed rather than lumped together:
 | `scope:not_a_service_question` | Not a government-service question at all — translation, general knowledge, chit-chat. Refused, not flagged as a coverage gap | Nothing. There was no government-service question to answer |
 | `retrieval:below_floor` | Nothing scored above `RETRIEVAL_MIN_SCORE`. SuperAsk is *allowed* to answer; it has no source that covers the question | Usually a **content coverage gap** — add the content. If the source clearly exists and should have matched, it is a retrieval problem (R-07) |
 | `retrieval:no_candidates` | Retrieval returned nothing at all | Same, more clear-cut |
+| `retrieval:off_topic` | A money question matched a fee table for a different service ("how much is a passport" → driving-licence fees) | Coverage gap. A wrong fee is worse than none (R-06) |
+| `scope:entity_record_lookup` | A question about one named business or record ("is the trademark 'Baby Outlet' registered") | Nothing. The reply points to the public register |
+| `rationale:not_in_source` | The citizen asked *why* a rule exists and the top source states the rule without a reason | Content: the published page gives no reason |
 | `verification:failed` | An answer was written, then suppressed by the FR-15 gate for an unsupported claim | Check `unsupported claims` in the trace. Either the model invented a figure, or the source phrases it in a form the extractor misses |
 | `moderation:<kind>` | NFR-04 output moderation caught the finished answer | Review the grounding prompt |
 | `provider:declined` | The model itself declined to answer from the sources | Often correct behaviour |
+| `provider:degraded_off_subject` | The model failed, the extractive stand-in took over, and the top source does not cover the question | Check the provider credential (`/api/health`) |
+
+Three more values are recorded in the same field but are **answers, not
+refusals**. They say which fallback produced the answer after the approved
+corpus failed: `fallback:crawled_website` (a crawled official page, labelled
+"not reviewed"), `fallback:web_search` (a live web result, labelled and linked;
+only with `WEB_SEARCH_ENABLED=true`) and `fallback:general_knowledge` (the
+model's own knowledge, labelled unverified, no citations).
 
 The distinction matters operationally: `policy:` means the platform is not
 permitted to answer, `scope:` means there was nothing of its kind to answer, and
@@ -216,7 +231,7 @@ one question wide. The floor's real job is catching out-of-domain questions the
 golden set does not contain, and that is untested. Widen the negatives before
 trusting the sweep.
 
-`npm run test` — 643 tests across 24 files (610 unit, 33 API route integration), no model called, **89.6% line coverage**
+`npm run test` — 705 tests across 29 files (656 unit, 49 API route integration), no model called, **85.2% line coverage**
 over `lib/` and `app/api/`:
 
 | Suite | Covers |
@@ -226,6 +241,8 @@ over `lib/` and `app/api/`:
 | `tests/engine/verify` | FR-15 — invented fees and deadlines blocked, faithful paraphrase passed |
 | `tests/engine/rationale` | rule-restated-as-its-own-reason; the stray-purpose-clause trap |
 | `tests/engine/topicality` | R-07 — every bad answer this build shipped, as a regression case |
+| `tests/engine/crawl-answer` | the crawled-website fallback: only after the approved corpus fails, always labelled unreviewed, cited with the page link |
+| `tests/engine/citations` | FR-20 → FR-26 citation fields, including crawled pages that state no instrument or effective date |
 | `tests/engine/curated`, `glossary` | Tier 1 matching against the **live** corpus, not a fixture |
 | `tests/engine/freshness` | FR-26 / M-05, with the clock injected |
 | `tests/retrieval/query` | FR-07 follow-up anchoring — including that the query walks back *past* subject-less turns and keeps them |
@@ -236,17 +253,23 @@ over `lib/` and `app/api/`:
 | `tests/llm/prompt` | the grounded vs general prompt contracts, and `parseGeneration` refusing to fabricate |
 | `tests/llm/provider` | NFR-09 degradation, and that no metadata path exposes a credential |
 | `tests/llm/gateway` | the provider actually in production: request shaping, bearer-only credential, honest residency |
-| `tests/log/audit` | FR-56 — that the writers redact *before* the write |
-| `tests/history` | device-local storage, quota and private-browsing failure, and that nothing is transmitted |
-| `tests/api/routes` | the boundary: malformed, oversized and hostile input, and NFR-09 degradation |
+| `tests/llm/sealion` | the SEA-LION provider: request shaping, JSON mode, residency |
+| `tests/log/audit`, `sink`, `trace` | FR-56 — that the writers redact *before* the write; the file/stdout sink choice; the redacted process trace |
+| `tests/crawl/soft-block` | WAF pages, SPA shells and JSON auth walls served with HTTP 200 are not treated as pages |
+| `tests/ui/history` | device-local storage, quota and private-browsing failure, and that nothing is transmitted |
+| `tests/api/routes`, `guard`, `telegram-auth` | the boundary: malformed, oversized and hostile input, NFR-09 degradation, the rate limit and origin check, and the Telegram webhook secret |
 | `tests/kb/corpus` | FR-45 metadata on every chunk, and the `data/README.md` honesty conventions |
 
 Coverage thresholds are a **floor**, set in `vitest.config.ts` just below the
 current numbers: an ordinary change has room to move, but deleting a suite fails
 the build rather than showing up as a slowly sinking percentage nobody reads.
-`lib/llm/anthropic.ts` and `lib/llm/vllm.ts` sit near 5% and are what hold the
-figure below 90 — they are the Phase 1 migration targets (NFR-18), worth
-covering when one of them becomes the provider in use, not before.
+The thresholds are 85% lines and statements, 90% branches and functions. Four
+files hold the line figure down: `lib/llm/anthropic.ts` and `lib/llm/vllm.ts`
+(about 5%; the Phase 1 migration targets under NFR-18, worth covering when one
+becomes the provider in use), and `lib/engine/web-answer.ts` and
+`lib/web/search.ts` (13–25%; the live web search path, off by default). Line
+coverage is 85.2% against an 85% floor, so a change that adds untested code to
+`lib/` will fail CI.
 
 The corpus suite is the one to watch. It runs against live `data/` on every push,
 because the corpus is the part of this system that changes without a code review
@@ -291,21 +314,27 @@ cannot support.
 
 ```bash
 npm run build-sources    # data/registry/*.csv → data/sources.json
-npm run crawl:verify     # probe all 132 seeds, ~20 min, writes no content
+npm run crawl:verify     # probe every enabled seed, ~20 min, writes no content
 npm run crawl:monitor    # change detection over confirmed sources
 npm run crawl:weekly     # what the scheduled task runs: priority 1 and 2
 ```
 
-Weekly scheduling on Windows, per-user, no admin rights:
+Weekly scheduling, per-user, no admin rights. Windows (Task Scheduler):
 
 ```powershell
 .\scripts\schedule-weekly.ps1              # Sunday 02:00 ICT by default
 .\scripts\schedule-weekly.ps1 -Uninstall
 ```
 
+macOS (launchd):
+
+```bash
+./scripts/schedule-weekly-macos.sh         # Sunday 02:00 local time by default
+```
+
 ### The registry
 
-132 organisations — ministries, institutions, general departments, regulators,
+138 sources (136 enabled) — ministries, institutions, general departments, regulators,
 25 provincial administrations, public universities, national hospitals, and the
 two cross-government service portals (`service.gov.kh`,
 `services.misti.gov.kh`). It is maintained in `data/registry/seed_registry.py`
@@ -322,7 +351,7 @@ allowed to do with it:
 | `search` | Seen verbatim on an official page or PDF | Crawled |
 | `unconfirmed` | **Derived from a naming convention, never observed** | Probed by `crawl:verify`, skipped by `crawl:monitor` |
 
-51 of the 132 are `unconfirmed` — mostly `<province>.gov.kh`, a pattern
+51 of the 138 are `unconfirmed` — mostly `<province>.gov.kh`, a pattern
 confirmed for 7 of 25 provinces and assumed for the rest. They are leads, not
 facts. `crawl:verify` is how a lead becomes a source: it probes the seed, and a
 lead that returns 2xx with real content can then be promoted in the registry.
@@ -399,7 +428,7 @@ problem can reach you. The default is a placeholder.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `MONITOR_CONTACT` | `content-ops@superask.kh` | Contact in the User-Agent. **Change this.** |
+| `MONITOR_CONTACT` | `content-ops@localhost` | Contact in the User-Agent. **Change this.** |
 | `MONITOR_MIN_DELAY_MS` | `2000` | Floor between requests to one host |
 | `MONITOR_CONCURRENCY` | `6` | Hosts in flight at once |
 | `MONITOR_TIMEOUT_MS` | `20000` | Per-request timeout |
@@ -410,21 +439,44 @@ problem can reach you. The default is a placeholder.
 ## Architecture
 
 ```
-Citizen browser
-   │  POST /api/ask          ← the only path to a model. No credential ever
-   ▼                           reaches the client (FR-74, R-15).
-lib/engine/tiers.ts
+Citizen (web /chat · Telegram bot · Telegram Mini App)
+   │  POST /api/ask                 ← the only paths to a model. No credential ever
+   │    (lib/api/guard.ts: per-IP     reaches the client (FR-74, R-15).
+   │     rate limit + origin check)
+   │  POST /api/telegram/webhook    ← authenticated by TELEGRAM_WEBHOOK_SECRET
+   ▼
+lib/engine/tiers.ts  ask()
    │
-   ├─ guardrails.screen()         §12 refusal policy — BEFORE retrieval
-   ├─ curated.matchCurated()      Tier 1, verbatim, no generation
-   ├─ retrieval.retrieve()        normalise → segment → alias → BM25 + dense
-   │                              → RRF → cross-encoder rerank
-   ├─ confidence gate             FR-16 — BEFORE generation
-   ├─ llm.generate()              Tier 2, sources only
-   ├─ verify.verify()             FR-15 — can suppress a written answer
-   ├─ guardrails.moderateOutput() NFR-04
-   └─ citation assembly           FR-20 → FR-26
+   ├─ guardrails.screen()            §12 refusal policy — BEFORE retrieval   → policy:*
+   ├─ curated.matchCurated()         Tier 1, verbatim, threshold 0.72
+   ├─ guardrails.isInScope()         §6.1 off-domain screen                  → scope:not_a_service_question
+   ├─ glossary.matchPureDefinition() Tier 1, "what does prakas mean"
+   ├─ retrieval.retrieve()           normalise → segment → alias → BM25 + dense
+   │                                 → RRF → rerank, over data/kb/ only
+   ├─ confidence gate                FR-16, floor 0.20 — BEFORE generation
+   │     └─ below the floor:  glossary → crawled website → web search
+   │                           → general fallback → refuse   → retrieval:below_floor
+   ├─ topicality.assess()            R-07 aboutness check on the top source
+   │     ├─ fee for another service                          → retrieval:off_topic
+   │     ├─ named business / record                          → scope:entity_record_lookup
+   │     ├─ coverage < 0.75 → try a crawled website passage
+   │     └─ off topic       → try web search
+   ├─ rationale gate                 "why" with no reason in the source      → rationale:not_in_source
+   ├─ llm.generate()                 Tier 2, sources only
+   │     └─ declined → web search → general fallback → refuse → provider:declined
+   ├─ verify.verify()                FR-15 — can suppress a written answer   → verification:failed
+   ├─ guardrails.moderateOutput()    NFR-04                                  → moderation:*
+   └─ citation assembly              FR-20 → FR-26, stale notice, off-topic caveat
+
+Fallback sources, tried only after the approved corpus fails, always labelled:
+   crawl-answer.ts  lib/retrieval/crawl-index.ts over data/crawl/db/ (58 sites)  "not reviewed", page link
+   web-answer.ts    lib/web/search.ts (Tavily), only if WEB_SEARCH_ENABLED=true   "web result", page link
+   fallback.ts      the model's own knowledge, never for a procedure              "unverified", no citations
 ```
+
+Each fallback answer goes through the same verification gate and output
+moderation as a Tier 2 answer. None of them can displace an approved answer
+that covers the question.
 
 The order is the safety design. Guardrails run before retrieval so an
 out-of-scope question never reaches a model. The confidence gate runs before
@@ -439,13 +491,15 @@ Nothing outside `lib/llm/` contains model-specific logic.
 
 | Provider | `LLM_PROVIDER` | Hosting | Residency |
 |---|---|---|---|
-| OpenAI-compatible gateway | `gateway` | Third-party gateway | External, non-domestic |
+| OpenAI-compatible gateway (Nous Research) | `gateway` | Third-party gateway | External, non-domestic |
+| SEA-LION, AI Singapore | `sealion` | External API | Outside Cambodia |
 | Claude, commercial API | `anthropic` | External | Outside Cambodia |
 | Qwen via vLLM | `vllm` | Self-hosted | Cambodia |
 | Deterministic extraction | `extractive` | In-process | Cambodia |
 
 **Currently configured: `gateway`, model `google/gemini-3.1-flash-lite`**
-(Nous Research gateway; set `LLM_GATEWAY_API_KEY`). One credential fronts many model families,
+(Nous Research gateway; set `LLM_GATEWAY_API_KEY`). `.env.example` selects it;
+with `LLM_PROVIDER` unset the code defaults to `extractive`. One credential fronts many model families,
 which is what §10.6 condition 4 needs for benchmarking candidates against the
 Khmer golden set — swapping the model under test is one environment variable.
 It is also a *third party* between SuperAsk and the model vendor, so it carries
@@ -485,17 +539,18 @@ knobs:
 - **`RETRIEVAL_MIN_SCORE`** — the FR-16 decline floor, default `0.20`. Derived
   from the sweep `npm run eval` prints, not chosen by feel. **Re-derive this
   whenever the corpus, the segmenter, or the reranker changes.** At 0.20 the
-  starter set answers 67.6% of in-scope questions and refuses 90% of
-  out-of-scope ones — the one that gets through is "what is the capital of
-  france", which matches a vehicle-registration passage at 0.205. The system
-  still refuses it, because the §6.1 off-domain screen runs *before* retrieval;
-  but a scope rule must not depend on a retrieval score, which is exactly why it
-  runs there.
+  starter set answers 73.5% of in-scope questions and refuses all ten
+  out-of-scope ones, but only one of those ten refusals rests on the floor
+  (see the by-gate line above). "What is the capital of france" matches a
+  vehicle-registration passage at 0.205, just over the floor; the system still
+  refuses it, because the §6.1 off-domain screen runs *before* retrieval. A
+  scope rule must not depend on a retrieval score, which is exactly why it runs
+  there.
 - **`GENERAL_FALLBACK_ENABLED`** — default on. When a question is in scope and no
   approved source covers it, the model answers from its own knowledge, labelled
   unverified, with no citations. Off is the §13
   behaviour: no approved source, no answer. On is a deliberate loosening while
-  the corpus is four ministries of sample content, and it should be revisited as
+  the approved corpus is 45 passages from four organisations, and it should be revisited as
   coverage grows — the wider the corpus, the more likely a question that misses
   it is one that genuinely should not be answered.
 - **`DIAGNOSTICS_ENABLED`** — FR-72/73. When false the server omits the
@@ -596,10 +651,10 @@ carries a note not to add these cases until the gate can tell them apart.
    but they are still prototype text asserting how Cambodian instruments relate
    to one another.
 7. **Monitoring has no steward to raise changes to (FR-31, FR-49).** The crawler
-   raises change signals correctly, but `var/review-queue.jsonl` is an
+   raises change signals correctly, but `data/crawl/review-queue.jsonl` is an
    append-only file that nothing reads. The content management portal (§8.5) is
    the consumer, and it does not exist — so today a detected fee change sits in
-   a queue until a human runs `Get-Content var/review-queue.jsonl`. The crawler
+   a queue until a human opens `data/crawl/review-queue.jsonl`. The crawler
    is only half the loop until FR-31 to FR-37 land.
 8. **Not built at all:** the content management portal (§8.5), ingestion pipeline
    (§8.6 — OCR, article chunking, FR-44 question generation), the Facebook,
@@ -610,12 +665,14 @@ carries a note not to add these cases until the gate can tell them apart.
    `data/facilities.json` but questions are not routed to it), voice (FR-09,
    FR-19, Phase 2), plain-language mode (NFR-16), steward reminders
    (FR-53).
-8. **Audit and feedback logs write to `var/*.jsonl` on local disk.** Gitignored.
-   Production needs domestic managed storage under the NFR-13 retention policy
-   and NFR-11 residency. `lib/log/audit.ts` is the seam.
-9. **Emergency numbers in `data/facilities.json` are placeholders** and must be
+9. **Audit and feedback logs have no durable store.** Locally they write to
+   `var/*.jsonl` (gitignored); on Vercel, whose filesystem does not keep files,
+   they go to stdout and live only as long as Vercel keeps function logs
+   (`AUDIT_LOG_SINK`). Production needs domestic managed storage under the
+   NFR-13 retention policy and NFR-11 residency. `lib/log/audit.ts` is the seam.
+10. **Emergency numbers in `data/facilities.json` are placeholders** and must be
    verified before any release — guardrail rule 6 depends on them being right.
-10. **The FR-29 responsible-office block is not rendered.** The server still
+11. **The FR-29 responsible-office block is not rendered.** The server still
     returns the details, but the interface does not display them because the
     directory holds `[SAMPLE NUMBER]` placeholders. Put verified contact details
     in `data/facilities.json` and restore the block in `AnswerBlock.tsx`.
@@ -624,7 +681,7 @@ carries a note not to add these cases until the gate can tell them apart.
 
 The sidebar lists recent conversations, restores them with their citations, and
 supports per-item and bulk delete. It is backed by `localStorage` and **never
-transmitted** (`lib/history.ts`).
+transmitted** (`lib/ui/history.ts`).
 
 That is a deliberate constraint, not an unfinished feature. The queries this
 service receives are about births, deaths, lost identity documents, and money
@@ -649,6 +706,7 @@ The brand palette follows the SuperAsk (StartUp) Figma: `#4F3FA8` (indigo — br
 ## Layout
 
 ```
+.github/workflows/ci.yml    checks, secrets scan, Vercel production deploy
 instrumentation.ts          server start hook: warms the KB indexes
 app/
   page.tsx                  landing page; login/ and register/ are prototype stubs
@@ -705,7 +763,8 @@ scripts/
 tests/                      unit tests (npm test), mirrors lib/
 docs/                       course deliverables (see docs/README.md)
   demo-1/                   Demo 1 e-archive, incl. 3_integration_testing/
-  report-3/                 Report Three review against the code
+  report-3/                 Report Three (Full and Part One, text export) and its
+                            reviews against the code
 ```
 
 ---
@@ -728,40 +787,48 @@ exists so the pipeline can be built and measured while procurement is settled.
 
 ## Deployment
 
-Running at `http://206.189.88.178` on a DigitalOcean droplet (Ubuntu 24.04,
-1 vCPU, 1 GB). nginx terminates the public request; Next.js listens on loopback
-only and is never reachable from outside.
+**Production is Vercel:** https://superask-monunhh.vercel.app, built from `main`.
 
 ```
-internet → nginx :80 → 127.0.0.1:3000 (superask.service, user superask)
+push to main → GitHub Actions: check + secrets-scan → deploy job
+             → vercel pull (production env) → vercel build --prod
+             → vercel deploy --prebuilt --prod (uploaded without .git)
 ```
+
+The deploy job runs only on a push to `main`, only after every check in
+`.github/workflows/ci.yml` passes, and is skipped with a warning when the
+`VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` secrets are not set.
+Pull requests never deploy and never see the token. The upload strips `.git`
+because the Hobby team rejects deploys whose commit author is not a team member
+(see "Issues encountered").
 
 | Control | Where | Why |
 |---|---|---|
-| `limit_req` 12 r/min on `/api/`, 120 r/min site | `/etc/nginx/conf.d/superask-limits.conf` | Every `/api/ask` is a paid model call. Unlimited public access is an open tap on the gateway credit. A citizen asks a question every few seconds; a scraper does not. |
-| App bound to `127.0.0.1` | `superask.service` | Port 3000 is unreachable publicly, so the rate limits and headers cannot be bypassed |
-| `/api/health` → localhost only | nginx `location = /api/health` | It names the provider, the model and the gateway base URL. No client calls it |
-| `DIAGNOSTICS_ENABLED=false` | `/opt/superask/.env.local` | FR-72/73 — the answer trace is for the SuperAsk team, not citizens |
-| `.env.local` mode 600, owned by `superask` | droplet | R-15 / FR-74 — the credential is readable only by the service account |
-| Unprivileged user + systemd sandboxing | `superask.service` | `ProtectSystem=strict`, `NoNewPrivileges`, `PrivateDevices`; the audit log is the only writable path |
-| `X-Powered-By` stripped, `server_tokens off` | nginx + `next.config.ts` | Do not hand a scanner the stack |
-| `robots.txt` disallows `/api/` | nginx | A crawler walking the API costs a model call per hit |
-| ufw: 22, 80, 443 only · key-only SSH · fail2ban | droplet | Standard host hardening |
+| Provider credential and Telegram token in Vercel env vars only | Vercel project settings | R-15 / FR-74. `.vercelignore` keeps local `.env*` files out of CLI uploads |
+| Per-IP rate limit (120/min) and origin check on `/api/ask`, `/api/feedback` | `lib/api/guard.ts` | Every `/api/ask` can be a paid model call. In memory, so per serverless instance: a brake, not a quota |
+| Telegram webhook refuses unsigned calls in production (503) | `app/api/telegram/webhook/route.ts` | Without `TELEGRAM_WEBHOOK_SECRET` anyone could post fake updates |
+| `/chat` framable by Telegram only; other pages `X-Frame-Options: DENY` | `next.config.ts` | The Mini App must embed `/chat`; nothing else should be framed |
+| `X-Powered-By` off | `next.config.ts` | Do not hand a scanner the stack |
+| Crawl index shipped with the answering functions; crawl DB and `docs/` excluded | `next.config.ts` `outputFileTracing*` | Keeps the function bundle small enough to deploy |
+| `/api/health` is **public** here (the droplet limited it to localhost) | `app/api/health/route.ts` | It names the provider and model and whether a credential is present, never the credential itself. Restrict it before a pilot |
+| Audit and feedback records to stdout | `lib/log/audit.ts` | Vercel's filesystem does not keep files. See Known gaps 9 |
 
-**This deployment is HTTP, not HTTPS.** A certificate needs a domain name;
-Let's Encrypt will not issue for a bare IP. Until a domain points here, citizen
-questions — which section 5.1 notes are about births, deaths, lost documents and
-money owed — cross the network in cleartext. Point a domain at the droplet and
-run `certbot --nginx`, and treat the current address as a demo, not a pilot.
+Set `DIAGNOSTICS_ENABLED` to `false` (or leave it unset) in the Vercel
+production environment: the answer trace is for the SuperAsk team, not citizens
+(FR-72/73). `.env.example` turns it on for local development only.
 
 Operations:
 
 ```
-systemctl status superask          # service state
-journalctl -u superask -f          # application log
-curl -s localhost/api/health     # provider, model, corpus (localhost only)
+vercel logs <deployment-url>                       # function logs, incl. audit records
+curl -s https://superask-monunhh.vercel.app/api/health   # provider, model, corpus, crawled websites
+npx tsx scripts/telegram-webhook.ts set https://<host>/api/telegram/webhook
 ```
 
-Redeploy: rsync the tree to `/opt/superask` excluding `node_modules`, `.next`,
-`var` and `.env.local`, then `npm ci && npm run build && systemctl restart
-superask`.
+### Earlier self-hosted deployment
+
+Before Vercel, SuperAsk ran on a DigitalOcean droplet (Ubuntu 24.04, nginx in
+front of Next.js on loopback, `limit_req` rate limits, systemd sandboxing,
+localhost-only `/api/health`, ufw and fail2ban). That deployment was HTTP only,
+because Let's Encrypt will not issue a certificate for a bare IP. It is not the
+live version and this repository no longer documents how to redeploy it.

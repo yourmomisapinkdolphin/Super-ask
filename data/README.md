@@ -20,7 +20,7 @@ data/
   facilities.json        FR-17 office directory + emergency numbers
   golden.json            evaluation set — test data, never served
 
-  sources.json           GENERATED registry of 132 monitored sites
+  sources.json           GENERATED registry of 138 monitored sites (136 enabled)
   registry/              upstream registry (Python) that generates it
   crawl/                 FETCHED MATERIAL — no steward has approved any of it
 ```
@@ -126,7 +126,7 @@ is `registry/seed_registry.py`; regenerate with `npm run build-sources`.
 one row per source carrying the organisation record, its crawl seed (`seed_*`)
 and its last probe result (`verify_*`).
 
-132 organisations, each carrying a provenance code. `verified=unconfirmed` means
+138 sources, each carrying a provenance code. `verified=unconfirmed` means
 the domain was derived from a naming convention and never observed — a lead, not
 a fact, and excluded from monitoring until a probe confirms it.
 
@@ -134,7 +134,7 @@ a fact, and excluded from monitoring until a probe confirms it.
 
 | File | What it is |
 |---|---|
-| `verification.json` | Seed probe results — which of the 132 are live, dead, blocked, WAF-refused, or JS-shelled. The same results are written back onto each source's row in `registry/websites_master.csv` as its `verify_*` columns |
+| `verification.json` | Seed probe results — which of the probed seeds (135 in the last run) are live, dead, blocked, WAF-refused, or JS-shelled. The same results are written back onto each source's row in `registry/websites_master.csv` as its `verify_*` columns |
 | `snapshots.json` | Per-page content hashes, the baseline change detection compares against |
 | `raw/<SRC-ID>/*.html` | Retained raw copies with fetch timestamps (FR-54 provenance) |
 | `review-queue.jsonl` | Append-only change signals awaiting a steward (FR-49) |

@@ -12,11 +12,11 @@ sequenceDiagram
     T->>C: startRefresh()
     Note over C: «Controller»<br/>RefreshController handles the timer's<br/>system event and coordinates the whole<br/>refresh run
     C->>G: loadRegisteredSources()
-    G-->>C: source list (website / Facebook / Telegram)
+    G-->>C: source list (138 websites, Facebook and Telegram planned)
     Note over G: «Information Expert»<br/>SourceRegistry owns the registered source<br/>list, so adding a new ministry is just a new<br/>registry entry (REQ-30)
     loop for each registered source
         C->>W: fetchLatest(source)
-        Note over W: «Polymorphism, Protected Variations»<br/>WebsiteCrawler, FacebookCrawler and<br/>TelegramCrawler implement one<br/>SourceCrawler interface — a new platform<br/>never changes RefreshController
+        Note over W: «Polymorphism, Protected Variations»<br/>WebsiteCrawler, FacebookCrawler and<br/>TelegramCrawler implement one<br/>SourceCrawler interface — a new platform<br/>never changes RefreshController.<br/>Only WebsiteCrawler is built
         W->>O: request latest page or posts
         O-->>W: pageOrPosts (or error / block page)
         W-->>C: extractedText + fetchDate (or failure)
@@ -27,7 +27,7 @@ sequenceDiagram
                 Note over Q: Changed content is flagged<br/>for a human steward to review —<br/>the crawler never writes to the<br/>knowledge base directly
                 Q->>S: storeContent(text, url, fetchedAt)<br/>only after the steward approves
                 S->>S: reindex()
-                Note over S: «Creator, Information Expert»<br/>ContentStore creates and<br/>versions the approved record,<br/>updating the data used<br/>for answers
+                Note over S: «Creator, Information Expert»<br/>ContentStore creates and<br/>versions the approved record.<br/>NOT BUILT YET: no steward portal<br/>reads the queue, so steps from<br/>here are the design, not the code
             end
             C->>G: updateLastVerified(source)
         else fetch failed or blocked

@@ -20,6 +20,16 @@ classDiagram
         +info
         +generate(request)
     }
+    class GatewayProvider {
+        -baseUrl
+        -model
+        +generate(request)
+    }
+    class VllmProvider {
+        -baseUrl
+        -model
+        +generate(request)
+    }
     class AnthropicProvider {
         -apiKey
         -model
@@ -46,6 +56,7 @@ classDiagram
         +text
         +coverageGap
         +unverified
+        +unreviewed
         +office
         +getCitations()
     }
@@ -62,6 +73,8 @@ classDiagram
         +reviewDue
         +freshness
         +quote
+        +unreviewed
+        +mapUrl
     }
     class Passage {
         +id
@@ -98,6 +111,8 @@ classDiagram
     QAController --> AnswerVerifier
     QAController --> FeedbackLog : audit
     AIModelGateway --> LlmProvider
+    GatewayProvider ..|> LlmProvider
+    VllmProvider ..|> LlmProvider
     AnthropicProvider ..|> LlmProvider
     SeaLionProvider ..|> LlmProvider
     ExtractiveProvider ..|> LlmProvider

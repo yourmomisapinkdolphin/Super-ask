@@ -35,14 +35,26 @@ classDiagram
     class QAController {
         -curatedThreshold
         -retrievalMinScore
+        -crawlChallengeBelow
         +askQuestion(request)
         +getOfficeContact(request)
         -screenGuardrails(question)
         -matchCurated(question, lang)
         -checkScope(question)
         -confidenceGate(result)
+        -assessTopicality(query, topPassage)
+        -rationaleGap(question, topPassage)
+        -tryCrawlAnswer(question, beat)
+        -tryWebAnswer(question)
+        -tryGeneralFallback(question)
         -moderateOutput(answer)
         -buildDecline(reason)
+    }
+    class CrawlIndex {
+        -passages
+        -enabled
+        +searchCrawl(query, topK)
+        +crawlStats()
     }
     class LanguageService {
         +detectLanguage(text)
@@ -148,6 +160,7 @@ classDiagram
     QAController --> RetrievalService
     QAController --> ContentStore : curated match
     QAController --> ConversationHistory
+    QAController --> CrawlIndex : fallback when no approved source
     RetrievalService "1" --> "2" SearchIndex
     RetrievalService --> ContentStore
     RetrievalService --> ConversationHistory : follow-up context

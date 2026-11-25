@@ -64,9 +64,9 @@ const CURATED_THRESHOLD = Number(
  * Decline floor (FR-16). Derived from the sweep in scripts/eval.ts against
  * the golden set, not chosen by feel. On the 45-passage starter corpus, 0.20
  * answered 91.2% of in-scope questions and refused 100% of out-of-scope ones.
- * Re-measured on 2026-11-23 after the crawled pages were ingested (3,923
- * passages): 0.20 answers 73.5% and refuses 100%; 0.15 answers 88.2% and still
- * refuses 100%. Re-derive whenever the corpus, the segmenter, or the reranker
+ * Re-measured on 2026-11-25 against the current 45-passage corpus, with the
+ * scope gate applied as here: 0.20 answers 73.5% and refuses 100%; 0.15
+ * answers 88.2% and still refuses 100%. Re-derive whenever the corpus, the segmenter, or the reranker
  * changes.
  */
 const RETRIEVAL_MIN_SCORE = Number(process.env.RETRIEVAL_MIN_SCORE ?? "0.20");

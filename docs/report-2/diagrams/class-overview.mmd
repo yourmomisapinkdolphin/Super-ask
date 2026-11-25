@@ -20,8 +20,13 @@ classDiagram
         class SearchIndex
         class KeywordIndex
         class VectorIndex
+        class CrawlIndex
+        class WebSearch
         class LlmProvider
+        class GatewayProvider
+        class SeaLionProvider
         class AnthropicProvider
+        class VllmProvider
         class ExtractiveProvider
     }
     namespace KnowledgeAndConversation {
@@ -43,8 +48,12 @@ classDiagram
         class RegisteredSource
         class SourceCrawler
         class WebsiteCrawler
-        class FacebookCrawler
-        class TelegramCrawler
+        class FacebookCrawler {
+            <<planned>>
+        }
+        class TelegramCrawler {
+            <<planned>>
+        }
         class ReviewQueue
         class ChangeSignal
         class RefreshReport
@@ -61,6 +70,8 @@ classDiagram
     QAController --> ConversationHistory
     QAController --> OfficeDirectory
     QAController --> ContentStore
+    QAController --> CrawlIndex : fallback
+    QAController --> WebSearch : fallback
     RetrievalService --> SearchIndex
     RetrievalService --> ContentStore
     RetrievalService --> ConversationHistory
@@ -70,7 +81,10 @@ classDiagram
     VectorIndex ..|> SearchIndex
     ContentStore *-- Passage
     AIModelGateway --> LlmProvider
+    GatewayProvider ..|> LlmProvider
+    SeaLionProvider ..|> LlmProvider
     AnthropicProvider ..|> LlmProvider
+    VllmProvider ..|> LlmProvider
     ExtractiveProvider ..|> LlmProvider
     AnswerVerifier ..> Answer
     Answer *-- SourceCitation

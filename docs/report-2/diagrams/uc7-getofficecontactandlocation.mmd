@@ -25,3 +25,4 @@ sequenceDiagram
     Note over D: «Information Expert, High Cohesion»<br/>OfficeDirectory owns office records<br/>collected by UC-11, so it answers which<br/>office is responsible and what contact<br/>data is verified — it never guesses
     U->>UI: selectOpenInGoogleMaps()
     UI-->>U: openMap(officeLocation) in a new tab
+    Note over U,D: PARTLY BUILT: each source card already carries a Google Maps<br/>search link for the responsible office (lib/engine/citations.ts).<br/>The OfficeDirectory lookup and contact card are not built:<br/>data/facilities.json holds sample offices and questions are not routed to it
