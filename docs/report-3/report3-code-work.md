@@ -118,13 +118,26 @@ All 65 golden-set and spot-check questions were run before and after the fixes, 
 | 23 Nov | `fe6bc7e` | Merge into `main` |
 | 23 Nov | `a50246a` | Repo tidy |
 | 25 Nov | `5616f15` | `.env.example` settings and two code comments |
+| 25 Nov | `dc13b49` | Khmer pages from English questions, web search tested end to end, office contacts |
 
 The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng.
 
 ---
 
-## 8. Still open
+## 8. Fixed after Report Three (25 Nov 2026)
 
-- **Retrieval misses some crawled content.** Most crawled sites are Khmer-only, and their passages are indexed with questions taken from page titles, so "how do I register to vote" still doesn't reach the National Election Committee's pages. The next step is generating candidate questions for each crawled passage.
-- **The web search step has not been run end to end** with a live key. It stays off by default.
-- **The office map link is a name search.** Verified addresses and phone numbers need real office data in `data/facilities.json`.
+The three items this page listed as still open, fixed in commit `dc13b49`:
+
+| Was open | Fix |
+|---|---|
+| **Retrieval missed crawled content.** Most crawled sites are Khmer-only, so "how do I register to vote" never reached the National Election Committee's pages. | `data/crawl-terms.json` joins English word forms the stemmer keeps apart ("vote" and "voter") and adds the Khmer term (បោះឆ្នោត), so an English question can find Khmer pages. Page URLs are indexed like titles ("/khmer/voter-registration"). The voter question now answers from the NEC, and "check my name on the voter list" from its voter-list page. "Who should I vote for" is still refused as political. On the golden set plus 20 spot checks, nothing that was right became wrong. |
+| **Web search had not been run end to end.** | `tests/engine/web-answer.test.ts` runs the whole step through the engine against a stubbed Tavily API: off unless switched on, the key sent only as a bearer token, results labelled and linked, failures treated as no result. Coverage of the two files went from 13–25% to 96–98%. |
+| **The office map link was a name search.** | `data/contacts.json` holds the phone, address and hours from 9 institutions' own contact pages, each with its source page and date. Source cards and Telegram replies show them beside pages from that website, and the map link searches for the published address. |
+
+Tests: 749 pass in 32 files (was 705), line coverage 89.7% (was 85.2%). The evaluation and every check are unchanged.
+
+### Still to do
+
+- **A live web-search run:** this needs a Tavily key added to the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`). The key is not stored in the repository.
+- **Contacts for the remaining institutions:** the other crawled sites, and the four approved-corpus ministries, publish no usable contact details on the crawled pages.
+- **Review by a Khmer speaker:** the Khmer terms in `data/crawl-terms.json`.
