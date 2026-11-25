@@ -12,7 +12,7 @@ Web, Next.js App Router, TypeScript.
 
 ## Live version
 
-SuperAsk is deployed at **https://superask-monunhh.vercel.app** (Monunhh's version, built from `main`).
+SuperAsk is deployed at **https://superask.vercel.app** (Bunkheang's Vercel project, built from `main`).
 
 It answers from the approved documents first and, when they have no answer, from 58 crawled official websites (labelled "not reviewed"), with more suggested procedures, institution logos, and looser handling of questions no source covers.
 
@@ -792,7 +792,7 @@ exists so the pipeline can be built and measured while procurement is settled.
 
 ## Deployment
 
-**Production is Vercel:** https://superask-monunhh.vercel.app, built from `main`.
+**Production is Vercel:** https://superask.vercel.app, built from `main`.
 
 ```
 push to main → GitHub Actions: check + secrets-scan → deploy job
@@ -826,7 +826,7 @@ Operations:
 
 ```
 vercel logs <deployment-url>                       # function logs, incl. audit records
-curl -s https://superask-monunhh.vercel.app/api/health   # provider, model, corpus, crawled websites
+curl -s https://superask.vercel.app/api/health           # provider, model, corpus, crawled websites
 npx tsx scripts/telegram-webhook.ts set https://<host>/api/telegram/webhook
 ```
 
@@ -837,3 +837,10 @@ front of Next.js on loopback, `limit_req` rate limits, systemd sandboxing,
 localhost-only `/api/health`, ufw and fail2ban). That deployment was HTTP only,
 because Let's Encrypt will not issue a certificate for a bare IP. It is not the
 live version and this repository no longer documents how to redeploy it.
+
+---
+
+## Other deployment
+
+Monunhh's separate deployment, kept here so the link is not lost:
+https://superask-monunhh.vercel.app. It is not the live version.
