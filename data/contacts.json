@@ -1,5 +1,5 @@
 {
-  "_comment": "Office contact details, copied by hand from each institution's own contact page in the crawl (data/crawl/db/), with the page and the date it was collected. Only what the page states plainly is here: a blank or placeholder field on the page is left out, and a number that belongs to a branch rather than the head office is not used. Not reviewed by a content steward, and shown that way. Shown on a source card when the cited page is on the same website (lib/kb/contacts.ts). Re-check against the source page when the crawl is refreshed.",
+  "_comment": "Office contact details, copied by hand from each institution's own website, with the page and the date it was collected. Entries collected 2026-11-12 come from contact pages in the crawl (data/crawl/db/); entries collected 2026-11-25 were read from the live site because the crawl had not captured them. Only what the page states plainly is here: a blank or placeholder field on the page is left out, numbers belonging to a named official or a branch are not used, and Khmer digits are written as Latin digits so the number can be dialled (the note says so). Short four-digit hotlines (e.g. 1275) are kept as the page gives them. Not reviewed by a content steward, and shown that way. Not yet confirmed by phone: see docs/report-3/contact-call-sheet.md. Shown on a source card when the cited page is on the same website (lib/kb/contacts.ts). Re-check against the source page when the crawl is refreshed.",
   "contacts": [
     {
       "host": "ncdd.gov.kh",
@@ -76,6 +76,356 @@
       "email": "helpdesk@cdc.gov.kh",
       "source": "https://cdc.gov.kh/contact/",
       "collected": "2026-11-12"
+    },
+    {
+      "host": "nbc.gov.kh",
+      "org": "National Bank of Cambodia",
+      "addressKm": "ផ្ទះលេខ៨៨ ផ្លូវ១០២ កែងផ្លូវ១៩ សង្កាត់វត្តភ្នំ ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា",
+      "phone": "(855-23) 722 563 / (855-23) 722 221",
+      "email": "info@nbc.org.kh",
+      "source": "https://nbc.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mpwt.gov.kh",
+      "org": "Ministry of Public Works and Transport",
+      "addressKm": "ផ្លូវលេខ ៥៩៨ (ផ្លូវ ឯកឧត្ដម ជា សុផារ៉ា) សង្កាត់ច្រាំងចំរេះ២ ខណ្ឌប្ញស្សីកែវ រាជធានីភ្នំពេញ",
+      "phone": "1275",
+      "note": "Free hotline (ឥតគិតថ្លៃ)",
+      "hours": "Monday to Friday, 8:00–12:00 and 14:00–17:00",
+      "email": "info@mpwt.gov.kh",
+      "source": "https://mpwt.gov.kh/kh/home",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "moc.gov.kh",
+      "org": "Ministry of Commerce",
+      "address": "No. 19-61, Russian Federation Blvd (110), Phnom Penh 12102",
+      "phone": "1266",
+      "note": "Short number in the site's contact block",
+      "email": "cabinet.info@moc.gov.kh",
+      "source": "https://moc.gov.kh/kh",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "cambodiaip.gov.kh",
+      "org": "Cambodia IP (Ministry of Commerce)",
+      "addressKm": "ក្រសួងពាណិជ្ជកម្ម, ឡូត៌លេខ ១៩-៦១ វិថីក្រសួងពាណិជ្ជកម្ម (១១៣បេ), ភូមិទឹកថ្លា សង្កាត់ទឹកថ្លា ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា",
+      "email": "cambodiaip.dip@gmail.com",
+      "source": "https://www.cambodiaip.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "pressocm.gov.kh",
+      "org": "Office of the Council of Ministers (press)",
+      "address": "OCM, Friendship Building, 41 Russian Federation Blvd, Phnom Penh, Cambodia",
+      "phone": "(855) 23 212 490",
+      "note": "Phone/Fax",
+      "email": "info@pressocm.gov.kh",
+      "source": "https://pressocm.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "nacd.gov.kh",
+      "org": "National Authority for Combating Drugs",
+      "phone": "023 721 648",
+      "hours": "Monday to Friday, 7:30–17:30; closed on public holidays",
+      "email": "info@nacd.gov.kh",
+      "source": "https://nacd.gov.kh/contactus",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "gdpp.gov.kh",
+      "org": "General Department of Public Procurement",
+      "addressKm": "ក្រសួងសេដ្ឋកិច្ចនិងហិរញ្ញវត្ថុ ផ្លូវលេខ ៩២ សង្កាត់វត្តភ្នំ ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ",
+      "phone": "+(855) 23 66 77 691",
+      "source": "https://gdpp.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "irc.gov.kh",
+      "org": "Insurance Regulator of Cambodia",
+      "addressKm": "អគារលេខ ១៦៨ ( ជាន់ទី៦ ) ផ្លូវ ៥៩៨ សង្កាត់ច្រាំងចំរេះ១ ខណ្ឌឬស្សីកែវ រាជធានីភ្នំពេញ កម្ពុជា",
+      "phone": "071 258 0896",
+      "email": "gad@irc.gov.kh",
+      "source": "https://irc.gov.kh/contact-us",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "digitaleconomy.gov.kh",
+      "org": "Digital Economy and Business Committee",
+      "addressKm": "អគារមជ្ឈមណ្ឌលអភិវឌ្ឍធុរកិច្ច, ជាន់ទី១៧, មហាវិថី អូស៊ីអាយស៊ី, សង្កាត់ ជ្រោយចង្វារ, ខណ្ឌជ្រោយចង្វារ, រាជធានី ភ្នំពេញ",
+      "phone": "(+855) 87 888 608",
+      "source": "https://digitaleconomy.gov.kh/km",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "camdx.gov.kh",
+      "org": "CamDX (Cambodia Data Exchange)",
+      "address": "11th Floor of Business Development Center, OCIC Blvd, 12110, Sangkat Chrouy Changva, Khan Chrouy Changva, Phnom Penh",
+      "phone": "+855 81 888 296",
+      "source": "https://camdx.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "business.gov.kh",
+      "org": "Business registration portal",
+      "addressKm": "មជ្ឈមណ្ឌលអភិវឌ្ឍធុរកិច្ច, ជាន់ទី ១១, ផ្លូវ OCIC, សង្កាត់ជ្រោយចង្វារ, ខណ្ឌជ្រោយចង្វារ, រាជធានីភ្នំពេញ",
+      "phone": "+855 81 888 296",
+      "source": "https://business.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "registrationservices.gov.kh",
+      "org": "Online business registration services",
+      "phone": "+(855) 81 888 296 / +(855) 92 888 296",
+      "source": "https://registrationservices.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "rua.edu.kh",
+      "org": "Royal University of Agriculture",
+      "address": "Royal University of Agriculture, Sangkat/Khan Dangkor, Phnom Penh, Cambodia",
+      "phone": "(855) 11 967 877 / 16 578 012",
+      "email": "info@rua.edu.kh",
+      "source": "https://rua.edu.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mop.gov.kh",
+      "org": "Ministry of Planning",
+      "address": "No. 386 Monivong Boulevard, Phnom Penh, Cambodia",
+      "addressKm": "អគារលេខ ៣៨៦ មហាវិថីមុនីវង្ស រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា",
+      "phone": "023 720 901",
+      "email": "nsdp@mop.gov.kh",
+      "source": "https://mop.gov.kh/en/contact/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "nis.gov.kh",
+      "org": "National Institute of Statistics",
+      "addressKm": "ផ្លូវលេខ៣៦០ សង្កាត់បឹងកេងកងទី១ ខណ្ឌបឹងកេងកង រាជធានីភ្នំពេញ",
+      "phone": "855-12 832 534",
+      "note": "The page writes the number in Khmer digits (៨៥៥-១២ ៨៣២ ៥៣៤)",
+      "email": "info@nis.gov.kh",
+      "source": "https://nis.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "itc.edu.kh",
+      "org": "Institute of Technology of Cambodia",
+      "address": "PO Box 86, Russian Federation Blvd., Sangkat Teuklaak 1, Khan Toul Kork, 120404, Phnom Penh, Cambodia",
+      "phone": "855 23 880 370",
+      "email": "info@itc.edu.kh",
+      "source": "https://itc.edu.kh/",
+      "note": "The page writes \"855 23 880 370 / 982 404\"",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "rule.edu.kh",
+      "org": "Royal University of Law and Economics",
+      "address": "Preah Monivong Blvd, Sangkat Tonle Bassac, Khan Chamkarmon, Phnom Penh",
+      "phone": "023 215 703",
+      "source": "https://rule.edu.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "nmchc.gov.kh",
+      "org": "National Maternal and Child Health Center",
+      "addressKm": "31A, ផ្លូវលេខ 47 (ផ្លូវបារាំង), ស្រះចកសង្កាត់ដូនពេញខណ្ឌរាជធានីភ្នំពេញ, ប្រទេសកម្ពុជា",
+      "phone": "023 724 257 / 023 725 973",
+      "email": "nmchcoffice@gmail.com",
+      "source": "https://nmchc.gov.kh/%e1%9e%91%e1%9f%86%e1%9e%93%e1%9e%b6%e1%9e%80%e1%9f%8b%e1%9e%91%e1%9f%86%e1%9e%93%e1%9e%84%e1%9e%99%e1%9e%be%e1%9e%84/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "trc.gov.kh",
+      "org": "Telecommunication Regulator of Cambodia",
+      "address": "Street 102, Sangkat Wat Phnom, Khan Daun Penh, Phnom Penh",
+      "email": "info@trc.gov.kh",
+      "note": "For internet or telecom complaints the page points to mbc.gov.kh",
+      "source": "https://www.trc.gov.kh/en/contactusform",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "dgc.gov.kh",
+      "org": "Digital Government Committee",
+      "phone": "(+855) 96 7777 515",
+      "email": "support@dgc.gov.kh",
+      "source": "https://dgc.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "cadt.edu.kh",
+      "org": "Cambodia Academy of Digital Technology",
+      "address": "Bridge 2, National Road 6A, Sangkat Prek Leap, Khan Chroy Changva, Phnom Penh",
+      "source": "https://cadt.edu.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mlvt.gov.kh",
+      "org": "Ministry of Labour and Vocational Training",
+      "address": "Building 3, Russian Federation Blvd., Toek Laak I, Toul Kork, Phnom Penh",
+      "phone": "023 884 375 / 855 23 884 376",
+      "note": "The page also lists the short numbers 1297 / 1286",
+      "email": "info@mlvt.gov.kh",
+      "source": "https://mlvt.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "ntti.edu.kh",
+      "org": "National Technical Training Institute",
+      "phone": "023 883 039",
+      "email": "info@ntti.edu.kh",
+      "source": "https://ntti.edu.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "moe.gov.kh",
+      "org": "Ministry of Environment",
+      "addressKm": "អគារមរតកតេជោ ដីឡូលេខ៥០៣ ផ្លូវកៅស៊ូអមមាត់ទន្លេបាសាក់ សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ",
+      "phone": "(+855) 23 213 908 / (+855) 23 220 369",
+      "source": "https://moe.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mcfa.gov.kh",
+      "org": "Ministry of Culture and Fine Arts",
+      "address": "No. 227, Preah Norodom Blvd (41), Sangkat Tonle Bassac, Khan Chamkar Mon, Phnom Penh, Cambodia",
+      "phone": "(+855) 23 218 148",
+      "email": "info@mcfa.gov.kh",
+      "source": "https://mcfa.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mme.gov.kh",
+      "org": "Ministry of Mines and Energy",
+      "address": "#1, Preah Norodom Blvd, Sangkat Wat Phnom, Khan Daun Penh, Phnom Penh, Cambodia",
+      "phone": "+855 (0)23 219 574",
+      "hours": "One Window Service: 7:30–12:00 and 13:30–17:30",
+      "email": "info@mme.gov.kh",
+      "source": "https://mme.gov.kh/about-us/contact-us-for-more-information",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mowram.gov.kh",
+      "org": "Ministry of Water Resources and Meteorology",
+      "address": "#47 Preah Norodom Blvd, Phnom Penh, Cambodia",
+      "email": "info@mowram.gov.kh",
+      "note": "The page's phone field is a placeholder (000 000 000) and is left out",
+      "source": "https://mowram.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "mowa.gov.kh",
+      "org": "Ministry of Women's Affairs",
+      "addressKm": "ផ្លូវទ្រុងមាន់ ភូមិដំណាក់ធំ៣ សង្កាត់ស្ទឹងមានជ័យ ខណ្ឌមានជ័យ រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា",
+      "phone": "(+855) 23 880 737",
+      "note": "The page writes the number in Khmer digits (+៨៥៥) ២៣ ៨៨០ ៧៣៧",
+      "email": "info@mowa.gov.kh",
+      "source": "https://mowa.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "customs.gov.kh",
+      "org": "General Department of Customs and Excise",
+      "addressKm": "#៦-៨ ផ្លូវ ព្រះនរោត្តម សង្កាត់ ផ្សារថ្មី ១ ខណ្ឌ ដូនពេញ រាជធានីភ្នំពេញ",
+      "email": "info@customs.gov.kh",
+      "source": "https://customs.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "edc.com.kh",
+      "org": "Electricité du Cambodge (head office)",
+      "address": "Preah Ang Yukanthor Street (19), Phnom Penh",
+      "addressKm": "វិថី ព្រះអង្គយុគន្ធរ (១៩), រាជធានីភ្នំពេញ",
+      "phone": "(+855) 23723971",
+      "hours": "Customer service 7:30–16:00",
+      "note": "Call centre: 1298",
+      "source": "https://edc.com.kh/Branch_page/branch",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "tax.gov.kh",
+      "org": "General Department of Taxation",
+      "phone": "+855 23 266 668",
+      "note": "Hotline: 1277",
+      "email": "gdt@tax.gov.kh",
+      "source": "https://www.tax.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "acu.gov.kh",
+      "org": "Anti-Corruption Unit",
+      "addressKm": "អគារលេខ ៥៤ មហាវិថីព្រះនរោត្ដម សង្កាត់ផ្សារថ្មី៣ ខណ្ឌ ដូនពេញ រាជធានីភ្នំពេញ",
+      "phone": "+855-23-223954",
+      "email": "info@acu.gov.kh",
+      "source": "https://acu.gov.kh/kh_sub_index.php?4a8a08f09d37b73795649038408b5f33=1&03c7c0ace395d80182db07ae2c30f034=18",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "cmaa.gov.kh",
+      "org": "Cambodian Mine Action and Victim Assistance Authority",
+      "addressKm": "អគារលេខ ២៤ ផ្លូវលេខ ២៧៣ រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា",
+      "phone": "+855 23 228 265",
+      "note": "Office line; the page writes it in Khmer digits (+៨៥៥ ២៣ ២២៨ ២៦៥)",
+      "email": "info@cmaa.gov.kh",
+      "source": "https://cmaa.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "naa.gov.kh",
+      "org": "National Audit Authority",
+      "addressKm": "អាគារលេខ ៥ ផ្លូវឌួងងៀប ៣ ភូមិទឹកថ្លា សង្កាត់ទឹកថ្លា ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា",
+      "email": "naakh@naa.gov.kh",
+      "source": "https://naa.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "napv.gov.kh",
+      "org": "National Authority for Preah Vihear",
+      "addressKm": "ផ្ទះលេខ៥០ ផ្លូវ២១៤ វិថីសម្តេចប៉ាន សង្កាត់បឹងរាំង ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ",
+      "phone": "+855 (23) 219 214",
+      "email": "anpv.authority@gmail.com",
+      "source": "https://napv.gov.kh/",
+      "note": "The page writes \"+855(23) 219 214 / 219 145\"",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "nec.gov.kh",
+      "org": "National Election Committee",
+      "addressKm": "ទីស្ដីការ គ.ជ.ប មហាវិថីសម្ដេចសុធារស សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ កម្ពុជា",
+      "phone": "+855 23 235 271",
+      "email": "info@nec.gov.kh",
+      "source": "https://www.nec.gov.kh/khmer/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "kampongcham.gov.kh",
+      "org": "Kampong Cham Provincial Administration",
+      "addressKm": "ភូមិទី០៧ សង្កាត់កំពង់ចាម ក្រុងកំពង់ចាម ខេត្តកំពង់ចាម",
+      "phone": "042 211 212",
+      "note": "Office-hours line (ទំនាក់ទំនងម៉ោងការងារ)",
+      "email": "salakhetkpc475@gmail.com",
+      "source": "https://kampongcham.gov.kh/",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "rac.gov.kh",
+      "org": "Royal Academy of Cambodia",
+      "addressKm": "មហាវិថីសហព័ន្ធរុស្សី សង្កាត់អូរបែកក្អម ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា",
+      "phone": "(855) 23 890 180",
+      "note": "Tel/Fax. P.O. Box 531, Phnom Penh",
+      "source": "https://rac.gov.kh/views2/contact",
+      "collected": "2026-11-25"
+    },
+    {
+      "host": "supremecourt.gov.kh",
+      "org": "Supreme Court of Cambodia",
+      "addressKm": "មហាវិថីសម្ដេចសុធារស, សង្កាត់ចតុមុខ, ខណ្ឌដូនពេញ, រាជធានីភ្នំពេញ, ប្រទេសកម្ពុជា",
+      "email": "info@supremecourt.gov.kh",
+      "source": "https://supremecourt.gov.kh/",
+      "collected": "2026-11-25"
     }
   ]
 }

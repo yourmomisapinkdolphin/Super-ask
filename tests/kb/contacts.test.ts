@@ -38,6 +38,8 @@ describe("data/contacts.json", () => {
     (_host, phone) => {
       for (const part of phone.split("/")) {
         const digits = part.replace(/\D/g, "");
+        // A four-digit hotline (1275, 1266…) is a real number in Cambodia; anything else needs a full number.
+        if (/^1\d{3}$/.test(digits)) continue;
         expect(digits.length).toBeGreaterThanOrEqual(8);
         expect(digits).not.toMatch(/^0+$/);
         expect(digits).not.toMatch(/000000/);
@@ -68,15 +70,21 @@ describe("contacts on citations", () => {
     expect(decodeURIComponent(c.mapUrl!)).toContain("Sisowath Quay");
   });
 
+  it("a page on a subdomain of an approved-corpus ministry carries the ministry's contact", () => {
+    const c = toCitation(chunk("https://driverlicense.mpwt.gov.kh/", "Ministry of Public Works and Transport"), "en");
+    expect(c.contact?.phone).toBe("1275");
+    expect(c.contact?.source).toBe("https://mpwt.gov.kh/kh/home");
+  });
+
   it("shows the Khmer address to a Khmer reader when that is all the page gives", () => {
     const c = toCitation(chunk("https://maff.gov.kh/x", "Ministry of Agriculture, Forestry and Fisheries"), "km");
     expect(c.contact?.address).toContain("មហាវិថីព្រះនរោត្តម");
   });
 
   it("no contact for a site without one; the map link falls back to the name", () => {
-    const c = toCitation(chunk("https://www.mpwt.gov.kh/", "Ministry of Public Works and Transport"), "en");
+    const c = toCitation(chunk("https://moh.gov.kh/", "Ministry of Health"), "en");
     expect(c.contact).toBeUndefined();
-    expect(decodeURIComponent(c.mapUrl!)).toContain("Ministry of Public Works and Transport, Cambodia");
+    expect(decodeURIComponent(c.mapUrl!)).toContain("Ministry of Health, Cambodia");
   });
 
   it("matches subdomains of the institution but not other sites sharing gov.kh", () => {

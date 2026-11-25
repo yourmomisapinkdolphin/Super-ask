@@ -136,5 +136,6 @@ The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov
 ## 8. Still to do
 
 - **A live web-search run.** The step is tested end to end but has not searched the real web. It needs a Tavily key in the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`); the key is not stored in the repository.
-- **Contacts for the remaining institutions.** The other crawled sites, and the four approved-corpus ministries, publish no usable contact details on the crawled pages. Nobody has called the 9 recorded numbers yet.
+- **Contacts for the remaining institutions.** On 25 Nov, 39 more entries were copied from the institutions' live websites, so 48 are now in `data/contacts.json`, including three of the four approved-corpus organisations (NBC, MPWT and MOC). Still missing: the Ministry of Interior (site unreachable); Health, Post and Telecommunications, Social Affairs and Banteay Meanchey (their sites block automated requests, so someone needs to copy the details in a browser); and seven sites with nothing usable. See `docs/report-3/contact-call-sheet.md`.
+- **Confirming the numbers by phone.** None of the 40 recorded phone numbers has been called. The call sheet lists them, with a script in Khmer and English.
 - **Review by a Khmer speaker** of the Khmer terms in `data/crawl-terms.json`.
