@@ -125,6 +125,56 @@ export function SourceCard({
           </div>
         )}
 
+        {citation.contact && (
+          <div
+            className={lang === "km" ? "km" : undefined}
+            style={{ fontSize: 11.5, color: T.ink, marginTop: 8, lineHeight: 1.7 }}
+          >
+            <div style={{ fontWeight: 600 }}>{UI.contactHeading[lang]}</div>
+            {citation.contact.phone && (
+              <div>
+                {UI.contactPhone[lang]}:{" "}
+                {citation.contact.phone.split("/").map((p, i) => {
+                  const tel = p.replace(/[^\d+]/g, "");
+                  return (
+                    <span key={i}>
+                      {i > 0 && " / "}
+                      <a href={`tel:${tel.startsWith("+") || tel.startsWith("855") ? tel : `+855${tel.replace(/^0/, "")}`}`} style={{ color: T.sky }}>
+                        {p.trim()}
+                      </a>
+                    </span>
+                  );
+                })}
+                {citation.contact.note && <span style={{ color: T.inkSoft }}> ({citation.contact.note})</span>}
+              </div>
+            )}
+            {citation.contact.address && (
+              <div>
+                {UI.contactAddress[lang]}: {citation.contact.address}
+              </div>
+            )}
+            {citation.contact.hours && (
+              <div>
+                {UI.contactHours[lang]}: {citation.contact.hours}
+              </div>
+            )}
+            {citation.contact.email && (
+              <div>
+                {UI.contactEmail[lang]}:{" "}
+                <a href={`mailto:${citation.contact.email}`} style={{ color: T.sky }}>
+                  {citation.contact.email}
+                </a>
+              </div>
+            )}
+            <div style={{ color: T.inkSoft }}>
+              <a href={citation.contact.source} target="_blank" rel="noopener noreferrer" style={{ color: T.inkSoft }}>
+                {UI.contactSource[lang]}
+              </a>{" "}
+              · {UI.fetchedOn[lang]} {citation.contact.collected}
+            </div>
+          </div>
+        )}
+
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
         {citation.url && (
           <a

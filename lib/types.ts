@@ -125,10 +125,24 @@ export interface Citation {
   effectiveUnknown?: boolean;
   /**
    * A Google Maps search for the responsible office (UC-7, REQ-12). Built from
-   * the ministry's official name, not from an address: SuperAsk holds no
-   * verified street addresses yet, and inventing one is worse than none.
+   * the address the institution publishes when there is one (`contact`), and
+   * otherwise from its official name. Never from an invented address.
    */
   mapUrl?: string;
+  /**
+   * The phone, address and hours the institution's own contact page publishes,
+   * when the cited page is on that website (data/contacts.json). Copied from
+   * the page named in `source`, not reviewed by a steward.
+   */
+  contact?: {
+    address?: string;
+    phone?: string;
+    hours?: string;
+    email?: string;
+    note?: string;
+    source: string;
+    collected: string;
+  };
 }
 
 /** Internal diagnostic payload. SuperAsk team only (FR-72, FR-73). */

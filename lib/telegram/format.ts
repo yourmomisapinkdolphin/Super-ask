@@ -40,6 +40,13 @@ export function formatTelegramAnswer(res: AskResponse): string {
         lines.push(`• ${label}`);
       }
     }
+    const contact = res.citations[0]?.contact;
+    if (contact?.phone) {
+      lines.push(res.lang === "km" ? `ទូរស័ព្ទ: ${contact.phone}` : `Phone: ${contact.phone}`);
+    }
+    if (contact?.address) {
+      lines.push(res.lang === "km" ? `អាសយដ្ឋាន: ${contact.address}` : `Address: ${contact.address}`);
+    }
     const map = res.citations[0]?.mapUrl;
     if (map) {
       lines.push(res.lang === "km" ? `ទីតាំងការិយាល័យ: ${map}` : `Office on map: ${map}`);

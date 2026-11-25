@@ -42,7 +42,7 @@ verification gate, decline logic, and the whole interface work unchanged.
 
 ```bash
 npm run check            # typecheck + test + build + every harness below. CI runs this
-npm test                 # 705 tests (656 unit + 49 API integration), no model calls
+npm test                 # 749 tests (700 unit + 49 API integration), no model calls
 npm run test:watch       # the same, on change
 npm run test:coverage    # the same, with v8 coverage and its thresholds enforced
 npm run test:integration # Demo 1 integration suites, 9 tests (docs/demo-1/3_integration_testing/)
@@ -231,7 +231,7 @@ one question wide. The floor's real job is catching out-of-domain questions the
 golden set does not contain, and that is untested. Widen the negatives before
 trusting the sweep.
 
-`npm run test` — 705 tests across 29 files (656 unit, 49 API route integration), no model called, **85.2% line coverage**
+`npm run test` — 749 tests across 32 files (700 unit, 49 API route integration), no model called, **89.7% line coverage**
 over `lib/` and `app/api/`:
 
 | Suite | Covers |
@@ -242,6 +242,9 @@ over `lib/` and `app/api/`:
 | `tests/engine/rationale` | rule-restated-as-its-own-reason; the stray-purpose-clause trap |
 | `tests/engine/topicality` | R-07 — every bad answer this build shipped, as a regression case |
 | `tests/engine/crawl-answer` | the crawled-website fallback: only after the approved corpus fails, always labelled unreviewed, cited with the page link |
+| `tests/retrieval/crawl-terms` | English↔Khmer search terms for the crawled pages, and that a group too wide cannot turn a refusal into a wrong answer |
+| `tests/engine/web-answer` | the live web-search step end to end against a stubbed Tavily API: off unless switched on, the key sent only as a bearer token, results labelled and linked |
+| `tests/kb/contacts` | every office contact names its source page on the same website, has a dated collection and real digits, and appears only beside pages from that site |
 | `tests/engine/citations` | FR-20 → FR-26 citation fields, including crawled pages that state no instrument or effective date |
 | `tests/engine/curated`, `glossary` | Tier 1 matching against the **live** corpus, not a fixture |
 | `tests/engine/freshness` | FR-26 / M-05, with the clock injected |
@@ -263,13 +266,10 @@ over `lib/` and `app/api/`:
 Coverage thresholds are a **floor**, set in `vitest.config.ts` just below the
 current numbers: an ordinary change has room to move, but deleting a suite fails
 the build rather than showing up as a slowly sinking percentage nobody reads.
-The thresholds are 85% lines and statements, 90% branches and functions. Four
+The thresholds are 85% lines and statements, 90% branches and functions. Two
 files hold the line figure down: `lib/llm/anthropic.ts` and `lib/llm/vllm.ts`
 (about 5%; the Phase 1 migration targets under NFR-18, worth covering when one
-becomes the provider in use), and `lib/engine/web-answer.ts` and
-`lib/web/search.ts` (13–25%; the live web search path, off by default). Line
-coverage is 85.2% against an 85% floor, so a change that adds untested code to
-`lib/` will fail CI.
+becomes the provider in use).
 
 The corpus suite is the one to watch. It runs against live `data/` on every push,
 because the corpus is the part of this system that changes without a code review
@@ -672,10 +672,15 @@ carries a note not to add these cases until the gate can tell them apart.
    NFR-13 retention policy and NFR-11 residency. `lib/log/audit.ts` is the seam.
 10. **Emergency numbers in `data/facilities.json` are placeholders** and must be
    verified before any release — guardrail rule 6 depends on them being right.
-11. **The FR-29 responsible-office block is not rendered.** The server still
-    returns the details, but the interface does not display them because the
-    directory holds `[SAMPLE NUMBER]` placeholders. Put verified contact details
-    in `data/facilities.json` and restore the block in `AnswerBlock.tsx`.
+11. **Office contacts cover 9 institutions.** `data/contacts.json` holds the
+    phone, address and hours copied from each institution's own contact page in
+    the crawl, and a source card shows them beside pages from that site, with
+    the map link built from the address. The other crawled sites publish no
+    usable contact details (no contact page, a blank field, or a placeholder
+    such as "000 000 000"), so their cards show the name-based map link only.
+    None of the four approved-corpus ministries is covered, and nobody has
+    called the numbers. The `[SAMPLE]` entries in `data/facilities.json` are
+    not shown anywhere.
 
 ### Conversation history is device-local by design
 

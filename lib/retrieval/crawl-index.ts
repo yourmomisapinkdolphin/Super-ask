@@ -18,6 +18,7 @@ import { join } from "node:path";
 import type { Chunk } from "@/lib/types";
 import { normalizeFold } from "@/lib/khmer/normalize";
 import { crawlTokens } from "./crawl-tokens";
+import { termGroups, urlWords } from "./crawl-terms";
 
 /** On-disk shape. Written by scripts/build-crawl-index.ts. */
 export interface CrawlIndexFile {
@@ -193,8 +194,16 @@ export function searchCrawl(query: string, topK = 5): CrawlHit[] {
   const terms = [...new Set(crawlTokens(query))];
   if (terms.length === 0) return [];
 
+  // Each question word also searches for its other forms, English and Khmer
+  // (lib/retrieval/crawl-terms.ts). Coverage below still counts question
+  // words, not forms: "vote" is one word whichever form the page uses.
+  const groups = termGroups(query, terms);
+  const queryTerms = [
+    ...new Set([...terms, ...groups.flat().flatMap((g) => g.tokens)]),
+  ];
+
   const scores = new Map<number, number>();
-  for (const term of terms) {
+  for (const term of queryTerms) {
     const list = file.postings[term];
     if (!list) continue;
     const df = list.length / 2;
@@ -208,10 +217,15 @@ export function searchCrawl(query: string, topK = 5): CrawlHit[] {
     }
   }
 
-  const wanted = terms.map((term) => {
+  const wanted = terms.map((term, i) => {
     const df = (file.postings[term]?.length ?? 0) / 2;
-    return { term, weight: Math.log(1 + (n - df + 0.5) / (df + 0.5)) };
+    return {
+      forms: [term, ...(groups[i] ?? []).flatMap((g) => g.forms)],
+      weight: Math.log(1 + (n - df + 0.5) / (df + 0.5)),
+    };
   });
+  const mentions = (text: string, w: { forms: string[] }) =>
+    w.forms.some((f) => text.includes(f));
   const totalWeight = wanted.reduce((sum, w) => sum + w.weight, 0);
 
   return [...scores.entries()]
@@ -222,13 +236,13 @@ export function searchCrawl(query: string, topK = 5): CrawlHit[] {
     .map(([doc, score]) => {
       const chunk = toChunk(file, doc);
       const site = file.sites[file.chunks[doc][0]];
-      const haystack = normalizeFold(
-        `${chunk.text} ${chunk.doc} ${site.org} ${site.orgKm} ${site.institution}`,
-      );
+      // The page URL often names a Khmer page's subject in English
+      // ("/khmer/voter-registration"), so it counts as part of the title.
       const head = normalizeFold(
-        `${chunk.doc} ${site.org} ${site.orgKm} ${site.institution}`,
+        `${chunk.doc} ${urlWords(chunk.url ?? "")} ${site.org} ${site.orgKm} ${site.institution}`,
       );
-      const hit = wanted.filter((w) => haystack.includes(w.term));
+      const haystack = `${normalizeFold(chunk.text)} ${head}`;
+      const hit = wanted.filter((w) => mentions(haystack, w));
       return {
         chunk,
         score,
@@ -237,7 +251,7 @@ export function searchCrawl(query: string, topK = 5): CrawlHit[] {
             ? 0
             : hit.reduce((sum, w) => sum + w.weight, 0) / totalWeight,
         covered: hit.length,
-        inTitle: wanted.filter((w) => head.includes(w.term)).length,
+        inTitle: wanted.filter((w) => mentions(head, w)).length,
       };
     })
     .sort((a, b) => b.coverage * b.score - a.coverage * a.score)

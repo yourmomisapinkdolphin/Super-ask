@@ -1,0 +1,474 @@
+{
+  "_comment": "English ↔ Khmer service vocabulary for searching the crawled websites (lib/retrieval/crawl-terms.ts). Most crawled sites publish in Khmer only, so an English question shares no words with them; each group lets a question that uses one form also match the others. Used only to FIND crawled pages: it never changes an answer's text, and approved-corpus retrieval does not read it. Khmer terms are standard administrative vocabulary but have not been reviewed by a Khmer-speaking content steward.",
+  "groups": [
+    {
+      "en": [
+        "vote",
+        "voter",
+        "voters",
+        "voting",
+        "election",
+        "elections",
+        "electoral",
+        "polling"
+      ],
+      "km": [
+        "បោះឆ្នោត"
+      ]
+    },
+    {
+      "en": [
+        "register",
+        "registration",
+        "registering",
+        "registered",
+        "enrol",
+        "enroll",
+        "enrolment",
+        "enrollment"
+      ],
+      "km": [
+        "ចុះឈ្មោះ",
+        "ចុះបញ្ជី"
+      ]
+    },
+    {
+      "en": [
+        "candidate",
+        "candidates"
+      ],
+      "km": [
+        "បេក្ខជន"
+      ]
+    },
+    {
+      "en": [
+        "observer",
+        "observers"
+      ],
+      "km": [
+        "អ្នកសង្កេតការណ៍"
+      ]
+    },
+    {
+      "en": [
+        "journalist",
+        "journalists",
+        "reporter",
+        "reporters"
+      ],
+      "km": [
+        "អ្នកសារព័ត៌មាន"
+      ]
+    },
+    {
+      "en": [
+        "birth"
+      ],
+      "km": [
+        "កំណើត"
+      ]
+    },
+    {
+      "en": [
+        "certificate",
+        "certificates"
+      ],
+      "km": [
+        "សំបុត្រ",
+        "វិញ្ញាបនបត្រ"
+      ]
+    },
+    {
+      "en": [
+        "passport",
+        "passports"
+      ],
+      "km": [
+        "លិខិតឆ្លងដែន"
+      ]
+    },
+    {
+      "en": [
+        "visa",
+        "visas"
+      ],
+      "km": [
+        "ទិដ្ឋាការ"
+      ]
+    },
+    {
+      "en": [
+        "identity card",
+        "id card",
+        "national id"
+      ],
+      "km": [
+        "អត្តសញ្ញាណប័ណ្ណ"
+      ]
+    },
+    {
+      "en": [
+        "marriage",
+        "marry",
+        "married",
+        "wedding"
+      ],
+      "km": [
+        "អាពាហ៍ពិពាហ៍"
+      ]
+    },
+    {
+      "en": [
+        "tax",
+        "taxes",
+        "taxation",
+        "taxpayer",
+        "taxpayers"
+      ],
+      "km": [
+        "ពន្ធ"
+      ]
+    },
+    {
+      "en": [
+        "customs"
+      ],
+      "km": [
+        "គយ"
+      ]
+    },
+    {
+      "en": [
+        "import",
+        "imports",
+        "importing"
+      ],
+      "km": [
+        "នាំចូល"
+      ]
+    },
+    {
+      "en": [
+        "export",
+        "exports",
+        "exporting"
+      ],
+      "km": [
+        "នាំចេញ"
+      ]
+    },
+    {
+      "en": [
+        "company",
+        "companies",
+        "business",
+        "businesses",
+        "enterprise",
+        "enterprises"
+      ],
+      "km": [
+        "ក្រុមហ៊ុន",
+        "អាជីវកម្ម",
+        "សហគ្រាស"
+      ]
+    },
+    {
+      "en": [
+        "trademark",
+        "trademarks"
+      ],
+      "km": [
+        "ម៉ាកសញ្ញា"
+      ]
+    },
+    {
+      "en": [
+        "investment",
+        "investor",
+        "investors",
+        "invest"
+      ],
+      "km": [
+        "វិនិយោគ"
+      ]
+    },
+    {
+      "en": [
+        "licence",
+        "license",
+        "licences",
+        "licenses"
+      ],
+      "km": [
+        "អាជ្ញាប័ណ្ណ",
+        "អាជ្ញាបណ្ណ"
+      ]
+    },
+    {
+      "en": [
+        "permit",
+        "permits"
+      ],
+      "km": []
+    },
+    {
+      "en": [
+        "driving licence",
+        "driving license",
+        "driver licence",
+        "driver license"
+      ],
+      "km": [
+        "ប័ណ្ណបើកបរ"
+      ]
+    },
+    {
+      "en": [
+        "vehicle",
+        "vehicles",
+        "motorbike",
+        "motorcycle"
+      ],
+      "km": [
+        "យានយន្ត",
+        "ម៉ូតូ"
+      ]
+    },
+    {
+      "en": [
+        "work permit",
+        "employment card"
+      ],
+      "km": [
+        "ប័ណ្ណការងារ"
+      ]
+    },
+    {
+      "en": [
+        "labour",
+        "labor",
+        "worker",
+        "workers",
+        "employment"
+      ],
+      "km": [
+        "ការងារ",
+        "កម្មករ"
+      ]
+    },
+    {
+      "en": [
+        "pension",
+        "pensions"
+      ],
+      "km": [
+        "សោធននិវត្តន៍"
+      ]
+    },
+    {
+      "en": [
+        "social security",
+        "nssf"
+      ],
+      "km": [
+        "សន្តិសុខសង្គម"
+      ]
+    },
+    {
+      "en": [
+        "health"
+      ],
+      "km": [
+        "សុខាភិបាល"
+      ]
+    },
+    {
+      "en": [
+        "hospital",
+        "hospitals"
+      ],
+      "km": [
+        "មន្ទីរពេទ្យ"
+      ]
+    },
+    {
+      "en": [
+        "vaccine",
+        "vaccines",
+        "vaccination"
+      ],
+      "km": [
+        "វ៉ាក់សាំង"
+      ]
+    },
+    {
+      "en": [
+        "school",
+        "schools"
+      ],
+      "km": [
+        "សាលារៀន"
+      ]
+    },
+    {
+      "en": [
+        "university",
+        "universities"
+      ],
+      "km": [
+        "សាកលវិទ្យាល័យ"
+      ]
+    },
+    {
+      "en": [
+        "scholarship",
+        "scholarships"
+      ],
+      "km": [
+        "អាហារូបករណ៍"
+      ]
+    },
+    {
+      "en": [
+        "exam",
+        "exams",
+        "examination",
+        "examinations"
+      ],
+      "km": [
+        "ប្រឡង"
+      ]
+    },
+    {
+      "en": [
+        "electricity"
+      ],
+      "km": [
+        "អគ្គិសនី"
+      ]
+    },
+    {
+      "en": [
+        "land title",
+        "land titles"
+      ],
+      "km": [
+        "ប្លង់កម្មសិទ្ធិ"
+      ]
+    },
+    {
+      "en": [
+        "complaint",
+        "complaints"
+      ],
+      "km": [
+        "បណ្តឹង"
+      ]
+    },
+    {
+      "en": [
+        "corruption"
+      ],
+      "km": [
+        "អំពើពុករលួយ"
+      ]
+    },
+    {
+      "en": [
+        "landmine",
+        "landmines",
+        "uxo"
+      ],
+      "km": [
+        "មីន"
+      ]
+    },
+    {
+      "en": [
+        "apply",
+        "applying",
+        "application",
+        "applications"
+      ],
+      "km": [
+        "ដាក់ពាក្យ",
+        "ពាក្យសុំ",
+        "ស្នើសុំ"
+      ]
+    },
+    {
+      "en": [
+        "form",
+        "forms"
+      ],
+      "km": [
+        "ទម្រង់"
+      ]
+    },
+    {
+      "en": [
+        "expire",
+        "expires",
+        "expired",
+        "expiry",
+        "expiration"
+      ],
+      "km": [
+        "ផុតកំណត់",
+        "ផុតសុពលភាព"
+      ]
+    },
+    {
+      "en": [
+        "renew",
+        "renewal",
+        "renewing"
+      ],
+      "km": [
+        "បន្តសុពលភាព"
+      ]
+    },
+    {
+      "en": [
+        "fishing",
+        "fish",
+        "fisheries",
+        "fishery"
+      ],
+      "km": [
+        "នេសាទ",
+        "ជលផល"
+      ]
+    },
+    {
+      "en": [
+        "list",
+        "lists"
+      ],
+      "km": [
+        "បញ្ជី"
+      ]
+    },
+    {
+      "en": [
+        "check",
+        "checking",
+        "verify"
+      ],
+      "km": [
+        "ពិនិត្យ",
+        "ផ្ទៀងផ្ទាត់"
+      ]
+    },
+    {
+      "en": [
+        "name",
+        "names"
+      ],
+      "km": [
+        "ឈ្មោះ"
+      ]
+    }
+  ]
+}

@@ -34,6 +34,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { crawlTokens } from "../lib/retrieval/crawl-tokens";
+import { urlWords } from "../lib/retrieval/crawl-terms";
 import type { CrawlIndexFile } from "../lib/retrieval/crawl-index";
 
 const ROOT = process.cwd();
@@ -193,7 +194,9 @@ function main() {
       const text = clean(page.text ?? "");
       if (text.length < MIN_PAGE) continue;
       const title = clean(page.title ?? "");
-      const titleTokens = crawlTokens(title);
+      // A Khmer-only page often names its subject in English in its URL
+      // ("/khmer/voter-registration"); index those words like the title.
+      const titleTokens = [...crawlTokens(title), ...crawlTokens(urlWords(page.url))];
       let used = false;
 
       for (const passage of passages(text)) {

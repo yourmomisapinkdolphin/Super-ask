@@ -421,3 +421,23 @@ describe("filler turns are not follow-ups (web chat repeat bug)", () => {
     },
   );
 });
+
+describe("voter registration is a service question; voting choices are not", () => {
+  it.each([
+    "how do I register to vote",
+    "how do i check my name on the voter list",
+    "where is my polling station",
+    "how do I get a voter card",
+  ])("in scope: %s", (q) => {
+    expect(screen(q)).toBeNull();
+    expect(looksLikeServiceQuestion(q)).toBe(true);
+  });
+
+  it("who to vote for is still refused as political", () => {
+    expect(screen("who should i vote for")?.kind).toBe("political");
+  });
+
+  it("an opinion about an election is not a service question", () => {
+    expect(looksLikeServiceQuestion("what do you think about the election")).toBe(false);
+  });
+});

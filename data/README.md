@@ -17,7 +17,10 @@ data/
   curated.json           Tier 1 human-approved answers (FR-10, FR-11)
   glossary.json          Tier 1 official terminology (§6.1)
   aliases.json           FR-06 query expansion
-  facilities.json        FR-17 office directory + emergency numbers
+  facilities.json        FR-17 office directory + emergency numbers (SAMPLE)
+  contacts.json          office phone/address/hours from 9 institutions' own
+                         contact pages, shown on source cards
+  crawl-terms.json       English ↔ Khmer service words for searching crawled pages
   golden.json            evaluation set — test data, never served
 
   sources.json           GENERATED registry of 138 monitored sites (136 enabled)
@@ -129,6 +132,32 @@ and its last probe result (`verify_*`).
 138 sources, each carrying a provenance code. `verified=unconfirmed` means
 the domain was derived from a naming convention and never observed — a lead, not
 a fact, and excluded from monitoring until a probe confirms it.
+
+## `contacts.json` — office contact details
+
+Phone numbers, street addresses, opening hours and email addresses for 9
+institutions, each copied by hand from that institution's own contact page in
+the crawl, with the page URL and the date it was collected. A source card shows
+an entry when the cited page is on the same website, and the map link is built
+from the published address instead of the institution's name.
+
+Only what the page states plainly is recorded. A blank field, a placeholder
+("000 000 000"), or a number that belongs to a branch rather than the head
+office is left out, and an institution whose page gives nothing usable has no
+entry. `tests/kb/contacts.test.ts` checks every entry names a source page on the
+same website. Re-check the entries against their source pages when the crawl
+is refreshed: nobody has called the numbers.
+
+## `crawl-terms.json` — searching Khmer pages in English
+
+Most crawled sites publish in Khmer only. Each group lists the English forms of
+a service word and its Khmer term ("vote", "voter", "election" and បោះឆ្នោត), so
+a question in one language can find pages in the other. It decides only which
+crawled pages are found: it never changes an answer, and the approved corpus
+does not use it. Keep groups narrow. A word with a broad Khmer equivalent can
+turn a correct refusal into a confident wrong answer, which is why "permit"
+has no Khmer form (`tests/retrieval/crawl-terms.test.ts`). The Khmer terms need
+review by a Khmer-speaking content steward.
 
 ## `crawl/` — fetched, unapproved
 

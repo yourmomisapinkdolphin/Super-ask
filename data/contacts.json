@@ -1,0 +1,81 @@
+{
+  "_comment": "Office contact details, copied by hand from each institution's own contact page in the crawl (data/crawl/db/), with the page and the date it was collected. Only what the page states plainly is here: a blank or placeholder field on the page is left out, and a number that belongs to a branch rather than the head office is not used. Not reviewed by a content steward, and shown that way. Shown on a source card when the cited page is on the same website (lib/kb/contacts.ts). Re-check against the source page when the crawl is refreshed.",
+  "contacts": [
+    {
+      "host": "ncdd.gov.kh",
+      "org": "National Committee for Sub-National Democratic Development",
+      "addressKm": "ស្ថិតក្នុងបរិវេណក្រសួងមហាផ្ទៃ (អគារ V) មហាវិថីព្រះនរោត្តម សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន រាជធានីភ្នំពេញ",
+      "phone": "(+855) 78 575 775",
+      "email": "info@ncdd.gov.kh",
+      "source": "https://ncdd.gov.kh/contact",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "mod.gov.kh",
+      "org": "Ministry of National Defence",
+      "addressKm": "វិថីហ្សកឌីមីត្រូវ សង្កាត់មិត្ដភាព ខណ្ឌ៧មករា រាជធានីភ្នំពេញ",
+      "phone": "+855 23 883 274",
+      "note": "General affairs line (ទំនាក់ទំនងកិច្ចការទូទៅ)",
+      "source": "https://mod.gov.kh/contact/",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "treasury.gov.kh",
+      "org": "General Department of National Treasury",
+      "addressKm": "អាគារលេខ១៩ រុក្ខវិថីព្រះមហាក្សត្រីយានីកុសមៈ (ផ្លូវលេខ១០៦) សង្កាត់វត្តភ្នំ ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ",
+      "source": "https://www.treasury.gov.kh/contact/",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "maff.gov.kh",
+      "org": "Ministry of Agriculture, Forestry and Fisheries",
+      "addressKm": "លេខ 200 មហាវិថីព្រះនរោត្តម សង្កាត់ទន្លេបាសាក់ ខណ្ឌចំការមន ភ្នំពេញ",
+      "phone": "(855) 23 726 128 / 23 726 129",
+      "email": "info@maff.gov.kh",
+      "source": "https://maff.gov.kh/contactus",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "mrd.gov.kh",
+      "org": "Ministry of Rural Development",
+      "addressKm": "ដីឡូត៍លេខ ៧៧១-៧៧៣ មហាវិថីព្រះមុនីវង្ស សង្កាត់បឹងត្របែក ខណ្ឌចំការមន រាជធានីភ្នំពេញ",
+      "phone": "+855 12 669 535",
+      "email": "info@mrd.gov.kh",
+      "source": "https://www.mrd.gov.kh/contact-us-kh/",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "rupp.edu.kh",
+      "org": "Royal University of Phnom Penh",
+      "phone": "(+855) 23 724 370",
+      "email": "info@rupp.edu.kh",
+      "source": "https://rupp.edu.kh/contact",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "calmette.gov.kh",
+      "org": "Calmette Hospital",
+      "phone": "(+855) 23 426 948",
+      "note": "24-hour line. Emergency ambulance: 119",
+      "source": "https://www.calmette.gov.kh/contact",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "information.gov.kh",
+      "org": "Ministry of Information",
+      "phone": "(855-23) 722 869 / (855-23) 725 522",
+      "source": "https://information.gov.kh/contact",
+      "collected": "2026-11-12"
+    },
+    {
+      "host": "cdc.gov.kh",
+      "org": "Council for the Development of Cambodia",
+      "address": "Government Palace, Sisowath Quay, Wat Phnom, Phnom Penh",
+      "hours": "Monday to Friday, 7:30–11:30 and 14:00–17:30",
+      "phone": "+855 99 799 579 / +855 98 799 579",
+      "email": "helpdesk@cdc.gov.kh",
+      "source": "https://cdc.gov.kh/contact/",
+      "collected": "2026-11-12"
+    }
+  ]
+}
