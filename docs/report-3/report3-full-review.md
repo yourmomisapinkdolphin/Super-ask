@@ -1,0 +1,123 @@
+# Review: AO3 Full Report Three vs. the current codebase
+
+- **Reviewed:** `CSCI441-TeamAO3-ReportThree-Full.md`, a text export of the "Report 3 FULL" tab of the team Google Doc (doc last modified 23 Nov 2026, exported 25 Nov 2026; figures, diagrams and the Gantt chart are images and were not available)
+- **Compared against:** `Super-ask` on `main` at `a50246a` (25 Nov 2026)
+- **Checks run on 25 Nov 2026:** `npx vitest run`: 705 tests in 29 files pass, 85.18% line coverage (lib/ and app/api/). `npm run eval`: 34 positive / 10 negative questions, Recall@1 67.6%, @3 82.4%, @8 94.1% (M-03 pass), MRR 0.768, refusal 100% (M-04), 73.5% of in-scope questions answered at floor 0.20. `verify-check` 8/8, `curated-check` 16/16, `scope-check` 22/24 (2 known gaps), `rationale-check` 31/31.
+- **Earlier review:** a review of Report Three Part One against the code, kept in git history (`docs/report-3/report3-part1-review.md` at commit `a50246a`). Section E lists which of its findings the Full report fixed. That file now lists Monunhh's bug fixes and new features instead.
+
+**Overall:** the Full report fixes the biggest gap in Part One: it now has OCL contracts (§8d), a UCP estimate (§5), and three traceability matrices (§4, §6e–g, §8c), and the contributions table uses the right section numbers. The answer flow, thresholds (0.72 / 0.20), retrieval parameters, crawler limits and Telegram details match the code.
+
+Four problems remain:
+
+1. Most of the provider and count errors from Part One are still there.
+2. The engine has grown well beyond the pipeline described in §8–§10, which now leaves out about half the steps.
+3. §7, §8 and §10 and the OCL say crawled text never reaches a citizen, but `lib/engine/crawl-answer.ts` serves it. Only §6 describes this correctly.
+4. Several operations and attributes in §8b don't exist in the code.
+
+---
+
+## A. Out of date with the code
+
+| # | Report says | Code now | Report location |
+|---|---|---|---|
+| A1 | Model providers: AnthropicProvider and SeaLionProvider, with ExtractiveProvider as the fallback. The Model Integration subsystem lists only `anthropic.ts` and `extractive.ts`. Machine 3 is the "Anthropic GPU Cloud Cluster", and the model is called "through the Anthropic SDK". | `lib/llm/index.ts` selects among five providers: `gateway`, `sealion`, `anthropic`, `vllm` and `extractive`. `.env.example` sets `LLM_PROVIDER=gateway`. `lib/llm/gateway.ts` defaults to the Nous Research endpoint (`inference-api.nousresearch.com/v1`) with `google/gemini-3.1-flash-lite`. If `LLM_PROVIDER` is unset, the code falls back to `extractive`. §8 has no class for the gateway provider. §6g lists `gateway.ts` under AIModelGateway, but it is a provider, not the facade. | §8a Fig. 19 text, §8b (LlmProvider family), §6g, §9 subsystem 6, §9 hardware table (Machine 3), §9 connectors |
+| A2 | The knowledge base is "664 KB on disk: 45 approved passages from four organisations and 132 registered sources". DC-7 also says 132 sources. SourceRegistry says "132 today". | The figures of 45 passages and four organisations are right again: `data/kb/` holds 5 files and 45 chunks from MOC, MOI, MPWT and NBC. However, the files take up 160 KB, and no chunk is steward-approved (see C3). `data/sources.json` has 138 sources, 136 of them enabled. The crawl index that is also loaded (`data/crawl/index/crawl-index.json`, built by `scripts/build-crawl-index.ts`) covers 58 sites, 1,276 pages and 6,538 passages, about 21 MB, and `next.config.ts` ships it with `/api/ask`, `/api/health` and the Telegram webhook. The memory and bundle estimates don't include it. | §9 hardware requirements, §6a DC-7, §8b SourceRegistry |
+| A3 | The engine pipeline is: guardrail screen → curated match → retrieval → confidence gate → generation → verification → output moderation → citations (§8b QAController; §9 pipes-and-filters; §9 control flow; §10a-3). | In `lib/engine/tiers.ts` the order is: `screen()` → curated (0.72) → `isInScope()` off-domain screen → pure-definition glossary → `retrieve()` → floor 0.20. Below the floor, it tries the glossary, then a crawl answer, then web search, then the general fallback, and only then refuses. Above the floor come the topicality checks (decline a fee for a different service; entity lookup), then a crawl challenge when coverage is below 0.75, then a web answer if the source is off topic, then the rationale gate, then `generate()`, `verify()`, `moderateOutput()` and `toCitation()`. The report never mentions the scope screen, topicality, crawl fallback, web search, general fallback or rationale gate. | §8b QAController, §9 architecture styles (pipeline), §9 global control flow, §10a-3 |
+| A4 | Machine 5 is "a Windows PC" running `scripts/schedule-weekly.ps1`. | `scripts/schedule-weekly-macos.sh` also exists: a macOS launchd job, Sunday 02:00 by default. (Part One A5 is not fixed.) | §9 hardware table (Machine 5), §9 global control flow |
+| A5 | The search is "dense vector embeddings" with "cross-encoder reranking" (§9). VectorIndex is a "meaning-based index over passage embeddings", and `mergeAndRerank` does a "cross-encoder style rerank" (§8b). | `lib/retrieval/embed.ts` says it is "NOT a neural embedding model": it builds hashed character n-gram vectors (512 dimensions, n = 2–4). `lib/retrieval/rerank.ts` is a lexical-overlap reranker that stands in for a cross-encoder. §10a-2 does admit that reranking is lexical, but §8b and §9 don't. | §8b VectorIndex and RetrievalService, §9 subsystem 4, §10a-2 |
+| A6 | Test counts: "600+ automated unit/integration tests" (§9). "24 files, 643 tests", 89.6% line coverage, 94.3% branch coverage, 96.0% function coverage (§12b). | `npx vitest run` today: 705 tests in 29 files, 85.18% line coverage. The floors in `vitest.config.ts` are 85% lines and statements and 90% branches and functions, so line coverage is only just above its floor. The coverage exclusions the report lists (crawler, registry, Telegram, UI constants) match `vitest.config.ts`. | §9 layered architecture, §12 intro, §12b |
+| A7 | REQ-23 evidence: "91.2% of in-scope answered and 100% of out-of-scope refused on the starter set", quoted from a comment in `tiers.ts`. | `npm run eval` today: refusal 100% (policy 8, scope 1, floor 1), 73.5% of in-scope questions answered at floor 0.20, Recall@8 94.1%. `npm run scope-check` scores 22/24. Quote these figures instead. The comment in `lib/engine/tiers.ts` still describes a "3,923 passages" corpus that no longer exists. | §6e NFR table |
+| A8 | Audit and feedback logs are written to `var/audit.jsonl` and `var/feedback.jsonl`, which do not persist on the serverless host. | `lib/log/audit.ts` writes to stdout when `VERCEL` is set, so the host keeps the records in its logs. `AUDIT_LOG_SINK` overrides this (`file`, `stdout` or `both`). | §8b FeedbackLog, §9 hardware requirements |
+| A9 | Vercel functions run on Node.js 24. | The deploy job in `.github/workflows/ci.yml` builds with Node 22 and has a comment about "the project's Node.js 26.x setting". The repo does not pin Node 24 anywhere. Production (https://superask-monunhh.vercel.app) is deployed by that job after the checks pass, which the report doesn't mention. | §9 hardware requirements |
+| A10 | Telegram conversation history is "currently being worked on" and listed as future work. | `lib/telegram/history.ts` is implemented: 8 turns per chat, at most 500 chats, held in memory. §11c already says so, so §13 contradicts it. | §13 "Currently Being Worked On", Current Status, Future Work |
+| A11 | "As of November 18, 2026" (three times). History of Work stops at "Nov 17–23 (Current)". | The crawl-index fallback (13 Nov), the API guard, map link and unreviewed labels (23 Nov), and the CI-gated Vercel deploy all came after 18 Nov and are not in History of Work. | §13a, §13c, §13d |
+| A12 | The "Was this helpful?" Yes/No buttons were "replaced by a 'Report an error' link". | `components/chat/AnswerBlock.tsx` shows both: "Was this helpful?" with Yes/No (No opens the report dialog), and a separate "Report an error" link. | §11f change table |
+
+## B. Report describes features the code doesn't have
+
+| # | Report says | Code now | Report location |
+|---|---|---|---|
+| B1 | Crawler classes "never write to ContentStore directly, which is the design rule that keeps machine-fetched text out of citizen answers". Changes are "queued for a human steward ... before they are added". OCL: "Unapproved content remains excluded". | The crawler (`lib/crawl/`) does not write to `data/kb/`. But `lib/engine/crawl-answer.ts` and `lib/retrieval/crawl-index.ts` serve crawled pages to citizens whenever the approved corpus fails, and also when it covers less than 75% of the question (`CRAWL_CHALLENGE_BELOW` in `lib/engine/tiers.ts`). Those answers are labelled unreviewed. §6a DC-6 and §6f say this correctly; §7, §8, §10 and the OCL contradict it. (Part One A3 is not fixed.) | §7 UC-11, §8a Fig. 21 text, §8b ReviewQueue, §10a-5, §10c, §8d OCL 8–9 |
+| B2 | UC-11 steps 7–8 update the stored information and its last-verified date. ReviewQueue has `approve()`, ContentStore has `storeContent()`, SourceRegistry has `updateLastVerified()`, `register()` and `recordFailure()`. ChangeSignal status is {pending, approved, rejected}. | None of these operations exist. `lib/crawl/store.ts` exports `raiseToQueue`, `saveReport`, `pendingCount` and snapshot helpers. `lib/crawl/types.ts` types `ChangeSignal.status` as `"pending"` only, with `autoPublishable: false`. `Source` has no `lastVerified` field. (Part One B3 is not fixed.) | §4 UC-11, §8b ContentStore, SourceRegistry, ReviewQueue, ChangeSignal, RegisteredSource |
+| B3 | UC-7 contact card, the province question (3a), the "no online contact" fallback (4a/4b), `QAController.getOfficeContact`, `OfficeDirectory.findResponsibleOffice`, `ChatUI.showContactCard`, `Answer.office`, `ContactInfo.mapLink` and `sourceRef`. | None of these exist in `lib/`, `components/` or `app/`. `AskResponse` in `lib/types.ts` has no `office` field. `data/facilities.json` has 2 `[SAMPLE]` entries, read only by `lib/kb/loader.ts`. What does exist is `Citation.mapUrl`: a Google Maps search by ministry name, built by `officeMapUrl()` in `lib/engine/citations.ts` and shown as "Show office on map" in `components/chat/SourceCard.tsx`. (Part One B2 is not fixed.) | §4 UC-7, §8a Fig. 20, §8b, §12 TC-10, TC-11, UT-12 |
+| B4 | Messenger is listed as an actor and channel in §4 with no "planned" label. UC-9 says "Telegram or Messenger". | `lib/ui/channels.ts` only links to `m.me/superaskkh`. §5, §9, §11 and §13 do call Messenger planned. (Part One B4 is fixed in later sections but not in §4.) | §4 actors table, UC-9 |
+| B5 | UC-11's precondition: each ministry's website, Facebook page and Telegram channel is registered. The RegisteredSource `platform` attribute includes facebook and telegram. | All 138 entries in `data/sources.json` are `adapter: "web"`. The field is called `adapter`, not `platform` (`lib/crawl/types.ts`). No Facebook or Telegram source is registered. | §4 UC-11, §8b RegisteredSource, FacebookCrawler |
+| B6 | Retrieval drops superseded passages "and passages whose effective date is in the future" (UC-2 step 4, `filterCurrentlyEffective`, UT-06). "Only public passages are served to citizens." | `lib/retrieval/bm25.ts` and `lib/retrieval/embed.ts` skip only `superseded` chunks. Nothing filters on effective date or on `sensitivity`. All 45 chunks are `public` today, so the sensitivity rule has no effect yet, but it isn't enforced. | §4 UC-2, §8b ContentStore and Passage, §10a-2, §12 UT-06 |
+| B7 | `unverified` is true "only when the operator-enabled general-knowledge fallback produced the answer". This implies the fallback is off unless an operator turns it on. | `lib/engine/fallback.ts` defaults `GENERAL_FALLBACK_ENABLED` to **on** (`?? "true"`). An in-scope question that isn't about a government procedure, with no source, gets a labelled answer from the model's own knowledge. `GENERAL_FALLBACK_FOR_SERVICES` is off, so procedure questions are still refused. REQ-7 says the system declines in this case. | §8b Answer, §6g extra-modules table, §10a-3 Tier 3 |
+| B8 | AnswerVerifier "creates the Answer" (Creator) via `createAnswer()`. ConversationHistory has `resolveProcedure()`. UT-11: `getRecentContext` returns the last 8 turns. | `lib/engine/verify.ts` exports only `verify()`, which returns a `VerificationResult`. `lib/engine/tiers.ts` builds the `AskResponse` itself. `lib/ui/history.ts` keeps up to 20 conversations and has no 8-turn limit or `resolveProcedure`. The 8-turn limit exists only in `lib/telegram/history.ts`. | §7 UC-1, §8b AnswerVerifier and ConversationHistory, §12 UT-11 |
+
+## C. Problems inside the report
+
+1. **Old cross-references are still there (Part One C2).** Examples include "Sections 3c-iv and 3d" (§4, §7), "Section 3c-iii" (§4, §6e), "Section 2b" and "Section 2" meaning the class design (§8a, §9, §10, §11), "Section 3a", "3c", "3d" and "3f" meaning architecture (§9), "Section 1 (Figures 1–5)" (§8a, where the diagrams are Figures 12–16), "Figure 6" and "Figures 7–10" (§8a, where the diagrams are Figures 17–21), "Section 4a" (§6a) and "Section 3" for the test count (§12).
+2. **The class count disagrees.** §8a says "36 classes", §6g says "37 names, plus the Turn type", and §8b defines 37 class tables.
+3. **The report calls `data/kb/` the "approved" knowledge base and every passage "approved".** In the code, every one of the 45 chunks has `stewardApproved: false`. Each file's `_comment` says either "MACHINE-INGESTED", "REAL CONTENT, NOT STEWARD-APPROVED" or "SAMPLE CONTENT" (the 8 MOI chunks). `isUnreviewed()` in `lib/kb/loader.ts` checks only `origin`, so the 37 real chunks appear as "Verified source" in `SourceCard.tsx` (a deliberate choice, explained in the comment above `isUnreviewed()`). The OCL invariants for RetrievalService and ContentStore ("only approved ... information") don't hold for the current data. The report should either say the corpus is unreviewed transcription, or the team should get it approved.
+4. **The OCL is written in English, not OCL.** None of the nine contracts uses OCL syntax (`context X::op() pre: … post: …`, `inv:`). Five of them name operations that §8b doesn't define ("retrieve(question)", "Answer Verification", "Citation Presentation", "Conversation Retrieval", "Content Update"); the §8b names are `retrievePassages`, `verifyClaims`, `renderSourceCards`, `getRecentContext` and `storeContent`. A stray "33" follows the intro sentence ("completed.33").
+5. **The UCP arithmetic is rounded up slightly.** 93 × 1.095 × 0.995 = 101.33, not 101.34, so effort is 2,837 hours, not 2,837.52. The text says use cases are weighted "by the number of transactions in their documented flows". But only five use cases have documented flows. UC-11's main flow has 9 steps, which is Complex by that rule, yet it is rated Average with no transaction count given. Either list the counts, or say that steps 7–8 are excluded because they aren't built (see B2).
+6. **The user-effort section still has no heading, and its numbering is broken (Part One C4).** It follows the UCP result directly, and every item is numbered "1.". §4 also still has stray numbering ("1. Functional Requirement Specification…", "1. Actors and Goals", "1. System Sequence Diagrams", "2. User Interface Specification"; Part One C3).
+7. **The report contradicts itself on the map link.** §6e UC-7 says "No map link". §11f says a "Show office on map" link appears under the answer, which matches the code (B3).
+8. **The report contradicts itself on crawled content.** §6a DC-6 and the §6f check say crawled pages are served as unreviewed passages. §7 UC-11, §8a/§8b, §10a-5, §10c and OCL 8–9 say they never reach answers (B1).
+9. **The report contradicts itself on Telegram history.** §11c says it is done; §13 says it is being worked on (A10).
+10. **§7 still names only GRASP principles (Part One C6).** §7 is the section that was assigned "design patterns", but it names no Gang of Four pattern. §9 names Adapter and Facade. The code also has Strategy (the `LlmProvider` family), Facade (`generate()` in `lib/llm/index.ts`) and Chain of Responsibility (the tier steps in `tiers.ts`).
+11. **§8b has a typo:** `coverageGape` should be `coverageGap`. The Answer `language` attribute is called `lang` in `AskResponse`.
+12. **§9 names the wrong module folders.** "lib/kb/ containing legal chunks": `lib/kb/` holds only `loader.ts`, and the content is in `data/kb/`. "lib/registry/ checks source ministries": `lib/registry/csv.ts` only parses the registry CSV. The subsystem list also leaves out `lib/api/guard.ts`, `lib/web/search.ts` and `lib/retrieval/crawl-index.ts`.
+13. **The references are still thin (Part One C10).** There are no entries for BM25, RRF, the UCP method (Karner), GRASP (Larman), OCL (Warmer & Kleppe), or the model provider and host actually used (Nous Research gateway, Gemini, Vercel).
+14. **"Summary of Modifications" is generic.** It doesn't say what changed since Part One: OCL added, contributions renumbered, UCP added, and so on.
+
+## D. Suggested fixes (priority order)
+
+1. Make §7, §8, §10 and the OCL agree with §6 on crawled content (B1, C8). Add the crawl-answer and web-answer steps to the pipeline. The updated UC-1 diagram in `docs/report-2/diagrams/uc1-askquestion.mmd` shows the crawl fallback branch.
+2. Rewrite the QAController pipeline in §8b, §9 and §10a-3 in the order `tiers.ts` uses (A3), and state the general-fallback default (B7). The README's Architecture section has the current order.
+3. Replace the provider sections with the gateway/Gemini setup, and add a gateway provider class (A1).
+4. Fix the "approved" wording for `data/kb/` (C3).
+5. Remove or mark as "planned" the §8b operations and attributes that don't exist (B2, B3, B6, B8).
+6. Rewrite §8d in OCL syntax against the §8b signatures (C4).
+7. Refresh every count on submission day: 705 tests, 29 files, 85.18% coverage, 138 sources, 160 KB of KB data plus the 21 MB crawl index, and the eval figures (A2, A6, A7).
+8. Do one pass over all cross-references and numbering (C1, C2, C6), and fix the UCP rounding (C5).
+
+## E. Part One findings: fixed or still present
+
+Item numbers refer to the earlier Part One review in git history (commit `a50246a`).
+
+| Part One item | Status in Full report |
+|---|---|
+| A1 provider is Claude/Anthropic | **Still present** (A1) |
+| A2 counts | **Partly.** 45 passages and 4 organisations are right again, but the 664 KB and 132 sources figures are wrong, and the crawl index is left out (A2) |
+| A3 crawled content never reaches answers | **Partly.** §6 is fixed; §7, §8, §10 and the OCL are not (B1) |
+| A4 crawl-index files exist | Resolved (cited correctly in §6a and §6g) |
+| A5 macOS scheduler not mentioned | **Still present** (A4) |
+| A6 CORS and rate limits | **Now true.** `lib/api/guard.ts` is wired into `/api/ask` and `/api/feedback` |
+| A7 embeddings and cross-encoder | **Partly.** §10a-2 hedges the reranker claim; §8b and §9 don't (A5) |
+| A8 Telegram history "being worked on" | **Partly.** §11c is fixed; §13 is not (A10) |
+| A9 "as of November 18" | **Still present** (A11) |
+| A10 600+ tests | **Still present and now stale** (A6) |
+| A11 REQ-23 figures from the starter set | **Still present** (A7) |
+| B1 map link | **Now true in the code** (name-search link). §6e is still wrong (C7) |
+| B2 UC-7 extensions | **Still present** (B3) |
+| B3 UC-11 steps 7–8 | **Still present** (B2) |
+| B4 Messenger unlabelled in §4 | **Still present in §4** (B4) |
+| B5 login implies real authentication | Fixed. DC-1 and §13 say authentication is in progress |
+| C1 section numbers on the contributions page | Fixed |
+| C2 old cross-references | **Still present** (C1) |
+| C3 stray §4 numbering | **Still present** (C6) |
+| C4 no user-effort heading | **Still present** (C6) |
+| C5 OCL missing | **Added**, but not in OCL syntax (C4) |
+| C6 GRASP only | **Still present in §7** (C10) |
+| C7 contributions omit OCL and architecture | Fixed. OCL is credited to Doungkhe Neang, and §9 review to Heejae Choi |
+| C8 Gantt/milestone labels | Fixed in the text (Part One on 16 Nov, Full on 23 Nov). The Gantt image was not checked |
+| C9 UC-7 duplicated descriptions | **Changed but still inconsistent** (C7) |
+| C10 thin references | **Still present** (C13) |
+
+---
+
+### What the report gets right
+
+- Curated threshold 0.72 and floor 0.20 (`lib/engine/tiers.ts`), `topK` 8 and anchor lookback 4 (`lib/retrieval/index.ts`), BM25 k1 1.5 and b 0.75 (`lib/retrieval/bm25.ts`), prompt version `grounding-v6` (`lib/llm/provider.ts`)
+- Guardrails screened before retrieval, the verification gate (FR-15) that withholds the answer on failure, and output moderation (`lib/engine/guardrails.ts`, `lib/engine/verify.ts`)
+- Extractive fallback when the configured provider fails (`lib/llm/index.ts`)
+- Telegram: secret check, `sendChatAction`, `maxDuration = 60`, Mini App allowed as a frame ancestor (`app/api/telegram/webhook/route.ts`, `next.config.ts`); 8 turns per chat (`lib/telegram/history.ts`)
+- Web history kept in the browser, 20 conversations (`lib/ui/history.ts`)
+- Crawler: user agent, 20 s timeout, 5 MB cap, 2 s per-host delay, robots.txt and soft-block detection; change signals queued as pending (`lib/crawl/fetch.ts`, `lib/crawl/types.ts`)
+- Weekly run Sunday 02:00 with a 4-hour limit (`scripts/schedule-weekly.ps1`)
+- Coverage floors and exclusions (`vitest.config.ts`)
+- DC-6, DC-8 and DC-11 describe the unreviewed flag correctly (`lib/types.ts`, `lib/engine/citations.ts`)
+- The UCP weights and TCF/ECF factor tables use the standard values, and the sums are correct

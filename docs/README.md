@@ -10,7 +10,7 @@ docs/
   report-1/        Report One (both parts, full export, use cases)
   report-2/        Report Two (full report, diagram hand-off pages)
     diagrams/      Mermaid sources, PNGs, and the page build scripts
-  report-3/        Report Three, Part One review against the code
+  report-3/        Report Three (Full and Part One) and reviews against the code
   demo-1/          Demo 1 e-archive (1_code … 5_documentation)
     slides/        presentation source and built deck
 ```
@@ -43,11 +43,21 @@ docs/
 The `.html` pages are self-contained (images embedded), so they open directly
 in a browser.
 
+**The diagrams and hand-off pages were updated on 2026-11-25 to match the
+code** (crawled-website fallback in UC-1, the five model providers, the crawl
+index and web search, and "planned" / "not built" marks on UC-7 and UC-11).
+The submitted PDF keeps the original figures; git history has the originals
+of the sources.
+
 ## Report Three: [`report-3/`](report-3/)
 
 | Deliverable | File |
 |---|---|
-| Part One reviewed against the codebase (out-of-date claims, missing files, unbuilt features, numbering errors) | `report3-part1-review.md` |
+| Full Report Three, final draft (153 pages) | `CSCI441-TeamAO3-ReportThree-Full.pdf` |
+| Report Three Part One (98 pages) | `CSCI441-TeamAO3-ReportThree-PartOne.pdf` |
+| The same two reports as searchable text, exported from the team Google Doc tabs "Report 3 FULL" and "Report 3 Part 1" on 2026-11-25 (figures not included) | `CSCI441-TeamAO3-ReportThree-Full.md`, `CSCI441-TeamAO3-ReportThree-PartOne.md` |
+| Full Report Three reviewed against the code on 2026-11-25 (what is out of date, what is not built, what Part One findings were fixed) | `report3-full-review.md` |
+| Code work for Report Three by Phallamonunhh Chun (Monunhh): new features and bug fixes, 13–23 Nov 2026 | `report3-part1-review.md` |
 
 ## Demo 1: [`demo-1/`](demo-1/README.md)
 
