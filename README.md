@@ -763,8 +763,8 @@ scripts/
 tests/                      unit tests (npm test), mirrors lib/
 docs/                       course deliverables (see docs/README.md)
   demo-1/                   Demo 1 e-archive, incl. 3_integration_testing/
-  report-3/                 Report Three (final draft and Part One), its review
-                            against the code, and the code work done for it
+  report-3/                 Report Three (final draft and Part One) and the code
+                            work done for it
 ```
 
 ---

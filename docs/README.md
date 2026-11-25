@@ -55,7 +55,6 @@ of the sources.
 |---|---|
 | Full Report Three, final draft (153 pages) | `CSCI441-TeamAO3-ReportThree-Full.pdf` |
 | Report Three Part One (98 pages) | `CSCI441-TeamAO3-ReportThree-PartOne.pdf` |
-| The final draft checked against the code: what is out of date, what is not built, and fixes in priority order | `report3-review.md` |
 | New features and bug fixes by Phallamonunhh Chun (Monunhh), 13–23 Nov 2026 | `report3-code-work.md` |
 
 ## Demo 1: [`demo-1/`](demo-1/README.md)

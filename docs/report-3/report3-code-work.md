@@ -4,7 +4,7 @@
 - **Period:** 13–23 Nov 2026, all merged on `main`
 - **Checked on 25 Nov 2026:** 705 tests pass in 29 files (`npx vitest run`). Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
 
-This page lists what Monunhh built and fixed in the code while Report Three was being written. For how the report compares with the code, see [`report3-review.md`](report3-review.md).
+This page lists what Monunhh built and fixed in the code while Report Three was being written.
 
 ---
 
