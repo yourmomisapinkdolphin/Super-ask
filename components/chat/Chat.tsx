@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Globe, Menu, Plus, Search, X } from "lucide-react";
-import { T, BRAND_BAR_HEIGHT } from "@/lib/ui/theme";
+import { T, BRAND_BAR_HEIGHT, fontStack } from "@/lib/ui/theme";
 import { UI } from "@/lib/ui/copy";
 import { TOPICS } from "@/lib/ui/landing";
 import { MESSENGER_COMING_SOON, MESSENGER_URL, TELEGRAM_URL } from "@/lib/ui/channels";
@@ -93,7 +93,10 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
   };
 
   return (
-    <div className="flex w-full flex-col" style={{ height: "100dvh", background: T.canvas, color: T.ink }}>
+    <div
+      className="flex w-full flex-col"
+      style={{ height: "100dvh", background: T.canvas, color: T.ink, fontFamily: fontStack }}
+    >
       <a href="#ag-question" className="ag-skip">
         {UI.skipToComposer[lang]}
       </a>
@@ -287,7 +290,8 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
                         padding: "10px 14px",
                         fontSize: 14,
                         maxWidth: "72%",
-                        lineHeight: 1.65,
+                        lineHeight: 1.7,
+                        fontFamily: fontStack,
                       }}
                     >
                       {turn.text}

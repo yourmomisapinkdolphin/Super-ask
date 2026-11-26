@@ -40,10 +40,10 @@
 
   --sa-gradient: linear-gradient(135deg,#4F3FA8,#6D5BD0);
 
-  /* Match form.gov.kh — Kantumruy Pro for English and Khmer. */
+  /* Match form.gov.kh — one face for English and Khmer everywhere. */
   --sa-font: "Kantumruy Pro", "Inter", system-ui, -apple-system, "Segoe UI",
     sans-serif;
-  --sa-khmer: "Kantumruy Pro", "Inter", system-ui, sans-serif;
+  --sa-khmer: var(--sa-font);
   --sa-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
@@ -57,6 +57,17 @@ body {
   color: var(--sa-ink);
   font-family: var(--sa-font);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Keep every citizen-facing surface on the same face — no accidental Inter /
+   system mix when a component sets its own stack. */
+.km,
+.font-km,
+.ag-answer,
+textarea,
+input,
+button {
+  font-family: var(--sa-font);
 }
 
 /* ---------------------------------------------------------------------------
@@ -219,8 +230,8 @@ h3 {
 /* --------------------------------------------------------------------------- */
 
 .ag-answer {
-  white-space: pre-wrap;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Hero chat preview — only this surface animates (a real conversation loop). */
@@ -308,10 +319,6 @@ h3 {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.font-km {
-  font-family: var(--sa-khmer);
 }
 
 html {

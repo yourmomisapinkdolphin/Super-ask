@@ -10,17 +10,14 @@
  *
  * It matters more in Khmer than in English. Khmer has no inter-word spaces and
  * no capital letters, so a reader gets none of the shape cues that make a wall
- * of English scannable: no ragged word edges, no sentence-initial capitals to
- * mark where one item ends and the next begins. Indentation, bullets and
- * vertical rhythm are doing the work that word shape does in Latin script, and
- * without them a seven-item list reads as one continuous run of characters.
+ * of English scannable. Indentation, bullets and vertical rhythm do that work.
  *
  * This is presentation only. It re-forms lines the source already contained and
  * never alters, reorders, or summarises them — the verified text is exactly what
  * reaches the screen (FR-14, FR-15).
  */
 
-import { T } from "@/lib/ui/theme";
+import { T, fontStack } from "@/lib/ui/theme";
 
 type Block =
   | { kind: "numbered"; marker: string; text: string }
@@ -31,7 +28,10 @@ type Block =
 
 /** Khmer digits ១-៩ and Latin 1-9, followed by a separator. */
 const NUMBERED = /^([០-៩0-9]+)\s*[.)។]\s*(.*)$/;
-const BULLET = /^[•·▪-]\s*(.*)$/;
+const BULLET = /^[-*•·▪]\s+(.*)$/;
+const MD_HEADING = /^#{1,3}\s+(.+)$/;
+/** Short label line ending in a colon — "What you need:", "ឯកសារ៖". */
+const SOFT_HEADING = /^(.{2,48})[:：]\s*$/;
 
 /**
  * The extractive provider's lead-in, and the R-07 aboutness warning.
@@ -40,26 +40,19 @@ const BULLET = /^[•·▪-]\s*(.*)$/;
  * not rendered. The full source receipt sits directly beneath every answer
  * (FR-62) carrying ministry, instrument, article and dates, so printing a
  * second, vaguer provenance label immediately above it said the same thing
- * twice and less precisely. Still matched rather than ignored because the line
- * has to be removed from the body — left in, it would render as a stray
- * sentence fragment at the top of the answer.
+ * twice and less precisely.
  */
 const LABEL = /^(From the approved source|ពីឯកសារយោងដែលបានអនុម័ត)\s*[:：]?\s*$/i;
 const NOTICE = /^[⚠️!]\s*/;
+const STALE =
+  /passed its review date|ហួសកាលបរិច្ឆេទត្រួតពិនិត្យ/i;
 
 /**
  * Markdown emphasis.
  *
- * The prompts ask for a grouped, listed answer, and models write those groups
- * as **Where to go:** headings. Rendering the answer as plain text printed the
- * asterisks literally — the markers were visible and the emphasis was not.
- *
  * Only bold is handled, deliberately. It is the one thing the answer contract
  * actually produces, and a general Markdown renderer here would be a licence to
  * interpret link and image syntax inside text that reaches a citizen.
- *
- * Stripping the markers is presentation, in the same sense as the rest of this
- * file: the words are unchanged and nothing is reordered or dropped.
  */
 const BOLD = /\*\*(.+?)\*\*/g;
 /** A line that is entirely bold is a group heading, not a bold sentence. */
@@ -78,14 +71,13 @@ function inline(text: string, keyPrefix: string) {
   }
   if (last < text.length) parts.push(text.slice(last));
 
-  // No emphasis: return the string itself so the common case adds no spans.
   if (parts.length === 1 && typeof parts[0] === "string") return text;
 
   return parts.map((p, i) =>
     typeof p === "string" ? (
       p
     ) : (
-      <strong key={`${keyPrefix}-b${i}`} style={{ fontWeight: 600 }}>
+      <strong key={`${keyPrefix}-b${i}`} style={{ fontWeight: 700 }}>
         {p.bold}
       </strong>
     ),
@@ -100,27 +92,41 @@ function parse(text: string): Block[] {
     if (!line) continue;
 
     if (LABEL.test(line)) continue;
-    if (NOTICE.test(line)) {
-      blocks.push({ kind: "notice", text: line.replace(NOTICE, "").trim() });
+
+    if (NOTICE.test(line) || STALE.test(line)) {
+      blocks.push({
+        kind: "notice",
+        text: line.replace(NOTICE, "").trim(),
+      });
+      continue;
+    }
+
+    const mdHeading = MD_HEADING.exec(line);
+    if (mdHeading?.[1]) {
+      blocks.push({ kind: "heading", text: mdHeading[1].replace(BOLD, "$1").trim() });
       continue;
     }
 
     const heading = HEADING.exec(line);
-    if (heading && heading[1]) {
+    if (heading?.[1]) {
       blocks.push({ kind: "heading", text: heading[1].trim() });
       continue;
     }
 
+    const soft = SOFT_HEADING.exec(line);
+    if (soft?.[1] && !NUMBERED.test(line)) {
+      blocks.push({ kind: "heading", text: soft[1].replace(BOLD, "$1").trim() });
+      continue;
+    }
+
     const numbered = NUMBERED.exec(line);
-    // A bare number with nothing after it is a list marker orphaned from its
-    // text; treat it as a paragraph rather than an empty heading.
-    if (numbered && numbered[2]) {
+    if (numbered?.[2]) {
       blocks.push({ kind: "numbered", marker: numbered[1], text: numbered[2] });
       continue;
     }
 
     const bullet = BULLET.exec(line);
-    if (bullet && bullet[1]) {
+    if (bullet?.[1]) {
       blocks.push({ kind: "bullet", text: bullet[1] });
       continue;
     }
@@ -131,13 +137,26 @@ function parse(text: string): Block[] {
   return blocks;
 }
 
+function prevKind(blocks: Block[], i: number): Block["kind"] | null {
+  return i > 0 ? blocks[i - 1].kind : null;
+}
+
 export function AnswerText({ text }: { text: string }) {
   const blocks = parse(text);
 
   return (
-    <div className="ag-answer km" style={{ fontSize: 15 }}>
+    <div
+      className="ag-answer km"
+      style={{
+        fontFamily: fontStack,
+        fontSize: 15,
+        color: T.ink,
+        letterSpacing: "0.01em",
+      }}
+    >
       {blocks.map((b, i) => {
         const key = `${b.kind}-${i}`;
+        const prev = prevKind(blocks, i);
 
         if (b.kind === "notice") {
           return (
@@ -145,13 +164,14 @@ export function AnswerText({ text }: { text: string }) {
               key={key}
               style={{
                 marginTop: 16,
-                padding: "10px 12px",
+                padding: "12px 14px",
                 borderLeft: `3px solid ${T.notice}`,
                 background: T.noticeWash,
-                borderRadius: 4,
+                borderRadius: 8,
                 fontSize: 13.5,
-                lineHeight: 1.85,
+                lineHeight: 1.75,
                 color: T.noticeText,
+                fontFamily: fontStack,
               }}
             >
               {inline(b.text, key)}
@@ -165,11 +185,16 @@ export function AnswerText({ text }: { text: string }) {
               key={key}
               className="km"
               style={{
-                marginTop: i === 0 ? 0 : 20,
-                marginBottom: 2,
-                fontWeight: 600,
-                color: T.ink,
-                lineHeight: 1.7,
+                marginTop: i === 0 ? 0 : 22,
+                marginBottom: 8,
+                paddingBottom: 6,
+                borderBottom: `1px solid ${T.lineSoft}`,
+                fontWeight: 700,
+                fontSize: 13,
+                color: T.deep,
+                letterSpacing: "0.02em",
+                lineHeight: 1.55,
+                fontFamily: fontStack,
               }}
             >
               {b.text}
@@ -183,23 +208,41 @@ export function AnswerText({ text }: { text: string }) {
               key={key}
               style={{
                 display: "flex",
-                gap: 10,
-                // Space above a new numbered step, not between its sub-points.
-                marginTop: i === 0 ? 0 : 18,
-                marginBottom: 4,
+                gap: 12,
+                alignItems: "flex-start",
+                marginTop: i === 0 ? 0 : prev === "numbered" ? 10 : 16,
               }}
             >
               <span
+                aria-hidden
                 style={{
-                  color: T.deep,
-                  fontWeight: 600,
                   flexShrink: 0,
-                  lineHeight: 1.95,
+                  width: 26,
+                  height: 26,
+                  marginTop: 2,
+                  borderRadius: 999,
+                  background: T.skyWash,
+                  color: T.deep,
+                  fontWeight: 700,
+                  fontSize: 12.5,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: fontStack,
+                  lineHeight: 1,
                 }}
               >
-                {b.marker}.
+                {b.marker}
               </span>
-              <span style={{ fontWeight: 600, lineHeight: 1.95 }}>
+              <span
+                style={{
+                  flex: 1,
+                  fontWeight: 500,
+                  lineHeight: 1.85,
+                  paddingTop: 2,
+                  fontFamily: fontStack,
+                }}
+              >
                 {inline(b.text, key)}
               </span>
             </div>
@@ -212,24 +255,44 @@ export function AnswerText({ text }: { text: string }) {
               key={key}
               style={{
                 display: "flex",
-                gap: 10,
-                paddingLeft: 14,
-                marginTop: 6,
+                gap: 12,
+                alignItems: "flex-start",
+                marginTop: i === 0 ? 0 : prev === "bullet" ? 6 : 12,
+                padding: "7px 10px",
+                borderRadius: 10,
+                background: T.page,
               }}
             >
               <span
-                style={{ color: T.sky, flexShrink: 0, lineHeight: 1.95 }}
+                style={{
+                  color: T.sky,
+                  flexShrink: 0,
+                  lineHeight: 1.85,
+                  fontSize: 16,
+                  fontFamily: fontStack,
+                }}
                 aria-hidden
               >
                 •
               </span>
-              <span style={{ lineHeight: 1.95 }}>{inline(b.text, key)}</span>
+              <span style={{ flex: 1, lineHeight: 1.85, fontFamily: fontStack }}>
+                {inline(b.text, key)}
+              </span>
             </div>
           );
         }
 
         return (
-          <p key={key} style={{ marginTop: i === 0 ? 0 : 12, lineHeight: 1.95 }}>
+          <p
+            key={key}
+            style={{
+              marginTop: i === 0 ? 0 : 14,
+              marginBottom: 0,
+              lineHeight: 1.85,
+              fontFamily: fontStack,
+              color: T.ink,
+            }}
+          >
             {inline(b.text, key)}
           </p>
         );
