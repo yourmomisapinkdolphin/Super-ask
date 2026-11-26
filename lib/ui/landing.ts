@@ -727,8 +727,8 @@ export const CHANNELS = {
     km: ["សួរនៅកន្លែងដែលអ្នក", "ប្រើប្រាស់រួចហើយ", "។"],
   } satisfies Headline,
   body: {
-    en: "Most Cambodians live in Telegram and Messenger, so SuperAsk does too.",
-    km: "ប្រជាជនកម្ពុជាភាគច្រើនប្រើ Telegram និង Messenger ដូច្នេះ SuperAsk ក៏នៅទីនោះដែរ។",
+    en: "Most Cambodians live in Telegram and Messenger — SuperAsk is on Telegram now, with Messenger coming soon.",
+    km: "ប្រជាជនកម្ពុជាភាគច្រើនប្រើ Telegram និង Messenger — SuperAsk មានលើ Telegram ហើយ ហើយ Messenger នឹងមកដល់ឆាប់ៗ។",
   } satisfies Copy,
   web: {
     label: { en: "Web", km: "គេហទំព័រ" },
@@ -749,12 +749,12 @@ export const CHANNELS = {
   },
   messenger: {
     label: { en: "Messenger", km: "Messenger" },
-    tag: { en: "Facebook", km: "Facebook" },
+    tag: { en: "Coming soon", km: "មកដល់ឆាប់ៗ" },
     sub: {
-      en: "Message us on Facebook Messenger — same answers, same sources.",
-      km: "ផ្ញើសារមកយើងតាម Facebook Messenger — ចម្លើយដូចគ្នា ប្រភពដូចគ្នា។",
+      en: "Facebook Messenger is next — same answers and sources, once the channel is live.",
+      km: "Facebook Messenger នឹងមកដល់បន្ទាប់ — ចម្លើយ និងប្រភពដូចគ្នា នៅពេលបណ្តាញនេះដំណើរការ។",
     },
-    cta: { en: "Open in Messenger", km: "បើកក្នុង Messenger" },
+    cta: { en: "Coming soon", km: "មកដល់ឆាប់ៗ" },
   },
 };
 

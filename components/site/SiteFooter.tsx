@@ -3,7 +3,12 @@ import { Facebook, Linkedin, Mail, MapPin } from "lucide-react";
 import { SuperAskLogo } from "./SuperAskLogo";
 import { MARKETING, type Lang } from "@/lib/ui/marketing";
 import { FOOTER } from "@/lib/ui/landing";
-import { MESSENGER_URL, TELEGRAM_HANDLE, TELEGRAM_URL } from "@/lib/ui/channels";
+import {
+  MESSENGER_COMING_SOON,
+  MESSENGER_URL,
+  TELEGRAM_HANDLE,
+  TELEGRAM_URL,
+} from "@/lib/ui/channels";
 import { MessengerIcon, TelegramIcon } from "@/components/landing/primitives";
 
 const HEADING = {
@@ -56,9 +61,19 @@ export function SiteFooter({ lang }: { lang: Lang }) {
               <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram">
                 <TelegramIcon size={28} />
               </a>
-              <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" aria-label="Messenger">
-                <MessengerIcon size={28} />
-              </a>
+              {MESSENGER_COMING_SOON ? (
+                <span
+                  aria-label={lang === "km" ? "Messenger — មកដល់ឆាប់ៗ" : "Messenger — coming soon"}
+                  title={lang === "km" ? "មកដល់ឆាប់ៗ" : "Coming soon"}
+                  style={{ opacity: 0.45, cursor: "default" }}
+                >
+                  <MessengerIcon size={28} />
+                </span>
+              ) : (
+                <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" aria-label="Messenger">
+                  <MessengerIcon size={28} />
+                </a>
+              )}
             </div>
           </div>
 

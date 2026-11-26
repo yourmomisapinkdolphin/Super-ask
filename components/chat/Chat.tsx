@@ -16,7 +16,7 @@ import { Check, Globe, Menu, Plus, Search, X } from "lucide-react";
 import { T, BRAND_BAR_HEIGHT } from "@/lib/ui/theme";
 import { UI } from "@/lib/ui/copy";
 import { TOPICS } from "@/lib/ui/landing";
-import { MESSENGER_URL, TELEGRAM_URL } from "@/lib/ui/channels";
+import { MESSENGER_COMING_SOON, MESSENGER_URL, TELEGRAM_URL } from "@/lib/ui/channels";
 import { useSiteLang } from "@/lib/ui/site-lang";
 import { SuperAskLogo } from "@/components/site";
 import { LangToggle } from "@/components/site/SiteHeader";
@@ -134,9 +134,15 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
             Telegram
           </a>
           <span aria-hidden style={{ color: T.lineStrong }}>·</span>
-          <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#4F3FA8]">
-            Messenger
-          </a>
+          {MESSENGER_COMING_SOON ? (
+            <span style={{ color: T.inkFaint }} title={lang === "km" ? "មកដល់ឆាប់ៗ" : "Coming soon"}>
+              Messenger
+            </span>
+          ) : (
+            <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#4F3FA8]">
+              Messenger
+            </a>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-3 sm:gap-4">

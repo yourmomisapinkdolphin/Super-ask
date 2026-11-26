@@ -5,7 +5,12 @@ import Link from "next/link";
 import { ChevronDown, Linkedin, Lock, ShieldCheck, UserRound } from "lucide-react";
 import type { Lang } from "@/lib/ui/marketing";
 import { ABOUT, CHANNELS, COMMON, CTA, EXAMPLES, FAQS, TOPICS, TRUST } from "@/lib/ui/landing";
-import { MESSENGER_URL, TELEGRAM_HANDLE, TELEGRAM_URL } from "@/lib/ui/channels";
+import {
+  MESSENGER_COMING_SOON,
+  MESSENGER_URL,
+  TELEGRAM_HANDLE,
+  TELEGRAM_URL,
+} from "@/lib/ui/channels";
 import { Eyebrow, GRADIENT, Headline, MessengerIcon, TelegramIcon, WebIcon, askHref, lh } from "./primitives";
 
 /* ── Examples ────────────────────────────────────────────────────────────── */
@@ -84,8 +89,9 @@ export function Channels({ lang }: { lang: Lang }) {
       tag: CHANNELS.messenger.tag[lang],
       sub: CHANNELS.messenger.sub[lang],
       cta: CHANNELS.messenger.cta[lang],
-      href: MESSENGER_URL,
+      href: MESSENGER_COMING_SOON ? undefined : MESSENGER_URL,
       external: true,
+      comingSoon: MESSENGER_COMING_SOON,
       accent: "#006AFF",
       bg: "#F0F5FF",
     },
@@ -101,10 +107,16 @@ export function Channels({ lang }: { lang: Lang }) {
         <div className="grid gap-6 md:grid-cols-3">
           {cards.map(({ Logo, ...c }) => (
             <div
-              key={c.href}
+              key={c.label}
               className="flex flex-col gap-4 rounded-[20px] bg-white p-8 text-left transition-shadow"
-              style={{ border: `1.5px solid ${c.bg}`, boxShadow: "0 2px 16px rgba(0,0,0,0.05)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.boxShadow = `0 8px 32px ${c.accent}22`)}
+              style={{
+                border: `1.5px solid ${c.bg}`,
+                boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
+                opacity: c.comingSoon ? 0.85 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!c.comingSoon) e.currentTarget.style.boxShadow = `0 8px 32px ${c.accent}22`;
+              }}
               onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 2px 16px rgba(0,0,0,0.05)")}
             >
               <div className="flex items-center gap-3.5">
@@ -117,14 +129,22 @@ export function Channels({ lang }: { lang: Lang }) {
               <p style={{ fontSize: 14, color: "#4A5565", lineHeight: lh(lang, 1.65), margin: 0 }}>{c.sub}</p>
               <div className="mt-auto flex items-center gap-4">
                 <QrGlyph accent={c.accent} bg={c.bg} />
-                <a
-                  href={c.href}
-                  {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="flex items-center gap-1 hover:underline"
-                  style={{ color: c.accent, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}
-                >
-                  {c.cta} →
-                </a>
+                {c.comingSoon || !c.href ? (
+                  <span
+                    style={{ color: "#99A1AF", fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}
+                  >
+                    {c.cta}
+                  </span>
+                ) : (
+                  <a
+                    href={c.href}
+                    {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="flex items-center gap-1 hover:underline"
+                    style={{ color: c.accent, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}
+                  >
+                    {c.cta} →
+                  </a>
+                )}
               </div>
             </div>
           ))}
@@ -332,16 +352,27 @@ export function FinalCta({ lang }: { lang: Lang }) {
             <TelegramIcon size={22} />
             Telegram
           </a>
-          <a
-            href={MESSENGER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ag-press flex items-center gap-2 rounded-[10px] font-semibold text-white backdrop-blur-sm"
-            style={glass}
-          >
-            <MessengerIcon size={22} />
-            Messenger
-          </a>
+          {MESSENGER_COMING_SOON ? (
+            <span
+              className="flex items-center gap-2 rounded-[10px] font-semibold text-white backdrop-blur-sm"
+              style={{ ...glass, opacity: 0.7, cursor: "default" }}
+              title={CHANNELS.messenger.cta[lang]}
+            >
+              <MessengerIcon size={22} />
+              Messenger · {CHANNELS.messenger.cta[lang]}
+            </span>
+          ) : (
+            <a
+              href={MESSENGER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ag-press flex items-center gap-2 rounded-[10px] font-semibold text-white backdrop-blur-sm"
+              style={glass}
+            >
+              <MessengerIcon size={22} />
+              Messenger
+            </a>
+          )}
         </div>
       </div>
     </section>
