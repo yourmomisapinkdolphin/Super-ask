@@ -2,7 +2,8 @@
 
 - **By:** Phallamonunhh Chun (Monunhh), AI/ML Engineer
 - **Period:** 9–25 Nov 2026, from the first commit after Demo 1 (9 Nov, evening) to the Report Three upload. Every commit that changed code or data is listed in section 7. Documentation changes are not included.
-- **Checked on 25 Nov 2026:** 749 tests pass in 32 files (643 at Demo 1, so 106 new), 89.7% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
+- **Checked on 25 Nov 2026** (CI run on `e8423e1`, the last code or data commit in the period): 821 tests pass in 32 files (643 at Demo 1, so 178 new), 89.6% line coverage. Typecheck is clean, and `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check` all pass.
+- **Deployed:** every push to `main` that passes these checks goes to production at https://superask.vercel.app (section 8).
 
 ---
 
@@ -37,7 +38,7 @@
 | **Definition questions from the glossary** | A question that only asks what a term means ("what does prakas mean") is answered from the glossary before retrieval, so a page that merely mentions the word can't take its place. A procedure question that mentions a term still goes to retrieval. | `lib/engine/glossary.ts`, `lib/engine/tiers.ts` | `d0f4e58` |
 | **English questions find Khmer pages** | Most crawled sites publish in Khmer only. `data/crawl-terms.json` lists, for common service words, the English forms the stemmer keeps apart ("vote", "voter", "election") and the Khmer term (បោះឆ្នោត), so a question in one language finds pages in the other. Page URLs are searched too ("/khmer/voter-registration"). It decides only which crawled pages are found; the approved corpus does not use it. | `data/crawl-terms.json`, `lib/retrieval/crawl-terms.ts`, `lib/retrieval/crawl-index.ts`, `scripts/build-crawl-index.ts` | `4ff8fb7` |
 | **Voter registration is a service question** | "Register to vote", "voter list", "voter card" and "polling station" are accepted as service questions. "Who should I vote for" is still refused as political. | `lib/engine/guardrails.ts` | `4ff8fb7` |
-| **Office contacts from the institutions' own websites** | `data/contacts.json` holds the phone, address and hours from 9 institutions' contact pages, each with its source page and date. Source cards and Telegram replies show them beside pages from that website, and the map link searches for the published address instead of the name. Sites that publish nothing usable get no entry. | `data/contacts.json`, `lib/kb/contacts.ts`, `lib/engine/citations.ts`, `components/chat/SourceCard.tsx`, `lib/telegram/format.ts` | `4ff8fb7` |
+| **Office contacts from the institutions' own websites** | `data/contacts.json` holds the phone, address and hours from 48 institutions' own websites, each with its source page and date: 9 from contact pages in the crawl, and 39 copied from the live sites on 25 Nov where the crawl had no contact page. Source cards and Telegram replies show them beside pages from that website, and the map link searches for the published address instead of the name. Sites that publish nothing usable get no entry. | `data/contacts.json`, `lib/kb/contacts.ts`, `lib/engine/citations.ts`, `components/chat/SourceCard.tsx`, `lib/telegram/format.ts` | `4ff8fb7`, `e8423e1` |
 | **Gateway model provider as the default** | `.env.example` selects the Nous Research gateway with Gemini 3.1 Flash Lite, with its model, base URL, timeout and JSON-mode settings documented. | `lib/llm/gateway.ts`, `.env.example` | `d475cdf` |
 
 ## 3. Bugs fixed
@@ -74,7 +75,7 @@ For bug 15, the golden set plus 20 spot checks were run before and after: only t
 
 ## 4. Tests added
 
-643 tests at Demo 1, 749 now.
+643 tests at Demo 1, 821 now. The count was 749 at `4ff8fb7`; the 39 contact entries added in `e8423e1` brought it to 821.
 
 | Test file | Covers | Commit |
 |---|---|---|
@@ -86,7 +87,7 @@ For bug 15, the golden set plus 20 spot checks were run before and after: only t
 | `tests/engine/topicality.test.ts` (extended) | Short questions and question-filler words | `040c94e` |
 | `tests/engine/web-answer.test.ts` (new) | The web search step end to end against a stubbed Tavily API: off unless switched on, the key sent only as a bearer token, results labelled and linked, failures treated as no result. Coverage of the two web files went from 13–25% to 96–98%. | `4ff8fb7` |
 | `tests/retrieval/crawl-terms.test.ts` (new) | English↔Khmer term groups, URL words, and that "permit" cannot reach a broad Khmer word | `4ff8fb7` |
-| `tests/kb/contacts.test.ts` (new) | Every office contact names a source page on the same website, has a collection date and real digits, and appears only beside pages from that site | `4ff8fb7` |
+| `tests/kb/contacts.test.ts` (new) | Every office contact names a source page on the same website, has a collection date and real digits (four-digit hotlines such as 1275 are accepted), and appears only beside pages from that site | `4ff8fb7`, `e8423e1` |
 | `tests/engine/guardrails.test.ts`, `tests/engine/tiers.test.ts` (extended) | Filler messages and marriage questions; scope for crawled institutions and voter registration; the crawl step in the answer order | `6d2f6fd`, `89667a8`, `ceb7494`, `4ff8fb7` |
 
 `vitest.config.ts` was also updated for the new files (`d0f4e58`).
@@ -128,14 +129,31 @@ For bug 15, the golden set plus 20 spot checks were run before and after: only t
 | 23 Nov | `a50246a` | Repo tidy |
 | 25 Nov | `5616f15` | `.env.example` settings and two code comments |
 | 25 Nov | `4ff8fb7` | Khmer pages from English questions, web search tested end to end, office contacts |
+| 25 Nov | `e8423e1` | Office contacts for 39 more institutions (48 in all) |
 
-The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng.
+The one other code commit in this period, `4736ed2` (CI deploy to Vercel, 20 Nov), was made by Bunkheang Heng. It is described in section 8.
+
+## 8. Deployment (CI/CD)
+
+The pipeline is Bunkheang Heng's work (`4736ed2`), not Monunhh's. It is recorded here because it is how every change above reaches the live site.
+
+| Stage | What it does |
+|---|---|
+| **`check`** | On every push to `main` and every pull request: typecheck, tests with the coverage floor, build, `eval`, `verify-check`, `curated-check`, `scope-check` and `rationale-check`. It runs with no provider credential, so it makes no paid model call. |
+| **`secrets-scan`** | Fails if a provider credential or an `.env` file is committed. |
+| **`deploy`** | Only on a push to `main`, and only after both jobs above pass. It builds with the Vercel CLI and deploys to production at https://superask.vercel.app. Pull requests never deploy and never see the Vercel token. The production settings (provider credential, Telegram token) stay in the Vercel project. |
+
+**Checked on 26 Nov 2026:**
+
+- The latest run on `main` (`6484696`) passed all three jobs and deployed to production. The last ten runs on `main` passed, apart from two cancelled because a newer push replaced them.
+- https://superask.vercel.app responds, and `/api/health` reports the crawl index loaded (58 sites, 1,276 pages, 6,538 passages) and web search off.
+- At that commit CI ran 827 tests in 33 files at 86.8% line coverage. The difference from the 25 Nov figures comes from Bunkheang's three 26 Nov commits (Messenger channel and chat layout), which are after this report's period.
 
 ---
 
-## 8. Still to do
+## 9. Still to do
 
-- **A live web-search run.** The step is tested end to end but has not searched the real web. It needs a Tavily key in the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`); the key is not stored in the repository.
+- **A live web-search run.** The step is tested end to end but has not searched the real web, and production reports web search off (`/api/health`, 26 Nov). It needs a Tavily key in the Vercel project's environment (`WEB_SEARCH_ENABLED=true`, `TAVILY_API_KEY`); the key is not stored in the repository. The Vercel project belongs to Bunkheang's team, so he has to add it.
 - **Contacts for the remaining institutions.** On 25 Nov, 39 more entries were copied from the institutions' live websites, so 48 are now in `data/contacts.json`, including three of the four approved-corpus organisations (NBC, MPWT and MOC). Still missing: the Ministry of Interior (site unreachable); Health, Post and Telecommunications, Social Affairs and Banteay Meanchey (their sites block automated requests, so someone needs to copy the details in a browser); and seven sites with nothing usable. See `docs/report-3/contact-call-sheet.md`.
 - **Confirming the numbers by phone.** None of the 40 recorded phone numbers has been called. The call sheet lists them, with a script in Khmer and English.
 - **Review by a Khmer speaker** of the Khmer terms in `data/crawl-terms.json`.
