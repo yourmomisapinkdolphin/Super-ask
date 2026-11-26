@@ -146,7 +146,7 @@ export function AnswerBlock({
     <div className="ag-fade mb-5 flex items-start gap-2.5">
       <BotAvatar />
 
-      <div className="min-w-0" style={{ maxWidth: "min(560px, 100%)", flex: "1 1 auto" }}>
+      <div className="min-w-0" style={{ maxWidth: "100%", flex: "1 1 auto" }}>
         <div
           className="overflow-hidden bg-white"
           style={{ borderRadius: "4px 16px 16px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}

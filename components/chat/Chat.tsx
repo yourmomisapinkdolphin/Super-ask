@@ -183,8 +183,8 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
         )}
 
         <main className="flex min-w-0 flex-1 flex-col">
-          <div className="ag-scroll flex-1 overflow-y-auto px-4 py-6 sm:px-5">
-            <div className="mx-auto w-full" style={{ maxWidth: 760 }}>
+          <div className="ag-scroll flex-1 overflow-y-auto px-3 py-6 sm:px-4 lg:px-6">
+            <div className="mx-auto w-full" style={{ maxWidth: 960 }}>
               {turns.length === 0 && !busyHere && (
                 <div
                   className="ag-fade mx-auto rounded-[20px] bg-white px-6 py-10 text-center sm:px-8 sm:py-12"
@@ -280,7 +280,7 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
                         borderRadius: "12px 12px 4px 12px",
                         padding: "10px 14px",
                         fontSize: 14,
-                        maxWidth: "80%",
+                        maxWidth: "72%",
                         lineHeight: 1.65,
                       }}
                     >
@@ -316,7 +316,7 @@ export function Chat({ coverage }: { coverage: Coverage[] }) {
             <div className="shrink-0 bg-white px-4 pb-6 pt-3" style={{ borderTop: "1px solid #D8E1EA" }}>
               <div
                 className="mx-auto rounded-xl px-4 py-3 text-center"
-                style={{ maxWidth: 760, background: T.redWash, border: `1px solid ${T.redLine}`, color: T.red, fontSize: 12.5 }}
+                style={{ maxWidth: 960, background: T.redWash, border: `1px solid ${T.redLine}`, color: T.red, fontSize: 12.5 }}
               >
                 {UI.emergencyTitle[lang]}
               </div>

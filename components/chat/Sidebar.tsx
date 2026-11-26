@@ -12,11 +12,13 @@
  * get it from GET /api/health (NFR-11).
  */
 
+import { useState } from "react";
 import { X } from "lucide-react";
 import type { Lang } from "@/lib/types";
 import { UI } from "@/lib/ui/copy";
 import { TOPICS } from "@/lib/ui/landing";
 import type { Conversation } from "@/lib/ui/history";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
@@ -54,7 +56,22 @@ export function Sidebar({
   onClearHistory: () => void;
   className?: string;
 }) {
+  const [confirmClear, setConfirmClear] = useState(false);
+
   return (
+    <>
+      {confirmClear && (
+        <ConfirmDialog
+          lang={lang}
+          title={UI.clearHistory[lang]}
+          body={UI.clearHistoryConfirm[lang]}
+          confirmLabel={UI.deleteOne[lang]}
+          destructive
+          onConfirm={onClearHistory}
+          onClose={() => setConfirmClear(false)}
+        />
+      )}
+
     <aside
       className={`ag-scroll flex shrink-0 flex-col overflow-y-auto ${className}`}
       style={{ width: 232, background: "#22253A" }}
@@ -65,9 +82,7 @@ export function Sidebar({
           <div className="mb-2.5 flex items-baseline justify-between gap-2 px-0.5">
             <Label>{UI.history[lang]}</Label>
             <button
-              onClick={() => {
-                if (window.confirm(UI.clearHistoryConfirm[lang])) onClearHistory();
-              }}
+              onClick={() => setConfirmClear(true)}
               className="transition-colors hover:text-white"
               style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)" }}
             >
@@ -141,5 +156,6 @@ export function Sidebar({
         </div>
       </div>
     </aside>
+    </>
   );
 }

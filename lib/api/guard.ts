@@ -18,8 +18,8 @@
  *            school or office network, and they must not throttle each other. A
  *            shared store (Redis, the host's KV) replaces it in production.
  *
- * The Telegram webhook does not use this guard: it is authenticated by its
- * shared secret, and Telegram's servers are a single caller.
+ * The Telegram and Messenger webhooks do not use this guard: they are
+ * authenticated by their shared secrets, and Meta/Telegram are a single caller.
  */
 
 import { NextResponse } from "next/server";

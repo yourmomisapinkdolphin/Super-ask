@@ -7,7 +7,7 @@
 
 export const TELEGRAM_BOT =
   process.env.NEXT_PUBLIC_TELEGRAM_BOT?.trim().replace(/^@/, "") ||
-  "SuperAskKH_bot";
+  "superask168_bot";
 
 export const TELEGRAM_HANDLE = `@${TELEGRAM_BOT}`;
 

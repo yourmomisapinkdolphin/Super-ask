@@ -25,10 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Khmer needs a font with correct subscript positioning; the system
-            stack on most Android devices does not have one. `display=swap` so
-            text is readable before the font arrives (NFR-15). Loading fails
-            open to the system stack. */}
+        {/* Same family as form.gov.kh: Kantumruy Pro covers Latin + Khmer in
+            one face (correct Khmer subscript stacking). Inter stays as a
+            Latin fallback; IBM Plex Mono for diagnostics. `display=swap` so
+            text is readable before the font arrives (NFR-15). */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -37,7 +37,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
         />
       </head>
       <body>{children}</body>

@@ -78,7 +78,7 @@ export const T = {
 export const BRAND_BAR_HEIGHT = 56;
 
 export const fontStack =
-  "'Inter', 'Noto Sans Khmer', system-ui, -apple-system, 'Segoe UI', sans-serif";
+  "'Kantumruy Pro', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 export const monoStack =
   "'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace";

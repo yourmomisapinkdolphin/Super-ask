@@ -69,14 +69,14 @@ export function Composer({
 
   return (
     <div
-      className="shrink-0 px-4 pb-4 pt-3 sm:px-5"
+      className="shrink-0 px-3 pb-4 pt-3 sm:px-4 lg:px-6"
       style={{
         background: T.paper,
         borderTop: "1px solid #D8E1EA",
         boxShadow: "0 -1px 4px rgba(0,0,0,0.04)",
       }}
     >
-      <div className="mx-auto" style={{ maxWidth: 760 }}>
+      <div className="mx-auto" style={{ maxWidth: 960 }}>
         <div
           className="flex items-end gap-2.5 rounded-xl py-2 pl-3.5 pr-2 transition-all"
           style={{

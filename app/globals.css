@@ -40,9 +40,10 @@
 
   --sa-gradient: linear-gradient(135deg,#4F3FA8,#6D5BD0);
 
-  --sa-font: "Inter", "Noto Sans Khmer", system-ui, -apple-system, "Segoe UI",
+  /* Match form.gov.kh — Kantumruy Pro for English and Khmer. */
+  --sa-font: "Kantumruy Pro", "Inter", system-ui, -apple-system, "Segoe UI",
     sans-serif;
-  --sa-khmer: "Noto Sans Khmer", "Inter", system-ui, sans-serif;
+  --sa-khmer: "Kantumruy Pro", "Inter", system-ui, sans-serif;
   --sa-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 

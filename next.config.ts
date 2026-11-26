@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
   // exactly what this is, and buys nothing. The reverse proxy also strips it,
   // but a deployment should not depend on the proxy to avoid disclosing this.
   poweredByHeader: false,
+  // instrumentation.ts dynamically imports the Node-only warm-up. Webpack still
+  // resolves that import when compiling the Edge copy of instrumentation, which
+  // then chokes on `node:fs` (UnhandledSchemeError) and 500s every page in
+  // `next dev`. Point the warm-up at an empty module for Edge only.
+  webpack: (config, { nextRuntime }) => {
+    if (nextRuntime === "edge") {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "./instrumentation.node": false,
+        "./instrumentation.node.ts": false,
+      };
+    }
+    return config;
+  },
   // The engine reads data/ from disk at request time. Ship the crawl search
   // index with every function that answers questions, and keep the crawl
   // database it was built from (55 MB of JSON and SQLite the engine never
@@ -21,6 +35,7 @@ const nextConfig: NextConfig = {
     "/api/ask": ["./data/crawl/index/*"],
     "/api/health": ["./data/crawl/index/*"],
     "/api/telegram/webhook": ["./data/crawl/index/*"],
+    "/api/messenger/webhook": ["./data/crawl/index/*"],
   },
   outputFileTracingExcludes: {
     "/**": [
