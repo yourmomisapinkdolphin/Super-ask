@@ -133,11 +133,18 @@ export function useConversation() {
     setInput("");
 
     // FR-07: the server resolves follow-ups against prior turns, so history
-    // travels with the request.
+    // travels with the request. An assistant turn also carries its tier and
+    // the ids of the sources it cited, so that "explain that" is answered from
+    // the same sources as the answer it points at.
     const history = turns.map((t) =>
       t.role === "user"
         ? { role: "user" as const, text: t.text }
-        : { role: "assistant" as const, text: t.response.answer },
+        : {
+            role: "assistant" as const,
+            text: t.response.answer,
+            tier: t.response.tier,
+            sources: t.response.citations.map((c) => c.id),
+          },
     );
 
     setTurns((prev) => [...prev, { role: "user", text: question }]);

@@ -167,3 +167,33 @@ export const SUPPRESSED: Record<Lang, string> = {
   en: "SuperAsk drafted an answer but could not confirm every detail against an approved source, so it has withheld it.\n\nConfirm the details with the responsible office.",
   km: "SuperAsk បានព្រាងចម្លើយមួយ ប៉ុន្តែមិនអាចផ្ទៀងផ្ទាត់រាល់ព័ត៌មានលម្អិតជាមួយឯកសារយោងដែលបានអនុម័តទេ ដូច្នេះវាបានទប់ចម្លើយនោះ។\n\nសូមផ្ទៀងផ្ទាត់ព័ត៌មានលម្អិតជាមួយការិយាល័យទទួលបន្ទុក។",
 };
+
+/**
+ * Opening lines of every refusal above, in both languages.
+ *
+ * A follow-up such as "explain that" needs to know whether the turn before it
+ * was an answer or a refusal, and history from a client that does not send the
+ * tier is text and nothing else. Matching the opening line is crude, and it is
+ * derived from the copy functions themselves so that a wording change cannot
+ * leave it behind.
+ */
+let refusalOpeners: string[] | null = null;
+
+function openers(): string[] {
+  if (refusalOpeners) return refusalOpeners;
+  const first = (text: string) => text.split("\n")[0].trim();
+  refusalOpeners = (["en", "km"] as const).flatMap((lang) => [
+    first(notAServiceQuestion(lang)),
+    first(cannotAnswer(lang)),
+    first(reasonNotInSource(lang)),
+    first(entityLookup(lang)),
+    first(SUPPRESSED[lang]),
+  ]);
+  return refusalOpeners;
+}
+
+/** True when an assistant turn is one of SuperAsk's own refusals. */
+export function isRefusalText(text: string): boolean {
+  const start = text.trimStart();
+  return openers().some((o) => start.startsWith(o));
+}

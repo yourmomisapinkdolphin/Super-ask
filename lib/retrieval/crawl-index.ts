@@ -56,6 +56,8 @@ const REVIEW_AFTER_DAYS = 90;
 interface Loaded {
   file: CrawlIndexFile;
   avgLen: number;
+  /** Passage id → position in `file.chunks`, built on first lookup. */
+  byId?: Map<string, number>;
 }
 
 let cache: Loaded | null | undefined;
@@ -153,6 +155,23 @@ function toChunk(file: CrawlIndexFile, docIdx: number): Chunk {
     keywords: [],
     questions: [],
   };
+}
+
+/**
+ * A crawled passage by id, or null.
+ *
+ * A follow-up question is answered from the sources the previous answer cited,
+ * and those are named by id in the conversation history. Searching for them
+ * again would only find them if the follow-up happened to repeat their words.
+ */
+export function crawlChunkById(id: string): Chunk | null {
+  const idx = load();
+  if (!idx) return null;
+  if (!idx.byId) {
+    idx.byId = new Map(idx.file.chunks.map((c, i) => [c[1], i]));
+  }
+  const doc = idx.byId.get(id);
+  return doc === undefined ? null : toChunk(idx.file, doc);
 }
 
 export interface CrawlHit {

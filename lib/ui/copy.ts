@@ -44,6 +44,17 @@ export const WEB_NOTICE: Copy = {
   km: "⚠️ មកពីការស្វែងរកលើអ៊ីនធឺណិត មិនទាន់បានត្រួតពិនិត្យ។ SuperAsk គ្មានឯកសារយោងដែលបានអនុម័តសម្រាប់ករណីនេះទេ ដូច្នេះខ្លឹមសារខាងលើត្រូវបានរៀបចំពីទំព័រគេហទំព័រដែលភ្ជាប់នៅខាងក្រោម។ គ្មាននរណាបានពិនិត្យវាទេ ហើយខ្លះអាចមិនមែនជាគេហទំព័រផ្លូវការ — សូមបើកទំព័រទាំងនោះ ហើយផ្ទៀងផ្ទាត់ជាមួយការិយាល័យទទួលបន្ទុក មុននឹងអនុវត្ត។",
 };
 
+/**
+ * Appended to a follow-up answer that explains a word or a concept from the
+ * model's general knowledge (AskResponse.explained). Unlike the notices above
+ * it is not a warning about the source: the facts in the answer are still the
+ * source's. It marks which part is background.
+ */
+export const EXPLAINED_NOTICE: Copy = {
+  en: "ℹ️ The plain-language explanation above is general background from the AI model, added to help you understand the wording. It is not taken from the source. For the rule itself, rely on what the source says.",
+  km: "ℹ️ ការពន្យល់ជាភាសាសាមញ្ញខាងលើ គឺជាចំណេះដឹងទូទៅពីម៉ូដែល AI ដែលបន្ថែមដើម្បីជួយឱ្យអ្នកយល់ន័យពាក្យ។ វាមិនមែនដកស្រង់ពីឯកសារយោងទេ។ ចំពោះវិធានផ្ទាល់ សូមយកតាមអ្វីដែលឯកសារយោងចែង។",
+};
+
 export const UI = {
   brandSub: {
     en: "Independent service guide",

@@ -13,10 +13,10 @@
  */
 
 import { useState } from "react";
-import { AlertTriangle, Flag, Terminal } from "lucide-react";
+import { AlertTriangle, Flag, Info, Terminal } from "lucide-react";
 import type { AskResponse } from "@/lib/types";
 import { T } from "@/lib/ui/theme";
-import { UI, UNVERIFIED_NOTICE, UNREVIEWED_NOTICE, WEB_NOTICE } from "@/lib/ui/copy";
+import { UI, UNVERIFIED_NOTICE, UNREVIEWED_NOTICE, WEB_NOTICE, EXPLAINED_NOTICE } from "@/lib/ui/copy";
 import { AnswerText } from "./AnswerText";
 import { SourceCard } from "./SourceCard";
 import { ReportDialog } from "./ReportDialog";
@@ -135,10 +135,22 @@ export function AnswerBlock({
       : answer.unreviewed
         ? UNREVIEWED_NOTICE[lang]
       : "";
-  const body =
+  const unsourced =
     trailing && answer.answer.endsWith(trailing)
       ? answer.answer.slice(0, -trailing.length).trimEnd()
       : answer.answer;
+
+  /*
+    A follow-up answer that explains a word from general knowledge carries
+    EXPLAINED_NOTICE too, before the source notice. It is shown as a note
+    directly under the answer rather than as a warning above it: it qualifies
+    one part of the answer, not the source the answer rests on.
+  */
+  const explainedNote = answer.explained ? EXPLAINED_NOTICE[lang] : "";
+  const body =
+    explainedNote && unsourced.endsWith(explainedNote)
+      ? unsourced.slice(0, -explainedNote.length).trimEnd()
+      : unsourced;
 
   const footBtn = "inline-flex items-center gap-1.5 transition-colors hover:text-[#4F3FA8]";
 
@@ -216,6 +228,15 @@ export function AnswerBlock({
 
           <div className="px-4 py-3.5" style={{ color: T.ink }}>
             <AnswerText text={body} />
+            {answer.explained && (
+              <div
+                className="km mt-3 flex items-start gap-2 rounded-[10px] px-3 py-2"
+                style={{ background: T.lineSoft, fontSize: 12, lineHeight: 1.55, color: T.inkSoft }}
+              >
+                <Info size={13} className="mt-0.5 shrink-0" aria-hidden />
+                <span>{explainedNote.replace(/^ℹ️\s*/, "")}</span>
+              </div>
+            )}
           </div>
 
           {/* FR-62: persistent, not behind a control. */}

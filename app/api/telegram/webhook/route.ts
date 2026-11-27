@@ -152,7 +152,10 @@ export async function POST(request: Request) {
     });
 
     appendTurn(chatId, "user", text);
-    appendTurn(chatId, "assistant", response.answer);
+    appendTurn(chatId, "assistant", response.answer, {
+      tier: response.tier,
+      sources: response.citations.map((c) => c.id),
+    });
   } catch (err) {
     console.error("[/api/telegram/webhook]", err);
     try {

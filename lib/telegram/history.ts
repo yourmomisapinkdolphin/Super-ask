@@ -5,7 +5,9 @@
  * it — that is acceptable for Phase 0; the engine still answers single turns.
  */
 
-type Turn = { role: "user" | "assistant"; text: string };
+import type { HistoryTurn } from "@/lib/types";
+
+type Turn = HistoryTurn;
 
 const MAX_TURNS = 8;
 const MAX_CHATS = 500;
@@ -26,10 +28,12 @@ export function appendTurn(
   chatId: number,
   role: "user" | "assistant",
   text: string,
+  /** For an assistant turn: its tier and the ids of the sources it cited. */
+  meta: Pick<HistoryTurn, "tier" | "sources"> = {},
 ): void {
   const s = store();
   const prev = s.get(chatId) ?? [];
-  const next = [...prev, { role, text }].slice(-MAX_TURNS);
+  const next = [...prev, { role, text, ...meta }].slice(-MAX_TURNS);
   s.set(chatId, next);
 
   // Bound memory if many distinct chats hit one warm instance.

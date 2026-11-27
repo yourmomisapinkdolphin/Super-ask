@@ -9,6 +9,9 @@ import {
   GENERAL_PROMPT_VERSION,
   GROUNDING_PROMPT,
   GENERAL_KNOWLEDGE_PROMPT,
+  FOLLOWUP_PROMPT,
+  FOLLOWUP_PROMPT_VERSION,
+  answerSchemaFor,
 } from "@/lib/llm/provider";
 import type { GenerationRequest } from "@/lib/llm/provider";
 
@@ -246,5 +249,78 @@ describe("parseGeneration", () => {
       );
       expect(res.shouldDecline).toBe(true);
     });
+  });
+});
+
+/**
+ * Follow-up mode: a third contract, for a question about an answer already
+ * given. Its version is logged like the others, so an auditor can tell which
+ * answers were allowed a plain-language explanation from general knowledge.
+ */
+describe("follow-up mode", () => {
+  const followUp = (over: Partial<GenerationRequest> = {}) =>
+    request({
+      mode: "followup",
+      question: "what does that mean?",
+      previousAnswer: "The renewal fee is 30,000 riel.",
+      ...over,
+    });
+
+  it("runs under its own prompt and its own version", () => {
+    expect(systemPromptFor(followUp())).toBe(FOLLOWUP_PROMPT);
+    expect(promptVersionFor("followup")).toBe(FOLLOWUP_PROMPT_VERSION);
+    expect(FOLLOWUP_PROMPT_VERSION).not.toBe(PROMPT_VERSION);
+    expect(FOLLOWUP_PROMPT_VERSION).not.toBe(GENERAL_PROMPT_VERSION);
+  });
+
+  it("keeps facts about procedure source-only and forbids new figures", () => {
+    expect(FOLLOWUP_PROMPT).toMatch(/ONLY from the SOURCES block or the PREVIOUS ANSWER/);
+    expect(FOLLOWUP_PROMPT).toMatch(/Never state a number, rate, amount, date or duration/);
+  });
+
+  it("shows the model the sources, the previous answer and the follow-up, each labelled", () => {
+    const content = buildUserContent(followUp());
+    expect(content).toContain("[MPWT-DL-001]");
+    expect(content).toContain("PREVIOUS ANSWER (already given to the citizen):\nThe renewal fee is 30,000 riel.");
+    expect(content).toContain("CITIZEN FOLLOW-UP:\nwhat does that mean?");
+  });
+
+  it("says so when there are no sources, rather than leaving the block empty", () => {
+    expect(buildUserContent(followUp({ sources: [] }))).toContain("(none: use the PREVIOUS ANSWER)");
+  });
+
+  it("adds general_knowledge to the output contract, in prose and in the schema", () => {
+    expect(jsonContractFor(followUp())).toContain('"general_knowledge": boolean');
+    expect(answerSchemaFor(followUp()).required).toContain("general_knowledge");
+    expect(answerSchemaFor(request()).required).not.toContain("general_knowledge");
+  });
+
+  it("does not decline an answer for citing nothing: a pure explanation has no source", () => {
+    const parsed = parseGeneration(
+      JSON.stringify({ answer: "In general terms, a doctor's note.", citations: [], confidence: "high", general_knowledge: false, should_decline: false }),
+      "followup",
+    );
+    expect(parsed.shouldDecline).toBe(false);
+    // ...but it is general background whatever the model reported.
+    expect(parsed.usedGeneralKnowledge).toBe(true);
+    // And never high confidence.
+    expect(parsed.confidence).toBe("medium");
+  });
+
+  it("reports a sourced follow-up as sourced", () => {
+    const parsed = parseGeneration(
+      JSON.stringify({ answer: "It means you pay 30,000 riel.", citations: ["MPWT-DL-001"], confidence: "medium", general_knowledge: false, should_decline: false }),
+      "followup",
+    );
+    expect(parsed.usedGeneralKnowledge).toBe(false);
+    expect(parsed.citations).toEqual(["MPWT-DL-001"]);
+  });
+
+  it("honours the model's own decline", () => {
+    const parsed = parseGeneration(
+      JSON.stringify({ answer: "I cannot explain that.", citations: [], confidence: "low", general_knowledge: false, should_decline: true }),
+      "followup",
+    );
+    expect(parsed.shouldDecline).toBe(true);
   });
 });

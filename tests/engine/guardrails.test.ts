@@ -441,3 +441,40 @@ describe("voter registration is a service question; voting choices are not", () 
     expect(looksLikeServiceQuestion("what do you think about the election")).toBe(false);
   });
 });
+
+describe("scope — a question about an earlier answer", () => {
+  const history = [
+    // Service vocabulary ("tax", "registered"), so the turn names a topic without
+    // needing the crawl index, which this suite does not load.
+    { role: "user", text: "What tax incentives does a registered investment project get?" },
+    {
+      role: "assistant",
+      text: "Qualified Investment Projects are entitled to an income tax exemption or special depreciation.",
+    },
+  ];
+
+  it("keeps a request to explain a term from the answer in scope", () => {
+    // No service vocabulary of its own, and refused for it before.
+    expect(isOffDomain("what does special depreciation mean?", [])).toBe(true);
+    expect(isOffDomain("what does special depreciation mean?", history)).toBe(false);
+  });
+
+  it("does not extend that to a term the answer never used", () => {
+    expect(isOffDomain("what does tom holland mean?", history)).toBe(true);
+    // Three content words of its own, so not a subject-less follow-up either.
+    expect(isOffDomain("explain quantum computing hardware basics", history)).toBe(true);
+  });
+
+  it("still refuses an explicit off-domain request, whatever it mentions", () => {
+    expect(isOffDomain("translate special depreciation into french", history)).toBe(true);
+  });
+
+  it("keeps the explained turn in history, so the next follow-up can see it", () => {
+    const longer = [
+      ...history,
+      { role: "user", text: "what does special depreciation mean?" },
+      { role: "assistant", text: "In general terms, it lets a business deduct more of a cost early." },
+    ];
+    expect(inScopeHistory(longer)).toHaveLength(4);
+  });
+});

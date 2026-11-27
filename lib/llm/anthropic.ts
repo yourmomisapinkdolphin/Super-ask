@@ -11,7 +11,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import {
-  ANSWER_SCHEMA,
+  answerSchemaFor,
   systemPromptFor,
   buildUserContent,
   parseGeneration,
@@ -142,7 +142,7 @@ export function createAnthropicProvider(): LlmProvider {
       outputConfig.effort = "low";
     }
     if (useStructuredOutput) {
-      outputConfig.format = { type: "json_schema", schema: ANSWER_SCHEMA };
+      outputConfig.format = { type: "json_schema", schema: answerSchemaFor(req) };
     }
     if (Object.keys(outputConfig).length > 0) {
       params.output_config = outputConfig;
