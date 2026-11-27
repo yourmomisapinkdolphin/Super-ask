@@ -821,8 +821,9 @@ export const ABOUT = {
     },
     {
       name: "Sereyprophea Sarin",
-      photo: "/team/sereyprophea-sarin.svg",
+      photo: "/team/sereyprophea-sarin.jpg",
       role: { en: "QA & Testing Lead", km: "ប្រធានផ្នែកធានាគុណភាព និងការធ្វើតេស្ត" },
+      linkedin: "https://www.linkedin.com/in/sereyprophea-sarin-/",
     },
     {
       name: "Heejae Choi",
