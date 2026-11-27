@@ -612,7 +612,10 @@ export const TOPICS: Array<{ km: string; en: string; ask: Copy }> = [
   {
     km: "ការស្នើសុំលិខិតឆ្លងដែន",
     en: "Passport application",
-    ask: { en: "How do I apply for a passport?", km: "តើខ្ញុំដាក់ពាក្យសុំលិខិតឆ្លងដែនដោយរបៀបណា?" },
+    // Answered from the General Department of Identification's website
+    // (crawl database, SRC-053), which states the documents to bring and says
+    // nothing about fees or steps — so the chip asks what it can answer.
+    ask: { en: "What documents do I need for a passport?", km: "តើធ្វើលិខិតឆ្លងដែនត្រូវការឯកសារអ្វីខ្លះ?" },
   },
   {
     km: "សំបុត្រកំណើត",

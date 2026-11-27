@@ -678,6 +678,21 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
     // The model would not answer from what the corpus holds. A web result is
     // sourced and linked, so unlike the unsourced fallback below it is offered
     // whether or not the top source was on topic.
+    //
+    // The crawl database goes first, for the same reason and because it is an
+    // official website already on disk. The challenge above only runs when the
+    // top source covers under CRAWL_CHALLENGE_BELOW of the question, and
+    // "register my business for tax online" sits exactly ON that line against
+    // vehicle registration (register, tax, online — everything but "business"),
+    // so it was never tried and the model's correct decline became a refusal
+    // while tax.gov.kh's own registration page sat in the index. The model has
+    // just said the approved sources do not answer this, so there is no
+    // approved answer left to displace and nothing for the passage to beat.
+    if (topical.coverage >= CRAWL_CHALLENGE_BELOW) {
+      const crawled = await crawlAnswer();
+      if (crawled) return crawled;
+    }
+
     const web = await webAnswer();
     if (web) return web;
 

@@ -146,6 +146,58 @@ describe("crawled website content — the second corpus", () => {
     expect(res.citations).toEqual([]);
   });
 
+  /**
+   * The landing page's "Online tax registration" chip was refused. The approved
+   * corpus's nearest source is vehicle registration, which mentions register,
+   * tax and online — 3 of the question's 4 words, exactly ON the
+   * CRAWL_CHALLENGE_BELOW line, so the pre-generation crawl challenge is
+   * skipped. The model then rightly declines to answer from it, and that
+   * decline has to reach the crawl rather than end in "no approved source".
+   */
+  it("goes to the crawl when the model declines the approved sources", async () => {
+    vi.resetModules();
+    const env: Record<string, string> = {
+      LLM_PROVIDER: "extractive",
+      DIAGNOSTICS_ENABLED: "true",
+      GENERAL_FALLBACK_ENABLED: "false",
+      RETRIEVAL_MIN_SCORE: "0.20",
+      CURATED_MATCH_THRESHOLD: "0.72",
+      CRAWL_KB_ENABLED: "true",
+      CRAWL_INDEX_PATH: indexPath,
+    };
+    for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
+
+    const provider = { id: "mock", label: "Mock", model: "mock-1", hosting: "test", residency: "test" };
+    const generate = vi.fn(async ({ sources }: { sources: Array<{ id: string }> }) =>
+      sources.some((s) => s.id.startsWith("SRC-901"))
+        ? {
+            answer: "A small taxpayer registers for tax online through the e-registration portal.",
+            citations: ["SRC-901-0001"],
+            confidence: "medium",
+            shouldDecline: false,
+            provider,
+          }
+        : { answer: "", citations: [], confidence: "low", shouldDecline: true, provider },
+    );
+    const actual = await vi.importActual<typeof import("@/lib/llm")>("@/lib/llm");
+    vi.doMock("@/lib/llm", () => ({ ...actual, generate }));
+
+    try {
+      const ask = (await import("@/lib/engine")).ask;
+      const res = await ask({ question: "How do I register my business for tax online?", history: [] });
+
+      // The approved sources were offered first and declined.
+      expect(generate).toHaveBeenCalledTimes(2);
+      expect(res.tier).toBe(2);
+      expect(res.unreviewed).toBe(true);
+      expect(res.citations[0].url).toBe("https://tax.example.gov.kh/faq");
+      expect(res.answer).toContain("e-registration portal");
+      expect(res.diagnostics?.refusalReason).toBe("fallback:crawled_website");
+    } finally {
+      vi.doUnmock("@/lib/llm");
+    }
+  });
+
   it("is switched off by CRAWL_KB_ENABLED=false", async () => {
     const ask = await loadAsk({ CRAWL_KB_ENABLED: "false" });
     const res = await ask({ question: "how do i apply for a fishing permit", history: [] });

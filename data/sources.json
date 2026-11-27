@@ -1008,8 +1008,8 @@
       "abbr": "GDI-ID",
       "category": "General Department",
       "parentMinistry": "Ministry of Interior",
-      "url": "https://gdi.gov.kh",
-      "host": "gdi.gov.kh",
+      "url": "https://news.gdi.gov.kh",
+      "host": "news.gdi.gov.kh",
       "adapter": "web",
       "priority": 1,
       "verified": "unconfirmed",
@@ -1018,7 +1018,7 @@
       "maxPages": 60,
       "politenessDelayMs": 2000,
       "enabled": true,
-      "notes": "Candidate domain - national ID card procedures."
+      "notes": "National ID card, passport and civil-status procedures. gdi.gov.kh itself does not answer; the department publishes on news.gdi.gov.kh (checked in a browser 2026-11-27, robots.txt allows all)."
     },
     {
       "id": "SRC-054",
