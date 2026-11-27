@@ -786,7 +786,7 @@ export const TRUST = {
   ] as const,
 };
 
-/* ── About us (MOCK team + partners) ─────────────────────────────────────── */
+/* ── About us (real team, MOCK partners) ─────────────────────────────────────── */
 
 export const ABOUT = {
   eyebrow: { en: "About us", km: "អំពីយើង" } satisfies Copy,
@@ -798,13 +798,13 @@ export const ABOUT = {
     en: "We built SuperAsk because finding out what a procedure needs still means a lost day, a wasted trip or a broker's fee. Our small team turns scattered official notices into clear, sourced answers — so every citizen, in any province, can get it right the first time.",
     km: "យើងបង្កើត SuperAsk ព្រោះការស្វែងយល់ពីនីតិវិធី នៅតែមានន័យថាបាត់បង់មួយថ្ងៃ ធ្វើដំណើរឥតប្រយោជន៍ ឬបង់ថ្លៃមេខ្យល់។ ក្រុមតូចរបស់យើងបំប្លែងសេចក្តីជូនដំណឹងផ្លូវការដែលរាយប៉ាយ ទៅជាចម្លើយច្បាស់លាស់មានឯកសារយោង — ដើម្បីឱ្យប្រជាពលរដ្ឋគ្រប់រូប នៅគ្រប់ខេត្ត អាចធ្វើបានត្រឹមត្រូវតាំងពីលើកដំបូង។",
   } satisfies Copy,
+  // `photo` is a path under /public. To use a real photo, drop a square image in
+  // public/team/ and point `photo` at it (jpg/png/webp all work).
+  // Real team members only, shown without job titles.
   team: [
-    { name: "Sokha Chan", role: { en: "Co-founder & CEO", km: "សហស្ថាបនិក និងនាយកប្រតិបត្តិ" } },
-    { name: "Dara Kim", role: { en: "Co-founder & CTO", km: "សហស្ថាបនិក និងនាយកបច្ចេកវិទ្យា" } },
-    { name: "Sreymom Pich", role: { en: "Head of Policy & Content", km: "ប្រធានផ្នែកគោលនយោបាយ និងខ្លឹមសារ" } },
-    { name: "Vannak Heng", role: { en: "Lead Engineer", km: "វិស្វករនាំមុខ" } },
-    { name: "Bopha Long", role: { en: "Product Designer", km: "អ្នករចនាផលិតផល" } },
-    { name: "Rithy Sok", role: { en: "Data & Partnerships", km: "ទិន្នន័យ និងភាពជាដៃគូ" } },
+    { name: "Monunhh Chun", photo: "/team/monunhh-chun.svg", linkedin: "https://www.linkedin.com/in/monunhh-chun/" },
+    { name: "Bunkheang Heng", photo: "/team/bunkheang-heng.svg", linkedin: "https://www.linkedin.com/in/bunkheang-heng/" },
+    { name: "Yean Fong", photo: "/team/yean-fong.svg", linkedin: "https://www.linkedin.com/in/yeanfong/" },
   ],
   partnersLabel: { en: "Partners & supporters", km: "ដៃគូ និងអ្នកគាំទ្រ" } satisfies Copy,
   partners: ["Mekong Civic Lab", "Khmer Open Data", "Angkor Digital Fund", "PP Startup Hub"],

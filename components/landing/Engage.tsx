@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Linkedin, Lock, ShieldCheck, UserRound } from "lucide-react";
+import { ChevronDown, Linkedin, Lock, ShieldCheck } from "lucide-react";
 import type { Lang } from "@/lib/ui/marketing";
 import { ABOUT, CHANNELS, COMMON, CTA, EXAMPLES, FAQS, TOPICS, TRUST } from "@/lib/ui/landing";
 import {
@@ -10,7 +11,9 @@ import {
   MESSENGER_URL,
   TELEGRAM_HANDLE,
   TELEGRAM_URL,
+  WEB_CHAT_URL,
 } from "@/lib/ui/channels";
+import { QRCodeSVG } from "qrcode.react";
 import { Eyebrow, GRADIENT, Headline, MessengerIcon, TelegramIcon, WebIcon, askHref, lh } from "./primitives";
 
 /* ── Examples ────────────────────────────────────────────────────────────── */
@@ -45,6 +48,18 @@ export function Examples({ lang }: { lang: Lang }) {
 
 /* ── Channels ────────────────────────────────────────────────────────────── */
 
+/** Scannable QR code for a live channel. Dark modules on white so phones read it reliably. */
+function QrCode({ url, label, bg }: { url: string; label: string; bg: string }) {
+  return (
+    <div className="shrink-0 rounded-[10px] p-1.5" style={{ background: bg }}>
+      <div className="rounded-[6px] bg-white p-1.5">
+        <QRCodeSVG value={url} size={84} level="M" fgColor="#101828" bgColor="#ffffff" title={label} />
+      </div>
+    </div>
+  );
+}
+
+/** Decorative placeholder for a channel that has no live link yet. */
 function QrGlyph({ accent, bg }: { accent: string; bg: string }) {
   return (
     <div aria-hidden className="grid shrink-0 grid-cols-3 gap-[3px] rounded-[10px] p-2" style={{ width: 72, height: 72, background: bg }}>
@@ -68,6 +83,7 @@ export function Channels({ lang }: { lang: Lang }) {
       sub: CHANNELS.web.sub[lang],
       cta: CHANNELS.web.cta[lang],
       href: "/chat",
+      qr: WEB_CHAT_URL,
       external: false,
       accent: "#4F3FA8",
       bg: "#F7F5FF",
@@ -79,6 +95,7 @@ export function Channels({ lang }: { lang: Lang }) {
       sub: CHANNELS.telegram.sub[lang],
       cta: CHANNELS.telegram.cta[lang],
       href: TELEGRAM_URL,
+      qr: TELEGRAM_URL,
       external: true,
       accent: "#1C93D1",
       bg: "#F0FAFF",
@@ -90,6 +107,7 @@ export function Channels({ lang }: { lang: Lang }) {
       sub: CHANNELS.messenger.sub[lang],
       cta: CHANNELS.messenger.cta[lang],
       href: MESSENGER_COMING_SOON ? undefined : MESSENGER_URL,
+      qr: MESSENGER_URL,
       external: true,
       comingSoon: MESSENGER_COMING_SOON,
       accent: "#006AFF",
@@ -128,7 +146,11 @@ export function Channels({ lang }: { lang: Lang }) {
               </div>
               <p style={{ fontSize: 14, color: "#4A5565", lineHeight: lh(lang, 1.65), margin: 0 }}>{c.sub}</p>
               <div className="mt-auto flex items-center gap-4">
-                <QrGlyph accent={c.accent} bg={c.bg} />
+                {c.qr && !c.comingSoon ? (
+                  <QrCode url={c.qr} label={`QR code: ${c.label}`} bg={c.bg} />
+                ) : (
+                  <QrGlyph accent={c.accent} bg={c.bg} />
+                )}
                 {c.comingSoon || !c.href ? (
                   <span
                     style={{ color: "#99A1AF", fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}
@@ -192,15 +214,15 @@ export function About({ lang }: { lang: Lang }) {
           {ABOUT.body[lang]}
         </p>
 
-        <div className="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-16 flex flex-wrap justify-center gap-4">
           {ABOUT.team.map((m) => (
             <div
               key={m.name}
-              className="flex items-center gap-4 rounded-xl bg-white px-5 py-4"
+              className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 sm:w-[320px]"
               style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)", border: "1px solid #F1F5F9" }}
             >
               <div
-                className="flex shrink-0 items-center justify-center rounded-full"
+                className="shrink-0 overflow-hidden rounded-full"
                 style={{
                   width: 52,
                   height: 52,
@@ -209,14 +231,22 @@ export function About({ lang }: { lang: Lang }) {
                   boxShadow: "0 2px 8px rgba(79,63,168,0.10)",
                 }}
               >
-                <UserRound size={24} strokeWidth={1.5} color="#4F3FA8" aria-hidden />
+                <Image
+                  src={m.photo}
+                  alt={m.name}
+                  width={104}
+                  height={104}
+                  unoptimized={m.photo.endsWith(".svg")}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <p style={{ fontWeight: 700, fontSize: 14, color: "#101828", margin: "0 0 2px", lineHeight: 1.4 }}>{m.name}</p>
-                <p style={{ fontSize: 12, color: "#99A1AF", margin: 0, lineHeight: lh(lang, 1.4, 1.7) }}>{m.role[lang]}</p>
+                <p style={{ fontWeight: 700, fontSize: 14, color: "#101828", margin: 0, lineHeight: 1.4 }}>{m.name}</p>
               </div>
               <a
-                href="#"
+                href={m.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={`${m.name} on LinkedIn`}
                 className="flex shrink-0 items-center gap-1 opacity-70 transition-opacity hover:opacity-100"
                 style={{ color: "#4F3FA8", fontSize: 12 }}
