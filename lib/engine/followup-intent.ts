@@ -117,9 +117,19 @@ const WHAT_IS = /^\s*(?:so|and|ok|okay|but|then|wait)?[\s,]*what(?:'s|s| is| are
 const PROCEDURAL =
   /\b(fees?|costs?|prices?|charges?|amounts?|payments?|documents?|papers?|paperwork|forms?|requirements?|conditions?|deadlines?|address|addresses|locations?|offices?|counters?|hours?|opening|times?|timeline|process|procedures?|steps?|penalt(?:y|ies)|fines?|phone|numbers?|website|link|email)\b/i;
 
-/** Khmer cue words, removed before the subject is read off the question. */
+/**
+ * Khmer cue words, removed before the subject is read off the question.
+ *
+ * Khmer is matched as overlapping clusters, not words, so anything left here
+ * becomes a "subject" the previous answer is then required to mention. The
+ * first list held the verbs and missed what travels with them: "please explain
+ * in simple language" (សូមពន្យល់ជាភាសាសាមញ្ញ) was left with the fragment for
+ * "in language", which no answer about a driving licence contains, and the
+ * request was refused as not a government-service question. Longer forms come
+ * first so that a short one cannot split them.
+ */
 const CUE_WORDS_KM =
-  /(តើ|មានន័យ|ន័យ|យ៉ាងដូចម្តេច|យ៉ាងដូចម្ដេច|ដូចម្តេច|ដូចម្ដេច|យ៉ាងណា|ពន្យល់|បកស្រាយ|ឧទាហរណ៍|មិនយល់|អត់យល់|ងាយយល់|សាមញ្ញ|សង្ខេប|លម្អិត|បន្ថែមទៀត|ប្រាប់បន្ថែម|បន្ថែម|គឺជាអ្វី|ជាអ្វី|អ្វី|ខុសគ្នា|ពាក្យ|សូម|ខ្ញុំ|ផង|ទេ|នេះ|នោះ)/g;
+  /(វាមានន័យ|វាជាអ្វី|មានន័យ|ន័យ|យ៉ាងដូចម្តេច|យ៉ាងដូចម្ដេច|ដូចម្តេច|ដូចម្ដេច|យ៉ាងណា|ពន្យល់|បកស្រាយ|ឧទាហរណ៍|មិនយល់|អត់យល់|ងាយយល់|ងាយៗ|ងាយ|សាមញ្ញ|សង្ខេប|លម្អិត|បន្ថែមទៀត|ប្រាប់បន្ថែម|បន្ថែម|ម្តងទៀត|ម្ដងទៀត|ទៀត|គឺជាអ្វី|ជាអ្វី|អ្វី|ខុសគ្នា|ជាភាសា|ភាសា|ខ្មែរ|អង់គ្លេស|ពាក្យ|ខាងលើ|ចម្លើយ|បន្តិច|ខ្លីៗ|ខ្លី|មួយ|ឱ្យ|អោយ|ជួយ|សូម|ខ្ញុំ|តើ|ផង|ទេ|នេះ|នោះ|ៗ)/g;
 
 /**
  * Words that belong to the request to explain, not to what is being explained.

@@ -180,3 +180,37 @@ describe("namesOnlyAnAttribute", () => {
     expect(namesOnlyAnAttribute(q)).toBe(false);
   });
 });
+
+describe("Khmer requests to explain (FR-08)", () => {
+  const licence: HistoryTurn[] = [
+    { role: "user", text: "តើខ្ញុំត្រូវបន្តប័ណ្ណបើកបរដោយរបៀបណា?" },
+    {
+      role: "assistant",
+      tier: 2,
+      sources: ["MPWT-DL-001"],
+      text: "ដើម្បីបន្តប័ណ្ណបើកបរ សូមយកប័ណ្ណបើកបរចាស់ អត្តសញ្ញាណប័ណ្ណ វិញ្ញាបនបត្រសុខភាព និងរូបថត ទៅកាន់មជ្ឈមណ្ឌលសេវាប័ណ្ណបើកបរ។",
+    },
+  ];
+
+  it.each([
+    "សូមពន្យល់ជាភាសាសាមញ្ញ",
+    "ពន្យល់ឱ្យងាយយល់បន្តិច",
+    "ខ្ញុំមិនយល់ទេ សូមពន្យល់ម្តងទៀត",
+    "សូមឧទាហរណ៍មួយ",
+    "សូមសង្ខេបខ្លីៗ",
+    "តើវាមានន័យយ៉ាងណា",
+  ])("has no subject of its own, so it is about the last answer: %s", (q) => {
+    // Refused on the live site as not a government-service question: the words
+    // that travel with "explain" were being read as a subject.
+    expect(clarificationSubject(q)).toEqual([]);
+    expect(asksAboutEarlierAnswer(q, licence)).toBe(true);
+  });
+
+  it("accepts a term the Khmer answer used", () => {
+    expect(asksAboutEarlierAnswer("តើវិញ្ញាបនបត្រសុខភាពមានន័យដូចម្តេច?", licence)).toBe(true);
+  });
+
+  it("rejects a term it never used", () => {
+    expect(asksAboutEarlierAnswer("តើកីឡាបាល់ទាត់មានន័យដូចម្តេច?", licence)).toBe(false);
+  });
+});

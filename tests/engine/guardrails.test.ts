@@ -478,3 +478,18 @@ describe("scope — a question about an earlier answer", () => {
     expect(inScopeHistory(longer)).toHaveLength(4);
   });
 });
+
+describe("scope — a Khmer request to explain the previous answer (FR-08)", () => {
+  const history = [
+    { role: "user", text: "តើខ្ញុំត្រូវបន្តប័ណ្ណបើកបរដោយរបៀបណា?" },
+    { role: "assistant", text: "ដើម្បីបន្តប័ណ្ណបើកបរ សូមយកប័ណ្ណបើកបរចាស់ និងអត្តសញ្ញាណប័ណ្ណ។" },
+  ];
+
+  it("is in scope after a service answer", () => {
+    expect(isOffDomain("សូមពន្យល់ជាភាសាសាមញ្ញ", history)).toBe(false);
+  });
+
+  it("is not in scope with nothing to explain", () => {
+    expect(isOffDomain("សូមពន្យល់ជាភាសាសាមញ្ញ", [])).toBe(true);
+  });
+});
