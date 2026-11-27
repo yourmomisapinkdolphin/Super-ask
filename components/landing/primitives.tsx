@@ -91,15 +91,19 @@ export function MessengerIcon({ size = 48 }: { size?: number }) {
 export function WebIcon({ size = 48 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden>
-      <circle cx="24" cy="24" r="24" fill="#F7F5FF" />
-      <circle cx="24" cy="24" r="12" stroke="#4F3FA8" strokeWidth="1.5" fill="none" />
-      <path
-        d="M24 12c-3 3-4.5 7.5-4.5 12s1.5 9 4.5 12M24 12c3 3 4.5 7.5 4.5 12s-1.5 9-4.5 12"
-        stroke="#4F3FA8"
-        strokeWidth="1.5"
-      />
-      <path d="M12 24h24" stroke="#4F3FA8" strokeWidth="1.5" />
-      <path d="M13 19h22M13 29h22" stroke="#4F3FA8" strokeWidth="1" opacity="0.4" />
+      <defs>
+        <linearGradient id="sa-wg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#4DA3FF" />
+          <stop offset="100%" stopColor="#1F6FEB" />
+        </linearGradient>
+      </defs>
+      <circle cx="24" cy="24" r="24" fill="url(#sa-wg)" />
+      {/* Flat white globe: outline, equator and one meridian. No shading. */}
+      <g stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none">
+        <circle cx="24" cy="24" r="12" />
+        <ellipse cx="24" cy="24" rx="5" ry="12" />
+        <path d="M12 24h24" />
+      </g>
     </svg>
   );
 }
