@@ -1015,7 +1015,7 @@
       "verified": "unconfirmed",
       "renderMode": "static",
       "depth": 4,
-      "maxPages": 60,
+      "maxPages": 250,
       "politenessDelayMs": 2000,
       "enabled": true,
       "notes": "National ID card, passport and civil-status procedures. gdi.gov.kh itself does not answer; the department publishes on news.gdi.gov.kh (checked in a browser 2026-11-27, robots.txt allows all)."

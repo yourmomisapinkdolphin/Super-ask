@@ -16,15 +16,34 @@
 
 import { normalize } from "@/lib/khmer/normalize";
 
+/**
+ * The inside of a tag after its name: attribute text up to the closing ">",
+ * where a ">" inside a quoted value does not count. Alpine and Vue sites write
+ * arrow functions in attributes (x-init="$watch('darkMode', val => …)"); read
+ * naively, the tag ended at the arrow and the rest of the script became the
+ * first words of every page on news.gdi.gov.kh.
+ */
+const ATTRS = `(?:[^>"']|"[^"]*"|'[^']*')*`;
+
 /** Elements whose contents are never citizen-visible text. */
-const STRIP_BLOCKS =
-  /<(script|style|noscript|svg|canvas|template|iframe)\b[^>]*>[\s\S]*?<\/\1>/gi;
+const STRIP_BLOCKS = new RegExp(
+  `<(script|style|noscript|svg|canvas|template|iframe)\\b${ATTRS}>[\\s\\S]*?<\\/\\1>`,
+  "gi",
+);
 
 const COMMENTS = /<!--[\s\S]*?-->/g;
 
 /** Block-level tags become newlines so paragraphs do not run together. */
-const BLOCK_TAGS =
-  /<\/?(p|div|br|hr|li|ul|ol|tr|td|th|table|h[1-6]|section|article|header|footer|nav|main|aside|form|blockquote)\b[^>]*>/gi;
+const BLOCK_TAGS = new RegExp(
+  `<\\/?(p|div|br|hr|li|ul|ol|tr|td|th|table|h[1-6]|section|article|header|footer|nav|main|aside|form|blockquote)\\b${ATTRS}>`,
+  "gi",
+);
+
+/**
+ * Any remaining tag. One with an unbalanced quote does not match here and is
+ * left to the plain pass that follows.
+ */
+const ANY_TAG = new RegExp(`<[a-zA-Z/!]${ATTRS}>`, "g");
 
 const ENTITIES: Record<string, string> = {
   "&nbsp;": " ",
@@ -74,6 +93,7 @@ export function extract(html: string, baseUrl: string): Extracted {
         .replace(COMMENTS, " ")
         .replace(STRIP_BLOCKS, " ")
         .replace(BLOCK_TAGS, "\n")
+        .replace(ANY_TAG, " ")
         .replace(/<[^>]+>/g, " "),
     )
       // Collapse runs of blank lines, then runs of spaces, so trivial whitespace

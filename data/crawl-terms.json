@@ -130,6 +130,109 @@
     },
     {
       "en": [
+        "nationality",
+        "citizenship"
+      ],
+      "km": [
+        "សញ្ជាតិ"
+      ]
+    },
+    {
+      "en": [
+        "naturalization",
+        "naturalisation",
+        "naturalize",
+        "naturalise",
+        "naturalized",
+        "naturalised"
+      ],
+      "km": [
+        "សញ្ជាតូបនីយកម្ម",
+        "ចូលសញ្ជាតិ"
+      ]
+    },
+    {
+      "en": [
+        "renounce",
+        "renouncing",
+        "renunciation"
+      ],
+      "km": [
+        "លះបង់សញ្ជាតិ"
+      ]
+    },
+    {
+      "en": [
+        "death",
+        "deceased"
+      ],
+      "km": [
+        "មរណភាព",
+        "មរណៈភាព"
+      ]
+    },
+    {
+      "en": [
+        "civil status",
+        "civil registration",
+        "civil registry"
+      ],
+      "km": [
+        "អត្រានុកូលដ្ឋាន"
+      ]
+    },
+    {
+      "en": [
+        "family book",
+        "family record book"
+      ],
+      "km": [
+        "សៀវភៅគ្រួសារ",
+        "សម្គាល់គ្រួសារ"
+      ]
+    },
+    {
+      "en": [
+        "residence book",
+        "residency book",
+        "residence",
+        "residency"
+      ],
+      "km": [
+        "សៀវភៅស្នាក់នៅ",
+        "សម្គាល់ការស្នាក់នៅ"
+      ]
+    },
+    {
+      "en": [
+        "change of residence",
+        "change of address"
+      ],
+      "km": [
+        "ផ្លាស់ប្តូរទីលំនៅ"
+      ]
+    },
+    {
+      "en": [
+        "population statistics"
+      ],
+      "km": [
+        "ស្ថិតិប្រជាពលរដ្ឋ"
+      ]
+    },
+    {
+      "en": [
+        "foreigner",
+        "foreigners",
+        "foreign national",
+        "foreign nationals"
+      ],
+      "km": [
+        "ជនបរទេស"
+      ]
+    },
+    {
+      "en": [
         "tax",
         "taxes",
         "taxation",
