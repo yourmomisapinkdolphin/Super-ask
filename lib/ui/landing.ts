@@ -798,7 +798,7 @@ export const ABOUT = {
   // `photo` is a path under /public. To use a real photo, drop a square image in
   // public/team/ and point `photo` at it (jpg/png/webp all work).
   // Real team members with their project roles (from the Demo 1 individual
-  // contributions document). `linkedin` is optional: most are
+  // contributions document). `linkedin` is optional: some are
   // placeholders until their profile links and photos arrive.
   team: [
     {
@@ -814,8 +814,9 @@ export const ABOUT = {
     },
     {
       name: "Bunkheang Heng",
-      photo: "/team/bunkheang-heng.svg",
+      photo: "/team/bunkheang-heng.jpg",
       role: { en: "Web/API Developer", km: "អ្នកអភិវឌ្ឍន៍ Web/API" },
+      linkedin: "https://www.linkedin.com/in/bunkheang-heng/",
     },
     {
       name: "Sereyprophea Sarin",
