@@ -20,6 +20,42 @@ export function askHref(q: string): string {
 
 export const GRADIENT = "linear-gradient(135deg,#4F3FA8,#6D5BD0)";
 
+/**
+ * Icon colours. Green and red are the tick and cross from the comparison
+ * table; the rest are picked to sit beside them at the same strength.
+ */
+export const ICON_COLORS = {
+  green: "#46CB18",
+  red: "#E03C31",
+  blue: "#2D8CFF",
+  orange: "#FF9F1C",
+  teal: "#14B8A6",
+  pink: "#F0508C",
+} as const;
+
+/** Solid coloured disc holding a bold white glyph, the same look as the tick and cross. */
+export function IconBadge({
+  color,
+  size = 44,
+  className,
+  children,
+}: {
+  color: string;
+  size?: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={`flex shrink-0 items-center justify-center rounded-full ${className ?? ""}`}
+      style={{ width: size, height: size, background: color, color: "#fff" }}
+    >
+      {children}
+    </span>
+  );
+}
+
 /* ── Channel icons (from the Figma) ──────────────────────────────────────── */
 
 export function TelegramIcon({ size = 48 }: { size?: number }) {

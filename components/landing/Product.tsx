@@ -7,6 +7,8 @@ import {
   Eyebrow,
   GRADIENT,
   GradientLink,
+  ICON_COLORS,
+  IconBadge,
   Headline,
   PhoneMock,
   VerifiedChip,
@@ -170,6 +172,7 @@ function CitedScreen({ lang }: { lang: Lang }) {
 }
 
 const FEATURE_ICONS = [Search, Check, FileText];
+const FEATURE_COLORS = [ICON_COLORS.blue, ICON_COLORS.green, ICON_COLORS.orange];
 const FEATURE_SCREENS = [CrawlerScreen, QueueScreen, CitedScreen];
 
 export function KeyFeatures({ lang }: { lang: Lang }) {
@@ -199,9 +202,9 @@ export function KeyFeatures({ lang }: { lang: Lang }) {
                 className={`rounded-2xl p-7 text-left ${i === 1 ? "md:mt-8" : ""}`}
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}
               >
-                <div className="mb-3.5 flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 10, background: GRADIENT }}>
-                  <Icon size={18} color="#fff" strokeWidth={2} aria-hidden />
-                </div>
+                <IconBadge color={FEATURE_COLORS[i]} size={40} className="mb-3.5">
+                  <Icon size={20} strokeWidth={i === 1 ? 3.2 : 2.4} />
+                </IconBadge>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: "0 0 8px", lineHeight: lh(lang, 1.35, 1.6) }}>{c.title[lang]}</h3>
                 <p style={{ fontSize: 14, color: "#99A1AF", lineHeight: lh(lang, 1.65), margin: "0 0 18px" }}>{c.body[lang]}</p>
                 <Screen lang={lang} />

@@ -5,6 +5,8 @@ import {
   BothChannelsChip,
   Eyebrow,
   GRADIENT,
+  ICON_COLORS,
+  IconBadge,
   GradientLink,
   Headline,
   MessengerIcon,
@@ -129,6 +131,12 @@ export function Hero({ lang }: { lang: Lang }) {
 /* ── Stats band ──────────────────────────────────────────────────────────── */
 
 const STAT_ICONS = { building: Building2, file: FileText, chat: MessageSquare, globe: Globe } as const;
+const STAT_COLORS = {
+  building: ICON_COLORS.blue,
+  file: ICON_COLORS.orange,
+  chat: ICON_COLORS.teal,
+  globe: ICON_COLORS.pink,
+} as const;
 
 export function Stats({ lang }: { lang: Lang }) {
   return (
@@ -146,7 +154,9 @@ export function Stats({ lang }: { lang: Lang }) {
                 className={`px-8 py-7 text-center ${i < 3 ? "border-b sm:border-b-0 lg:border-r" : ""} ${i % 2 === 0 ? "sm:border-r" : ""}`}
                 style={{ borderColor: "#E2DCF8" }}
               >
-                <Icon size={22} strokeWidth={1.6} color="#4F3FA8" className="mx-auto mb-1.5" aria-hidden />
+                <IconBadge color={STAT_COLORS[s.icon]} size={44} className="mx-auto mb-3">
+                  <Icon size={22} strokeWidth={2.4} />
+                </IconBadge>
                 <div
                   style={{ fontSize: "clamp(28px,4vw,40px)", fontWeight: 700, color: "#4F3FA8", letterSpacing: "-1px", lineHeight: 1 }}
                 >
