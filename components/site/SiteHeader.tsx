@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { SuperAskLogo } from "./SuperAskLogo";
@@ -9,7 +9,41 @@ import { NAV } from "@/lib/ui/landing";
 
 const GRADIENT = "linear-gradient(135deg,#4F3FA8,#6D5BD0)";
 
-/** "ខ្មែរ | EN" — both options visible, the active one in brand blue. */
+/** Cambodian flag, drawn inline because flag emoji do not render on Windows. */
+function FlagKH() {
+  return (
+    <svg viewBox="0 0 60 40" width={24} height={16} aria-hidden>
+      <rect width="60" height="40" fill="#032EA1" />
+      <rect y="10" width="60" height="20" fill="#E00025" />
+      <g fill="#fff">
+        <path d="M17 27h26v-2H17z" />
+        <path d="M19 25h22v-3H19z" />
+        <path d="M27.5 22v-5l2.5-5 2.5 5v5z" />
+        <path d="M20.5 22v-3.5l2-4 2 4V22z" />
+        <path d="M35.5 22v-3.5l2-4 2 4V22z" />
+      </g>
+    </svg>
+  );
+}
+
+/** UK flag, for English. */
+function FlagUK() {
+  const clip = useId();
+  return (
+    <svg viewBox="0 0 60 30" width={24} height={16} preserveAspectRatio="xMidYMid slice" aria-hidden>
+      <clipPath id={clip}>
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+      </clipPath>
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath={`url(#${clip})`} stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+    </svg>
+  );
+}
+
+/** Language switch: Cambodian flag for Khmer, UK flag for English. The active one is ringed. */
 export function LangToggle({
   lang,
   onLangChange,
@@ -17,34 +51,30 @@ export function LangToggle({
   lang: Lang;
   onLangChange: (lang: Lang) => void;
 }) {
-  const item = (value: Lang, label: string) => {
+  const item = (value: Lang, label: string, flag: React.ReactNode) => {
     const active = lang === value;
     return (
       <button
         type="button"
         onClick={() => onLangChange(value)}
         aria-pressed={active}
-        className="rounded px-0.5"
+        aria-label={label}
+        title={label}
+        className="block overflow-hidden rounded-[3px] transition-opacity hover:opacity-100"
         style={{
-          color: active ? "#4F3FA8" : "#4A5565",
-          fontWeight: active ? 600 : 500,
-          lineHeight: 1.6,
+          opacity: active ? 1 : 0.5,
+          boxShadow: active ? "0 0 0 2px #fff, 0 0 0 3.5px #4F3FA8" : "0 0 0 1px rgba(16,24,40,0.12)",
+          lineHeight: 0,
         }}
       >
-        {label}
+        {flag}
       </button>
     );
   };
   return (
-    <div
-      className="flex items-center gap-1"
-      style={{ fontSize: 13, color: "#99A1AF" }}
-      role="group"
-      aria-label="Language"
-    >
-      {item("km", "ខ្មែរ")}
-      <span aria-hidden>|</span>
-      {item("en", "EN")}
+    <div className="flex items-center gap-2.5" role="group" aria-label="Language">
+      {item("km", "ភាសាខ្មែរ", <FlagKH />)}
+      {item("en", "English", <FlagUK />)}
     </div>
   );
 }
