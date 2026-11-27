@@ -12,7 +12,7 @@ Web, Next.js App Router, TypeScript.
 
 ## Live version
 
-SuperAsk is deployed at **https://superask.vercel.app** (Bunkheang's Vercel project, built from `main`).
+SuperAsk is deployed at **https://superask.vercel.app** (Bunkheang's Vercel account, built from `main`).
 
 It answers from the approved documents first and, when they have no answer, from 58 crawled official websites (labelled "not reviewed"), with more suggested procedures, institution logos, and looser handling of questions no source covers.
 
