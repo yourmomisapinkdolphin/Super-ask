@@ -805,16 +805,16 @@ export const ABOUT = {
   // placeholders until their profile links and photos arrive.
   team: [
     {
+      name: "Yean Fong",
+      photo: "/team/yean-fong.jpg",
+      role: { en: "Project Coordinator", km: "អ្នកសម្របសម្រួលគម្រោង" },
+      linkedin: "https://www.linkedin.com/in/yeanfong/",
+    },
+    {
       name: "Monunhh Chun",
       photo: "/team/monunhh-chun.jpg",
       role: { en: "AI/ML Engineer & System Design", km: "វិស្វករ AI/ML និងរចនាប្រព័ន្ធ" },
       linkedin: "https://www.linkedin.com/in/monunhh-chun/",
-    },
-    {
-      name: "Yean Fong",
-      photo: "/team/yean-fong.jpg",
-      role: { en: "Project Lead & Manager", km: "ប្រធាន និងអ្នកគ្រប់គ្រងគម្រោង" },
-      linkedin: "https://www.linkedin.com/in/yeanfong/",
     },
     {
       name: "Bunkheang Heng",
