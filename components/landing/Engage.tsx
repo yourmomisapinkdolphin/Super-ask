@@ -14,7 +14,7 @@ import {
   WEB_CHAT_URL,
 } from "@/lib/ui/channels";
 import { QRCodeSVG } from "qrcode.react";
-import { Eyebrow, GRADIENT, Headline, MessengerIcon, TelegramIcon, WebIcon, askHref, lh } from "./primitives";
+import { Eyebrow, GRADIENT, Headline, ICON_COLORS, IconBadge, MessengerIcon, TelegramIcon, WebIcon, askHref, lh } from "./primitives";
 
 /* ── Examples ────────────────────────────────────────────────────────────── */
 
@@ -190,7 +190,9 @@ export function Trust({ lang }: { lang: Lang }) {
             const Icon = c.icon === "shield" ? ShieldCheck : Lock;
             return (
               <div key={c.title.en} className="rounded-2xl p-8 text-left" style={{ background: "#FAFBFC", border: "1px solid #F0F4F8" }}>
-                <Icon size={28} strokeWidth={1.6} color="#4F3FA8" className="mb-3.5" aria-hidden />
+                <IconBadge color={c.icon === "shield" ? ICON_COLORS.green : ICON_COLORS.blue} size={48} className="mb-4">
+                  <Icon size={24} strokeWidth={2.4} />
+                </IconBadge>
                 <h3 style={{ fontSize: 19, fontWeight: 700, color: "#101828", margin: "0 0 12px", lineHeight: lh(lang, 1.35, 1.6) }}>{c.title[lang]}</h3>
                 <p style={{ fontSize: 15, color: "#4A5565", margin: 0, lineHeight: lh(lang, 1.65) }}>{c.body[lang]}</p>
               </div>
