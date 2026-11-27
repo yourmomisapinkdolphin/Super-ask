@@ -803,8 +803,9 @@ export const ABOUT = {
   team: [
     {
       name: "Yean Fong",
-      photo: "/team/yean-fong.svg",
+      photo: "/team/yean-fong.jpg",
       role: { en: "Project Coordinator", km: "អ្នកសម្របសម្រួលគម្រោង" },
+      linkedin: "https://www.linkedin.com/in/yeanfong/",
     },
     {
       name: "Monunhh Chun",
