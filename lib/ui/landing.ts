@@ -822,7 +822,7 @@ export const ABOUT = {
     {
       name: "Sereyprophea Sarin",
       photo: "/team/sereyprophea-sarin.jpg",
-      role: { en: "QA & Testing Lead", km: "ប្រធានផ្នែកធានាគុណភាព និងការធ្វើតេស្ត" },
+      role: { en: "QA & Testing", km: "ធានាគុណភាព និងការធ្វើតេស្ត" },
       linkedin: "https://www.linkedin.com/in/sereyprophea-sarin-/",
     },
     {
