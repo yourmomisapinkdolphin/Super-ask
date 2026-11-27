@@ -221,20 +221,22 @@ export function Why({ lang }: { lang: Lang }) {
 
 /* ── Comparison table ────────────────────────────────────────────────────── */
 
+/** Solid red disc with a bold white cross. */
 function Cross() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0" aria-hidden>
-      <circle cx="7" cy="7" r="6" fill="#E03C31" fillOpacity="0.1" stroke="#E03C31" strokeWidth="1.2" />
-      <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#E03C31" strokeWidth="1.4" strokeLinecap="round" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0" aria-hidden>
+      <circle cx="9" cy="9" r="9" fill="#E03C31" />
+      <path d="M5.9 5.9l6.2 6.2M12.1 5.9l-6.2 6.2" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" />
     </svg>
   );
 }
 
+/** Solid green disc with a bold white check mark. */
 function Tick() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0" aria-hidden>
-      <circle cx="7" cy="7" r="6" fill="#46CB18" fillOpacity="0.12" stroke="#46CB18" strokeWidth="1.2" />
-      <path d="M4.5 7l2 2 3-3" stroke="#46CB18" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0" aria-hidden>
+      <circle cx="9" cy="9" r="9" fill="#46CB18" />
+      <path d="M5 9.6l2.7 2.7L13.2 6.4" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
