@@ -302,7 +302,7 @@ OUTPUT FORMAT. Reply with a single JSON object and nothing else — no prose bef
 {"answer": string, "citations": string[], "confidence": "high" | "medium" | "low", "general_knowledge": boolean, "should_decline": boolean}
 
 - "answer" is the reply to the citizen, in REPLY_LANGUAGE, following the rules above.
-- "citations" holds the bracketed ids of the sources you used, exactly as they appear in the SOURCES block. Use only ids that are present there. Never invent one. Empty only for a purely kind B explanation.
+- "citations" holds the ids of the sources you used, written without the square brackets (for example "MPWT-DL-001"). Use only ids that are present in the SOURCES block. Never invent one. Empty only for a purely kind B explanation.
 - "general_knowledge" is true when any part of the answer is a kind B explanation from your own knowledge, and false when everything comes from the SOURCES and the PREVIOUS ANSWER.
 - "should_decline" is true only when rule 12 applies.`;
 
@@ -447,8 +447,17 @@ export function parseGeneration(
   const answer = typeof obj.answer === "string" ? obj.answer.trim() : "";
   if (!answer) throw new Error("Provider returned no answer field");
 
+  // The SOURCES block shows each id in square brackets, and some model
+  // families copy the brackets into the citation: "[MPWT-DL-001]" for
+  // MPWT-DL-001. That is the right source named in the wrong spelling, and
+  // downstream it reads as an id that was never retrieved, so the verification
+  // gate withheld every follow-up answer one production model wrote. The id is
+  // what was cited; the brackets are punctuation.
   const citations = Array.isArray(obj.citations)
-    ? obj.citations.filter((c): c is string => typeof c === "string")
+    ? obj.citations
+        .filter((c): c is string => typeof c === "string")
+        .map((c) => c.trim().replace(/^\[+\s*|\s*\]+$/g, ""))
+        .filter((c) => c.length > 0)
     : [];
 
   const confidence: Confidence =

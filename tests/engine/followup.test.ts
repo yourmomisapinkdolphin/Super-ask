@@ -138,6 +138,15 @@ describe("a question about the previous answer", () => {
     expect(user).toContain("CITIZEN FOLLOW-UP:\ncan you explain that in simpler words?");
   });
 
+  it("accepts a citation written with the brackets the SOURCES block shows", async () => {
+    replies.followup = { ...replies.followup, citations: ["[MPWT-DL-001]"] };
+    const ask = await loadAsk();
+    const res = await ask({ question: "what does physical fitness mean?", history: HISTORY });
+
+    expect(res.explained).toBe(true);
+    expect(res.citations.map((c) => c.id)).toEqual(["MPWT-DL-001"]);
+  });
+
   it("is not labelled as general background when it used only the sources", async () => {
     replies.followup = {
       answer: "Put simply: bring your old licence, your identity card, a fitness certificate and photographs, and pay 30,000 riel.",
