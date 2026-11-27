@@ -177,7 +177,10 @@ async function handleEvent(event: MessagingEvent): Promise<void> {
     await sendText(psid, formatMessengerAnswer(response));
 
     appendTurn(psid, "user", text);
-    appendTurn(psid, "assistant", response.answer);
+    appendTurn(psid, "assistant", response.answer, {
+      tier: response.tier,
+      sources: response.citations.map((c) => c.id),
+    });
   } catch (err) {
     console.error("[/api/messenger/webhook]", err);
     try {

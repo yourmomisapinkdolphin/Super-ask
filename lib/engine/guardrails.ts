@@ -16,6 +16,7 @@
  * costs them an answer SuperAsk had no source for.
  */
 
+import { asksAboutEarlierAnswer } from "./followup-intent";
 import type { Lang } from "@/lib/types";
 import { normalizeFold, containsWord } from "@/lib/khmer/normalize";
 import { getKb } from "@/lib/kb/loader";
@@ -417,7 +418,15 @@ export function isOffDomain(
     .filter((t) => t.role !== "assistant" && namesTopic(t.text))
     .map((t) => t.text);
   if (anchors.length === 0) return true;
-  return !(isSubjectless(question) || continuesTopic(question, anchors));
+  return !(
+    isSubjectless(question) ||
+    continuesTopic(question, anchors) ||
+    // "What does special depreciation mean?" after an answer that used the
+    // phrase. It names nothing a vocabulary screen recognises, and it is the
+    // most in-scope thing a citizen can ask next: section 6.1 puts explaining
+    // the words of an answer in scope. See lib/engine/followup-intent.ts.
+    asksAboutEarlierAnswer(question, history)
+  );
 }
 
 /**

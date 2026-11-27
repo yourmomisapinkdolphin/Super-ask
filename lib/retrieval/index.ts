@@ -18,6 +18,10 @@ import { getKb } from "@/lib/kb/loader";
 import { fuse, MAX_RRF } from "./rrf";
 import { rerankOne } from "./rerank";
 import { inScopeHistory, isOffDomain } from "@/lib/engine/guardrails";
+import {
+  asksAboutEarlierAnswer,
+  namesOnlyAnAttribute,
+} from "@/lib/engine/followup-intent";
 
 export interface ProcessedQuery {
   raw: string;
@@ -75,12 +79,24 @@ function rewriteWithContext(
   // test treated it as a refinement and prepended whatever came before —
   // including "who is elon musk?". Anaphoric openers ("and the fee?") still
   // rewrite: they name a service term but clearly point at the prior turn.
-  const standsAlone = !isOffDomain(question, []);
+  //
+  // The exception is a question that names only an attribute of a service:
+  // "what is the fee?" is in scope on the word "fee" and says nothing about
+  // WHICH fee. The conversation does (see namesOnlyAnAttribute).
+  const standsAlone =
+    !isOffDomain(question, []) && !namesOnlyAnAttribute(question);
   if (!anaphoric && standsAlone) return undefined;
   if (!anaphoric && isOffDomain(question, usable)) return undefined;
 
+  // A turn that asked to have an earlier answer explained ("what does special
+  // depreciation mean?") did not change what the conversation is about, so it
+  // cannot anchor the next one. Left in, "why do they give these incentives?"
+  // was resolved against the definition request before it and searched for
+  // depreciation.
   const priorUserTurns = usable
-    .filter((m) => m.role === "user")
+    .filter(
+      (m, i) => m.role === "user" && !asksAboutEarlierAnswer(m.text, usable.slice(0, i)),
+    )
     .reverse()
     .slice(0, MAX_ANCHOR_LOOKBACK);
 

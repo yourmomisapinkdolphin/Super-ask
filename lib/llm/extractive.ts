@@ -67,7 +67,10 @@ export function createExtractiveProvider(reason?: string): LlmProvider {
     // its own to fall back on, so an unsourced question declines. The general
     // fallback is a model capability, and where there is no model there is no
     // fallback — which is the correct degradation, not a gap.
-    if (req.sources.length === 0) {
+    // Nor can it explain: a follow-up asks what an answer MEANS, and quoting
+    // the same provision back is the non-answer the follow-up path exists to
+    // replace. Declining sends the question on through the ordinary pipeline.
+    if (req.sources.length === 0 || req.mode === "followup") {
       return {
         answer: NOT_FOUND[req.lang],
         citations: [],

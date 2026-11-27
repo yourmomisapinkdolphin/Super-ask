@@ -5,7 +5,9 @@
  * lose it. Fine for Phase 0.
  */
 
-type Turn = { role: "user" | "assistant"; text: string };
+import type { HistoryTurn } from "@/lib/types";
+
+type Turn = HistoryTurn;
 
 const MAX_TURNS = 8;
 const MAX_CHATS = 500;
@@ -26,10 +28,12 @@ export function appendTurn(
   psid: string,
   role: "user" | "assistant",
   text: string,
+  /** For an assistant turn: its tier and the ids of the sources it cited. */
+  meta: Pick<HistoryTurn, "tier" | "sources"> = {},
 ): void {
   const s = store();
   const prev = s.get(psid) ?? [];
-  const next = [...prev, { role, text }].slice(-MAX_TURNS);
+  const next = [...prev, { role, text, ...meta }].slice(-MAX_TURNS);
   s.set(psid, next);
 
   if (s.size > MAX_CHATS) {

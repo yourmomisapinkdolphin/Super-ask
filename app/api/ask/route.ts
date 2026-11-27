@@ -10,7 +10,7 @@
 
 import { NextResponse } from "next/server";
 import { corsHeaders, guard, preflight } from "@/lib/api/guard";
-import type { AskRequest } from "@/lib/types";
+import type { AskRequest, HistoryTurn } from "@/lib/types";
 import { ask } from "@/lib/engine";
 import { recordAnswer } from "@/lib/log/audit";
 
@@ -19,6 +19,38 @@ export const dynamic = "force-dynamic";
 
 const MAX_QUESTION_LENGTH = 1000;
 const MAX_HISTORY_TURNS = 12;
+/** Bounds on the source ids a client may send back with an assistant turn. */
+const MAX_TURN_SOURCES = 8;
+const MAX_SOURCE_ID_LENGTH = 64;
+
+/**
+ * One prior turn, reduced to the fields the engine reads.
+ *
+ * `tier` and `sources` come back from the client that was given them with the
+ * answer. They are only ever used to look a passage up by id in SuperAsk's own
+ * corpus, so a client that invents one gets a passage it could have asked for
+ * anyway, or nothing.
+ */
+function toHistoryTurn(m: unknown): HistoryTurn | null {
+  if (!m || typeof m !== "object") return null;
+  const t = m as Record<string, unknown>;
+  if ((t.role !== "user" && t.role !== "assistant") || typeof t.text !== "string") {
+    return null;
+  }
+  const turn: HistoryTurn = { role: t.role, text: t.text };
+  if (t.role === "assistant") {
+    if (t.tier === 1 || t.tier === 2 || t.tier === 3) turn.tier = t.tier;
+    if (Array.isArray(t.sources)) {
+      turn.sources = t.sources
+        .filter(
+          (s): s is string =>
+            typeof s === "string" && s.length > 0 && s.length <= MAX_SOURCE_ID_LENGTH,
+        )
+        .slice(0, MAX_TURN_SOURCES);
+    }
+  }
+  return turn;
+}
 
 /** CORS preflight for an allowed cross-origin caller (ALLOWED_ORIGINS). */
 export function OPTIONS(request: Request) {
@@ -56,13 +88,9 @@ export async function POST(request: Request) {
   }
 
   const history = Array.isArray(input.history)
-    ? input.history
-        .filter(
-          (m): m is { role: "user" | "assistant"; text: string } =>
-            Boolean(m) &&
-            (m.role === "user" || m.role === "assistant") &&
-            typeof m.text === "string",
-        )
+    ? (input.history as unknown[])
+        .map(toHistoryTurn)
+        .filter((m): m is HistoryTurn => m !== null)
         .slice(-MAX_HISTORY_TURNS)
     : [];
 

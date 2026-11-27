@@ -88,6 +88,7 @@ Status of the SuperAsk Phase 0 prototype as implemented in this repository
 - Landing page and web chat (`/chat`)
 - Ask API + RAG pipeline (normalize → retrieve → generate → verify)
 - Crawled-website fallback over 58 official sites (`CRAWL_KB_ENABLED`), and optional live web search (`WEB_SEARCH_ENABLED`, off by default)
+- Follow-up questions about an answer already given: "what does that word mean", "explain that more simply", "tell me more about the second one" (`FOLLOWUP_ENABLED`, `lib/engine/followup.ts`)
 - API guard: per-IP rate limit and origin check on `/api/ask` and `/api/feedback` (`lib/api/guard.ts`)
 - Telegram bot webhook (text answers) + Mini App entry points (keyboard + menu button)
 - Production deploy on Vercel with Telegram webhook configured; CI deploys `main` after every check passes
@@ -155,6 +156,13 @@ corpus failed: `fallback:crawled_website` (a crawled official page, labelled
 "not reviewed"), `fallback:web_search` (a live web result, labelled and linked;
 only with `WEB_SEARCH_ENABLED=true`) and `fallback:general_knowledge` (the
 model's own knowledge, labelled unverified, no citations).
+
+Two further values mark an answer to a question about an earlier answer
+(`lib/engine/followup.ts`): `followup:grounded` (answered wholly from the
+sources the earlier answer cited and from that answer) and
+`followup:explained` (part of it is a plain-language explanation of a word or
+concept from the model's general knowledge, labelled as such beneath the
+answer). Both are logged under the `followup-v1` prompt version.
 
 The distinction matters operationally: `policy:` means the platform is not
 permitted to answer, `scope:` means there was nothing of its kind to answer, and
@@ -248,7 +256,9 @@ over `lib/` and `app/api/`:
 | `tests/engine/citations` | FR-20 → FR-26 citation fields, including crawled pages that state no instrument or effective date |
 | `tests/engine/curated`, `glossary` | Tier 1 matching against the **live** corpus, not a fixture |
 | `tests/engine/freshness` | FR-26 / M-05, with the clock injected |
-| `tests/retrieval/query` | FR-07 follow-up anchoring — including that the query walks back *past* subject-less turns and keeps them |
+| `tests/retrieval/query` | FR-07 follow-up anchoring — including that the query walks back *past* subject-less turns and keeps them, that "what is the fee?" is resolved against the conversation, and that a request to explain an answer does not become the topic |
+| `tests/engine/followup-intent` | Which turns count as a question about an earlier answer: a cue **and** a subject the conversation mentioned. An off-topic subject, a refusal as the previous turn, or a plain lookup does not |
+| `tests/engine/followup` | The follow-up path against a mocked model: sources carried by id, what the model is shown, the general-knowledge label, and the gates that still hold (figures, scope, why-questions, the glossary, no model) |
 | `tests/retrieval/fusion` | BM25, RRF, the hashed-n-gram embedder, the reranker |
 | `tests/khmer/normalize`, `romanize` | FR-04/FR-05 canonical ordering and idempotence; FR-03 romanised Khmer, and that `prakas` is not mistaken for it |
 | `tests/lang/content` | the shared content-word test retrieval and topicality must not drift apart on |
@@ -546,6 +556,14 @@ knobs:
   refuses it, because the §6.1 off-domain screen runs *before* retrieval. A
   scope rule must not depend on a retrieval score, which is exactly why it runs
   there.
+- **`FOLLOWUP_ENABLED`** — default on. A question about an answer already given
+  ("what does special depreciation mean?", "explain that in simpler words") is
+  answered from the sources that answer cited and from the answer itself, and
+  the plain meaning of a word or concept may come from the model's general
+  knowledge. Facts about procedure stay source-only: every figure must appear in
+  a cited source or in the earlier answer, or the reply is withheld and the
+  ordinary pipeline runs. Off restores lookup-only behaviour, where each of
+  those questions is searched as if it were new and usually refused.
 - **`GENERAL_FALLBACK_ENABLED`** — default on. When a question is in scope and no
   approved source covers it, the model answers from its own knowledge, labelled
   unverified, with no citations. Off is the §13

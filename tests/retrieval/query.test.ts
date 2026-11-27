@@ -148,6 +148,40 @@ describe("processQuery", () => {
       expect(q.normalised).not.toMatch(/elon|musk|what is law/i);
     });
 
+    it("resolves a question that names only an attribute against the conversation", () => {
+      // "Fee" is service vocabulary, so the question is in scope on its own,
+      // and it used to be searched on its own: the birth-registration fee came
+      // back in the middle of a driving-licence conversation.
+      const q = processQuery("what is the fee?", [
+        { role: "user", text: "how do i renew my driving licence" },
+        { role: "assistant", text: "Bring your old licence and national ID card." },
+      ]);
+      expect(q.rewritten).toBe("how do i renew my driving licence what is the fee?");
+    });
+
+    it("leaves an attribute question alone when it says which service it means", () => {
+      const q = processQuery("what is the fee for a birth certificate?", [
+        { role: "user", text: "how do i renew my driving licence" },
+        { role: "assistant", text: "Bring your old licence and national ID card." },
+      ]);
+      expect(q.rewritten).toBeUndefined();
+    });
+
+    it("does not anchor on a turn that only asked to have an answer explained", () => {
+      // The conversation is still about the licence. The definition request in
+      // the middle did not change that.
+      const q = processQuery("and the fee?", [
+        { role: "user", text: "how do i renew my driving licence" },
+        {
+          role: "assistant",
+          text: "Bring your old licence, national ID card and a certificate of physical fitness.",
+        },
+        { role: "user", text: "what does certificate of physical fitness mean?" },
+        { role: "assistant", text: "In general terms, it is a note from a doctor." },
+      ]);
+      expect(q.rewritten).toBe("how do i renew my driving licence and the fee?");
+    });
+
     it("does not glue a new service question onto a previous service topic", () => {
       const q = processQuery("how do I get married?", [
         { role: "user", text: "how do i renew my driving licence" },

@@ -56,6 +56,7 @@ import { toCitation } from "./citations";
 import { GENERAL_FALLBACK_FOR_SERVICES, tryGeneralFallback } from "./fallback";
 import { tryCrawlAnswer } from "./crawl-answer";
 import { tryWebAnswer } from "./web-answer";
+import { tryFollowUp } from "./followup";
 
 const CURATED_THRESHOLD = Number(
   process.env.CURATED_MATCH_THRESHOLD ?? "0.72",
@@ -129,6 +130,7 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
       lang: out.lang,
       coverageGap: out.coverageGap,
       unverified: out.unverified === true,
+      explained: out.explained === true,
       terminal: out.terminal === true,
       refusalReason: diag.refusalReason,
       provider: diag.provider,
@@ -257,6 +259,27 @@ async function executeAsk(req: AskRequest, id: string): Promise<AskResponse> {
       }),
     );
   }
+
+  // ── A question about the previous answer ────────────────────────────────
+  // "What does that word mean", "explain that more simply", "tell me more
+  // about the second one". These are not lookups, and sending them to
+  // retrieval is what made every one of them a refusal: nothing in the corpus
+  // matches the word "that", and the source that listed a term rarely defines
+  // it. Answered from the sources the previous answer cited, the answer
+  // itself, and, for the plain meaning of a word, the model's general
+  // knowledge, labelled. Returns null when the turn is not such a question or
+  // cannot be answered that way, and the pipeline below runs unchanged.
+  // After the glossary on purpose: a term with an approved definition gets the
+  // approved definition. See lib/engine/followup.ts.
+  const followUp = await tryFollowUp({
+    question,
+    history,
+    lang,
+    id,
+    finish,
+    baseDiagnostics,
+  });
+  if (followUp) return followUp;
 
   // ── Retrieval ────────────────────────────────────────────────────────────
   const { query, candidates, topScore } = retrieve(question, history);

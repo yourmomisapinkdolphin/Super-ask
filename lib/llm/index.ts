@@ -20,7 +20,11 @@ import type {
 
 export type { GenerationRequest, GenerationResult, LlmProvider };
 export type { GenerationMode } from "./provider";
-export { PROMPT_VERSION, GENERAL_PROMPT_VERSION } from "./provider";
+export {
+  PROMPT_VERSION,
+  GENERAL_PROMPT_VERSION,
+  FOLLOWUP_PROMPT_VERSION,
+} from "./provider";
 
 function selectConfigured(): LlmProvider {
   const configured = (process.env.LLM_PROVIDER ?? "extractive").toLowerCase();

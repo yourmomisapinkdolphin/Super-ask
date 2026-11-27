@@ -198,6 +198,11 @@ export interface Diagnostics {
    *   fallback:crawled_website  NOT a refusal — the approved corpus had no
    *                       answer and one was served from unreviewed crawled
    *                       website content, labelled as such.
+   *   followup:explained  NOT a refusal — the citizen asked about the previous
+   *                       answer and part of the reply is a plain-language
+   *                       explanation from the model's general knowledge.
+   *   followup:grounded   NOT a refusal — the same path, answered wholly from
+   *                       the sources and the previous answer.
    *   fallback:general_knowledge  NOT a refusal — no source covered the
    *                       question and GENERAL_FALLBACK_ENABLED served an
    *                       unverified model answer instead. Recorded here so the
@@ -252,14 +257,36 @@ export interface AskResponse {
    * search rather than in the crawl database. See lib/engine/web-answer.ts.
    */
   web?: boolean;
+  /**
+   * The answer explains, simplifies or expands on the previous one, and part of
+   * it is a plain-language explanation from the model's general knowledge
+   * rather than from a source: what a word or a concept means. Facts about the
+   * procedure are still source-only and still verified. The interface says so
+   * beneath the answer. See lib/engine/followup.ts.
+   */
+  explained?: boolean;
   /** Emergency path: FR guardrail 6. Terminates the interaction. */
   terminal?: boolean;
   diagnostics?: Diagnostics;
 }
 
+export interface HistoryTurn {
+  role: "user" | "assistant";
+  text: string;
+  tier?: Tier;
+  sources?: string[];
+}
+
 export interface AskRequest {
   question: string;
-  /** Prior turns, for session context resolution (FR-07). */
-  history?: Array<{ role: "user" | "assistant"; text: string }>;
+  /**
+   * Prior turns, for session context resolution (FR-07).
+   *
+   * `tier` and `sources` describe an assistant turn: whether it was an answer
+   * or a refusal, and which sources it cited. They are optional, and they are
+   * what lets "explain that" be answered from the same sources as the answer
+   * it refers to instead of from a fresh search for the word "that".
+   */
+  history?: HistoryTurn[];
   sessionId?: string;
 }
