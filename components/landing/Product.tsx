@@ -262,9 +262,9 @@ export function WebExperience({ lang }: { lang: Lang }) {
               <li key={p.label.en} className="flex items-start gap-3">
                 <span
                   className="mt-0.5 flex shrink-0 items-center justify-center rounded-full"
-                  style={{ width: 20, height: 20, background: "#F3F0FF", border: "1.5px solid #D4CCF7" }}
+                  style={{ width: 20, height: 20, background: "#46CB18" }}
                 >
-                  <Check size={10} strokeWidth={3} color="#4F3FA8" aria-hidden />
+                  <Check size={12} strokeWidth={3.5} color="#fff" aria-hidden />
                 </span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#101828", lineHeight: lh(lang, 1.5, 1.7) }}>{p.label[lang]}</div>
