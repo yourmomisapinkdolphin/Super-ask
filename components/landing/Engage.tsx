@@ -233,7 +233,7 @@ export function About({ lang }: { lang: Lang }) {
               >
                 <Image
                   src={m.photo}
-                  alt={m.name}
+                  alt=""
                   width={104}
                   height={104}
                   unoptimized={m.photo.endsWith(".svg")}
@@ -241,19 +241,22 @@ export function About({ lang }: { lang: Lang }) {
                 />
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <p style={{ fontWeight: 700, fontSize: 14, color: "#101828", margin: 0, lineHeight: 1.4 }}>{m.name}</p>
+                <p style={{ fontWeight: 700, fontSize: 14, color: "#101828", margin: "0 0 2px", lineHeight: 1.4 }}>{m.name}</p>
+                <p style={{ fontSize: 12, color: "#6A7282", margin: 0, lineHeight: lh(lang, 1.4, 1.7) }}>{m.role[lang]}</p>
               </div>
-              <a
-                href={m.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${m.name} on LinkedIn`}
-                className="flex shrink-0 items-center gap-1 opacity-70 transition-opacity hover:opacity-100"
-                style={{ color: "#4F3FA8", fontSize: 12 }}
-              >
-                <Linkedin size={13} aria-hidden />
-                LinkedIn
-              </a>
+              {m.linkedin && (
+                <a
+                  href={m.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${m.name} on LinkedIn`}
+                  className="flex shrink-0 items-center gap-1 opacity-70 transition-opacity hover:opacity-100"
+                  style={{ color: "#4F3FA8", fontSize: 12 }}
+                >
+                  <Linkedin size={13} aria-hidden />
+                  LinkedIn
+                </a>
+              )}
             </div>
           ))}
         </div>
