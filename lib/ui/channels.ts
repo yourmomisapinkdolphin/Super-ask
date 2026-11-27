@@ -8,6 +8,13 @@
  * flag is flipped — the webhook code can ship ahead of the public link.
  */
 
+/** Public origin of the website, used for the QR code on the Web channel card. */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://superask.vercel.app"
+).replace(/\/$/, "");
+
+export const WEB_CHAT_URL = `${SITE_URL}/chat`;
+
 export const TELEGRAM_BOT =
   process.env.NEXT_PUBLIC_TELEGRAM_BOT?.trim().replace(/^@/, "") ||
   "superask168_bot";
