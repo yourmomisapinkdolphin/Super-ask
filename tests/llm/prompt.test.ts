@@ -324,3 +324,33 @@ describe("follow-up mode", () => {
     expect(parsed.shouldDecline).toBe(true);
   });
 });
+
+describe("citation ids", () => {
+  it("accepts an id the model wrote with the brackets the SOURCES block shows it in", () => {
+    // openai/gpt-5.6-terra-pro in production: every follow-up answer cited
+    // "[MPWT-DL-001]" and was withheld as citing a source never retrieved.
+    for (const mode of ["grounded", "followup"] as const) {
+      const parsed = parseGeneration(
+        JSON.stringify({
+          answer: "The renewal fee is 30,000 riel.",
+          citations: ["[MPWT-DL-001]", " [ MPWT-DL-002 ] ", "MPWT-DL-008"],
+          confidence: "medium",
+          general_knowledge: false,
+          should_decline: false,
+        }),
+        mode,
+      );
+      expect(parsed.citations).toEqual(["MPWT-DL-001", "MPWT-DL-002", "MPWT-DL-008"]);
+      expect(parsed.shouldDecline).toBe(false);
+    }
+  });
+
+  it("does not count an empty or bracket-only entry as a citation", () => {
+    const parsed = parseGeneration(
+      JSON.stringify({ answer: "The fee is 30,000 riel.", citations: ["", "[]"], confidence: "high", should_decline: false }),
+    );
+    expect(parsed.citations).toEqual([]);
+    // Grounded mode, rule 4: an answer resting on nothing is declined.
+    expect(parsed.shouldDecline).toBe(true);
+  });
+});
