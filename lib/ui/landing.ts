@@ -800,12 +800,44 @@ export const ABOUT = {
   } satisfies Copy,
   // `photo` is a path under /public. To use a real photo, drop a square image in
   // public/team/ and point `photo` at it (jpg/png/webp all work).
-  // Real team members only, shown without job titles.
+  // Real team members with their project roles (from the Demo 1 individual
+  // contributions document). `linkedin` is optional: the last three are
+  // placeholders until their profile links and photos arrive.
   team: [
-    { name: "Monunhh Chun", photo: "/team/monunhh-chun.svg", linkedin: "https://www.linkedin.com/in/monunhh-chun/" },
-    { name: "Bunkheang Heng", photo: "/team/bunkheang-heng.svg", linkedin: "https://www.linkedin.com/in/bunkheang-heng/" },
-    { name: "Yean Fong", photo: "/team/yean-fong.svg", linkedin: "https://www.linkedin.com/in/yeanfong/" },
-  ],
+    {
+      name: "Monunhh Chun",
+      photo: "/team/monunhh-chun.jpg",
+      role: { en: "AI/ML Engineer & System Design", km: "វិស្វករ AI/ML និងរចនាប្រព័ន្ធ" },
+      linkedin: "https://www.linkedin.com/in/monunhh-chun/",
+    },
+    {
+      name: "Yean Fong",
+      photo: "/team/yean-fong.jpg",
+      role: { en: "Project Lead & Manager", km: "ប្រធាន និងអ្នកគ្រប់គ្រងគម្រោង" },
+      linkedin: "https://www.linkedin.com/in/yeanfong/",
+    },
+    {
+      name: "Bunkheang Heng",
+      photo: "/team/bunkheang-heng.jpg",
+      role: { en: "Web/API Developer", km: "អ្នកអភិវឌ្ឍន៍ Web/API" },
+      linkedin: "https://www.linkedin.com/in/bunkheang-heng/",
+    },
+    {
+      name: "Sereyprophea Sarin",
+      photo: "/team/sereyprophea-sarin.svg",
+      role: { en: "QA & Testing Lead", km: "ប្រធានផ្នែកធានាគុណភាព និងការធ្វើតេស្ត" },
+    },
+    {
+      name: "Heejae Choi",
+      photo: "/team/heejae-choi.svg",
+      role: { en: "UX/UI Designer", km: "អ្នករចនា UX/UI" },
+    },
+    {
+      name: "Doungkhe Neang",
+      photo: "/team/doungkhe-neang.svg",
+      role: { en: "Data & Content Curator", km: "អ្នករៀបចំទិន្នន័យ និងខ្លឹមសារ" },
+    },
+  ] as { name: string; photo: string; role: Copy; linkedin?: string }[],
   partnersLabel: { en: "Partners & supporters", km: "ដៃគូ និងអ្នកគាំទ្រ" } satisfies Copy,
   partners: ["Mekong Civic Lab", "Khmer Open Data", "Angkor Digital Fund", "PP Startup Hub"],
 };
