@@ -15,7 +15,7 @@ export function t(copy: Copy, lang: Lang): string {
 export const MARKETING = {
   login: { km: "ចូលគណនី", en: "Log in" } satisfies Copy,
   register: { km: "បង្កើតគណនី", en: "Create account" } satisfies Copy,
-  email: "info@superask.kh",
+  email: "chun.monunhh@protonmail.com",
 
   // Auth
   loginHeadline: {

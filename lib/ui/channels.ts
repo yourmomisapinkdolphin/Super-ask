@@ -23,6 +23,11 @@ export const TELEGRAM_HANDLE = `@${TELEGRAM_BOT}`;
 
 export const TELEGRAM_URL = `https://t.me/${TELEGRAM_BOT}`;
 
+/** Person to reach on Telegram (footer contact), as opposed to the bot above. */
+export const CONTACT_TELEGRAM_HANDLE = "@p_monunhh";
+
+export const CONTACT_TELEGRAM_URL = "https://t.me/p_monunhh";
+
 /** Public Messenger entry is not live yet. */
 export const MESSENGER_COMING_SOON = true;
 

@@ -17,11 +17,8 @@ export type Headline = Record<Lang, [string, string, string]>;
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
 
 export const NAV = {
-  links: [
-    { id: "how-it-works", label: { en: "How it works", km: "របៀបដំណើរការ" } },
-    { id: "channels", label: { en: "Channels", km: "បណ្តាញ" } },
-    { id: "faqs", label: { en: "FAQs", km: "សំណួរញឹកញាប់" } },
-  ],
+  // No section links in the header for now; add `{ id, label }` entries to bring them back.
+  links: [] as { id: string; label: Copy }[],
   askNow: { en: "Ask now →", km: "សួរឥឡូវនេះ →" } satisfies Copy,
   menu: { en: "Menu", km: "ម៉ឺនុយ" } satisfies Copy,
 };

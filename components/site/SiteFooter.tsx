@@ -6,7 +6,8 @@ import { FOOTER } from "@/lib/ui/landing";
 import {
   MESSENGER_COMING_SOON,
   MESSENGER_URL,
-  TELEGRAM_HANDLE,
+  CONTACT_TELEGRAM_HANDLE,
+  CONTACT_TELEGRAM_URL,
   TELEGRAM_URL,
 } from "@/lib/ui/channels";
 import { MessengerIcon, TelegramIcon } from "@/components/landing/primitives";
@@ -97,8 +98,8 @@ export function SiteFooter({ lang }: { lang: Lang }) {
                 icon: <TelegramIcon size={14} />,
                 label: "Telegram",
                 val: (
-                  <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                    {TELEGRAM_HANDLE}
+                  <a href={CONTACT_TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                    {CONTACT_TELEGRAM_HANDLE}
                   </a>
                 ),
               },

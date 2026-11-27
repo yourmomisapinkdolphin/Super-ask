@@ -224,8 +224,8 @@ export function Why({ lang }: { lang: Lang }) {
 function Cross() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0" aria-hidden>
-      <circle cx="7" cy="7" r="6" stroke="#D0D5DD" strokeWidth="1.2" />
-      <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#D0D5DD" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="7" cy="7" r="6" fill="#E03C31" fillOpacity="0.1" stroke="#E03C31" strokeWidth="1.2" />
+      <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#E03C31" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -233,8 +233,8 @@ function Cross() {
 function Tick() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0" aria-hidden>
-      <circle cx="7" cy="7" r="6" fill="#9D8CF2" fillOpacity="0.15" stroke="#7C6CD8" strokeWidth="1.2" />
-      <path d="M4.5 7l2 2 3-3" stroke="#0A7D63" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="7" cy="7" r="6" fill="#46CB18" fillOpacity="0.12" stroke="#46CB18" strokeWidth="1.2" />
+      <path d="M4.5 7l2 2 3-3" stroke="#46CB18" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
